@@ -163,24 +163,39 @@ ul { list-style: none; }
   padding: 0 32px;
 }
 
-/* Fila de spots — flex centrado, botones de ancho fijo */
+/* Lista de spots — una playa por línea */
 .spots-row {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Fila individual: abbrev + botón (+ opcionalmente el +) */
+.spot-row {
+  display: flex;
+  align-items: center;
   gap: 10px;
+}
+
+/* Abbrev fuera del botón, columna izquierda fija */
+.spot-abbrev {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(249, 246, 239, 0.45);
+  letter-spacing: 0.06em;
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .spot-item {
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 10px 14px;
-  width: calc(50% - 5px);
-  gap: 2px;
+  height: 48px;
+  padding: 0 16px;
+  flex: 1;
   background: transparent;
   border: 1.5px solid rgba(249, 246, 239, 0.85);
   border-radius: 100px;
@@ -198,15 +213,9 @@ ul { list-style: none; }
   color: var(--beige);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.spot-item__abbrev {
-  font-size: 9px;
-  font-weight: 500;
-  color: rgba(249, 246, 239, 0.45);
-  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Botón borrar — badge encima */
@@ -245,11 +254,12 @@ ul { list-style: none; }
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0.6;
   transition: opacity 0.15s ease;
   flex-shrink: 0;
 }
 
-.btn-add-spot:active { opacity: 0.5; }
+.btn-add-spot:active { opacity: 0.3; }
 
 /* ─────────────────────────────────────────
    VIEW: RESULTS

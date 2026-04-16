@@ -41,17 +41,26 @@ function cityAbbrev(spot) {
 
 // ── Home ──
 function renderSpotList() {
-  const row   = document.getElementById('spots-row');
-  const spots = getAllSpots();
-  row.innerHTML = '';
+  const container = document.getElementById('spots-row');
+  const spots     = getAllSpots();
+  container.innerHTML = '';
 
-  spots.forEach(spot => {
+  spots.forEach((spot, index) => {
+    const spotRow = document.createElement('div');
+    spotRow.className = 'spot-row';
+
+    // Abbrev fuera del botón, a la izquierda
+    const abbrevEl = document.createElement('span');
+    abbrevEl.className = 'spot-abbrev';
+    abbrevEl.textContent = cityAbbrev(spot);
+    spotRow.appendChild(abbrevEl);
+
+    // Botón
     const btn = document.createElement('button');
     btn.className = 'spot-item' + (deleteMode === spot.id ? ' spot-item--delete-mode' : '');
     btn.dataset.id = spot.id;
-    const abbrev = cityAbbrev(spot);
     btn.innerHTML = `
-      <span class="spot-item__name">${spot.name}</span>${abbrev ? `<span class="spot-item__abbrev">${abbrev}</span>` : ''}
+      <span class="spot-item__name">${spot.name}</span>
       ${!spot.hardcoded ? `<span class="spot-item__delete" data-delete="${spot.id}">✕</span>` : ''}
     `;
 
@@ -72,19 +81,23 @@ function renderSpotList() {
       btn.addEventListener('pointerleave', () => clearTimeout(pressTimer));
     }
 
-    row.appendChild(btn);
+    spotRow.appendChild(btn);
+
+    // Botón + solo en el último spot
+    if (index === spots.length - 1) {
+      const addBtn = document.createElement('button');
+      addBtn.className = 'btn-add-spot';
+      addBtn.id = 'btn-add-spot';
+      addBtn.textContent = '+';
+      addBtn.addEventListener('click', openOverlay);
+      spotRow.appendChild(addBtn);
+    }
+
+    container.appendChild(spotRow);
   });
 
-  // Botón añadir — siempre al final del grid
-  const addBtn = document.createElement('button');
-  addBtn.className = 'btn-add-spot';
-  addBtn.id = 'btn-add-spot';
-  addBtn.textContent = '+';
-  addBtn.addEventListener('click', openOverlay);
-  row.appendChild(addBtn);
-
   // Botones borrar
-  row.querySelectorAll('[data-delete]').forEach(btn => {
+  container.querySelectorAll('[data-delete]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       removeUserSpot(btn.dataset.delete);
