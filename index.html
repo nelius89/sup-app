@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SUP App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ─────────────────────────────────────────
+       VIEW: HOME — Selección de playa
+  ───────────────────────────────────────── -->
+  <div id="view-home" class="view view--home active">
+
+    <div class="home__top">
+      <div class="logo-placeholder">SUP APP</div>
+      <div class="illus-placeholder illus-placeholder--home"></div>
+    </div>
+
+    <div class="home__spots">
+      <ul class="spot-list" id="spot-list">
+        <!-- Renderizado por JS -->
+      </ul>
+
+      <button class="btn-add-spot" id="btn-add-spot">
+        <span class="btn-add-spot__icon">+</span>
+        Añadir playa
+      </button>
+    </div>
+
+  </div>
+
+
+  <!-- ─────────────────────────────────────────
+       VIEW: RESULTS — Diagnóstico
+  ───────────────────────────────────────── -->
+  <div id="view-results" class="view view--results">
+
+    <header class="results__header">
+      <button class="btn-back" id="btn-back">←</button>
+      <span class="results__spot-name" id="results-spot-name">Pont del Petroli</span>
+    </header>
+
+    <div class="results__body">
+
+      <!-- Capa 2: Alerta offshore -->
+      <div class="offshore-alert hidden" id="offshore-alert">
+        <div class="illus-placeholder illus-placeholder--offshore"></div>
+        <p>
+          <strong>Ojo al viento terral</strong> — El viento sopla de tierra hacia el mar.
+          El agua parece en calma, pero te puede arrastrar lejos sin darte cuenta.
+          Si sales, no te alejes de la orilla.
+        </p>
+      </div>
+
+      <!-- Capa 1: Diagnóstico principal -->
+      <div class="diagnosis">
+        <div class="illus-placeholder illus-placeholder--results" id="diagnosis-illus"></div>
+        <h1 class="diagnosis__title" id="diagnosis-title">Cargando...</h1>
+        <p class="diagnosis__desc" id="diagnosis-desc"></p>
+      </div>
+
+      <!-- Capa 3: Métricas -->
+      <div class="metrics" id="metrics">
+        <div class="metric" id="metric-wind">
+          <div class="metric__icon">💨</div>
+          <div class="metric__data">
+            <span class="metric__value" id="metric-wind-value">—</span>
+            <span class="metric__label" id="metric-wind-label"></span>
+          </div>
+          <p class="metric__phrase" id="metric-wind-phrase"></p>
+        </div>
+
+        <div class="metric" id="metric-wave">
+          <div class="metric__icon">🌊</div>
+          <div class="metric__data">
+            <span class="metric__value" id="metric-wave-value">—</span>
+            <span class="metric__label" id="metric-wave-label"></span>
+          </div>
+          <p class="metric__phrase" id="metric-wave-phrase"></p>
+        </div>
+
+        <div class="metric" id="metric-gusts">
+          <div class="metric__icon">🌬️</div>
+          <div class="metric__data">
+            <span class="metric__value" id="metric-gusts-value">—</span>
+            <span class="metric__label" id="metric-gusts-label"></span>
+          </div>
+          <p class="metric__phrase" id="metric-gusts-phrase"></p>
+        </div>
+
+        <div class="metric" id="metric-period">
+          <div class="metric__icon">⏱️</div>
+          <div class="metric__data">
+            <span class="metric__value" id="metric-period-value">—</span>
+            <span class="metric__label" id="metric-period-label"></span>
+          </div>
+          <p class="metric__phrase" id="metric-period-phrase"></p>
+        </div>
+
+        <div class="metric" id="metric-direction">
+          <div class="metric__icon">🧭</div>
+          <div class="metric__data">
+            <span class="metric__value" id="metric-direction-value">—</span>
+            <span class="metric__label" id="metric-direction-label"></span>
+          </div>
+          <p class="metric__phrase" id="metric-direction-phrase"></p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Barra temporal -->
+    <div class="time-bar">
+      <input
+        type="range"
+        class="time-slider"
+        id="time-slider"
+        min="0"
+        max="48"
+        value="0"
+      >
+      <div class="time-bar__label" id="time-bar-label">Hoy · Mañana</div>
+    </div>
+
+  </div>
+
+
+  <!-- ─────────────────────────────────────────
+       OVERLAY: Añadir playa
+  ───────────────────────────────────────── -->
+  <div id="overlay-add-spot" class="overlay hidden">
+    <div class="overlay__panel">
+      <div class="overlay__header">
+        <span>Buscar playa</span>
+        <button class="btn-close-overlay" id="btn-close-overlay">✕</button>
+      </div>
+
+      <input
+        type="text"
+        class="search-input"
+        id="search-input"
+        placeholder="Valencia, Tarragona..."
+        autocomplete="off"
+      >
+
+      <ul class="search-results" id="search-results">
+        <!-- Renderizado por JS -->
+      </ul>
+
+      <div class="add-spot-confirm hidden" id="add-spot-confirm">
+        <input
+          type="text"
+          class="search-input"
+          id="spot-name-input"
+          placeholder="Nombre para este spot"
+        >
+        <button class="btn-save-spot" id="btn-save-spot">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="js/storage.js"></script>
+  <script src="js/score.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
