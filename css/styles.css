@@ -137,23 +137,15 @@ ul { list-style: none; }
 
 /* ── Spot list ── */
 .home__spots {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  padding: 0 32px;
 }
 
-.spot-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-/* Fila de botones: spots + botón añadir juntos */
+/* Grid flexible: centra cada fila, botones a su ancho natural */
 .spots-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
-  align-items: center;
 }
 
 .spot-item {
@@ -162,12 +154,13 @@ ul { list-style: none; }
   align-items: center;
   justify-content: center;
   height: 56px;
+  padding: 0 28px;
   background: transparent;
   border: 1.5px solid rgba(249, 246, 239, 0.85);
   border-radius: 100px;
   cursor: pointer;
   transition: background 0.15s ease;
-  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .spot-item:active {
@@ -178,21 +171,16 @@ ul { list-style: none; }
   font-size: 13px;
   font-weight: 600;
   color: var(--beige);
-  text-align: center;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 0 12px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
 }
 
-/* Botón borrar — aparece encima */
+/* Botón borrar — badge encima */
 .spot-item__delete {
   position: absolute;
-  top: -1px;
-  right: -1px;
+  top: -6px;
+  right: -6px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -210,15 +198,15 @@ ul { list-style: none; }
   display: flex;
 }
 
-/* Botón añadir — círculo */
+/* Botón añadir — círculo outline */
 .btn-add-spot {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  border: none;
-  color: var(--blue);
-  font-size: 28px;
+  background: transparent;
+  border: 1.5px solid rgba(249, 246, 239, 0.85);
+  color: rgba(249, 246, 239, 0.85);
+  font-size: 26px;
   font-weight: 300;
   line-height: 1;
   display: flex;
@@ -228,7 +216,7 @@ ul { list-style: none; }
   flex-shrink: 0;
 }
 
-.btn-add-spot:active { opacity: 0.7; }
+.btn-add-spot:active { opacity: 0.5; }
 
 /* ─────────────────────────────────────────
    VIEW: RESULTS
