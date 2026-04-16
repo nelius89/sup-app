@@ -80,10 +80,11 @@ async function loadSpot(spot) {
   try {
     currentData = await fetchSpotData(spot);
     const sliderEl  = document.getElementById('time-slider');
-    const initIndex = getCurrentFranjaIndex(); // franja según hora actual
+    const initIndex = getCurrentFranjaIndex();
     sliderEl.max   = (FRANJAS.length * FORECAST_DAYS) - 1;
     sliderEl.value = initIndex;
     renderResults(initIndex);
+    initDrum();
   } catch (err) {
     document.getElementById('diagnosis-title').textContent = 'Sin conexión';
     document.getElementById('diagnosis-desc').textContent  = 'No se han podido cargar los datos. Comprueba tu conexión.';
@@ -96,46 +97,73 @@ function renderResults(sliderIndex) {
   const d = getDataForSlider(sliderIndex, marine, forecast);
 
   // Capa 1: Score y estado
-  const score    = calcularScore(d.windKn, d.waveH, d.gustKn, d.wavePer, d.cloudPct);
-  const estado   = getEstado(score, d.weathercode);
-  const info     = ESTADOS[estado];
+  const score  = calcularScore(d.windKn, d.waveH, d.gustKn, d.wavePer, d.cloudPct);
+  const estado = getEstado(score, d.weathercode);
+  const info   = ESTADOS[estado];
 
-  document.getElementById('diagnosis-title').textContent = info.titulo;
-  document.getElementById('diagnosis-desc').textContent  = info.desc;
+  document.getElementById('diagnosis-title').textContent    = info.titulo;
+  document.getElementById('diagnosis-desc').textContent     = info.desc;
   document.getElementById('diagnosis-illus').dataset.estado = estado;
 
   // Capa 2: Offshore
   const offshore = esOffshore(d.windDir, currentSpot);
   document.getElementById('offshore-alert').classList.toggle('hidden', !offshore);
 
-  // Capa 3: Métricas
+  // Capa 3: Drum de métricas — nuevos IDs
   const lv = labelViento(d.windKn);
-  document.getElementById('metric-wind-value').textContent  = `${d.windKn.toFixed(1)} kn`;
-  document.getElementById('metric-wind-label').textContent  = lv.label;
-  document.getElementById('metric-wind-phrase').textContent = lv.phrase;
+  document.getElementById('dv-wind').textContent = `${d.windKn.toFixed(1)} kn`;
+  document.getElementById('dl-wind').textContent = lv.label;
+  document.getElementById('dp-wind').textContent = lv.phrase;
 
   const lo = labelOla(d.waveH);
-  document.getElementById('metric-wave-value').textContent  = `${d.waveH.toFixed(1)} m`;
-  document.getElementById('metric-wave-label').textContent  = lo.label;
-  document.getElementById('metric-wave-phrase').textContent = lo.phrase;
+  document.getElementById('dv-wave').textContent = `${d.waveH.toFixed(1)} m`;
+  document.getElementById('dl-wave').textContent = lo.label;
+  document.getElementById('dp-wave').textContent = lo.phrase;
 
   const lr = labelRacha(d.gustKn);
-  document.getElementById('metric-gusts-value').textContent  = `${d.gustKn.toFixed(1)} kn`;
-  document.getElementById('metric-gusts-label').textContent  = lr.label;
-  document.getElementById('metric-gusts-phrase').textContent = lr.phrase;
+  document.getElementById('dv-gusts').textContent = `${d.gustKn.toFixed(1)} kn`;
+  document.getElementById('dl-gusts').textContent = lr.label;
+  document.getElementById('dp-gusts').textContent = lr.phrase;
 
   const lp = labelPeriodo(d.wavePer);
-  document.getElementById('metric-period-value').textContent  = `${d.wavePer.toFixed(0)} s`;
-  document.getElementById('metric-period-label').textContent  = lp.label;
-  document.getElementById('metric-period-phrase').textContent = lp.phrase;
+  document.getElementById('dv-period').textContent = `${d.wavePer.toFixed(0)} s`;
+  document.getElementById('dl-period').textContent = lp.label;
+  document.getElementById('dp-period').textContent = lp.phrase;
 
   const ld = labelDireccion(d.windDir);
-  document.getElementById('metric-direction-value').textContent  = degreesToCardinal(d.windDir);
-  document.getElementById('metric-direction-label').textContent  = ld.label;
-  document.getElementById('metric-direction-phrase').textContent = ld.phrase;
+  document.getElementById('dv-dir').textContent = degreesToCardinal(d.windDir);
+  document.getElementById('dl-dir').textContent = ld.label;
+  document.getElementById('dp-dir').textContent = ld.phrase;
 
   // Barra temporal: etiqueta
   document.getElementById('time-bar-label').textContent = sliderLabel(sliderIndex);
+}
+
+// ── Drum: scroll e inicio ──
+const ITEM_HEIGHT = 80;
+
+function updateDrumOpacity() {
+  const drum  = document.getElementById('metrics-drum');
+  const items = [...drum.querySelectorAll('.drum-item')];
+  const center = drum.scrollTop + drum.clientHeight / 2;
+
+  items.forEach(item => {
+    const itemCenter = item.offsetTop + ITEM_HEIGHT / 2;
+    const dist = Math.abs(center - itemCenter);
+    const isActive = dist < ITEM_HEIGHT * 0.55;
+    item.classList.toggle('active', isActive);
+  });
+}
+
+function initDrum() {
+  const drum = document.getElementById('metrics-drum');
+  // Padding dinámico para que primer y último item lleguen al centro
+  const pad = Math.max(0, (drum.clientHeight / 2) - (ITEM_HEIGHT / 2));
+  drum.style.paddingTop    = pad + 'px';
+  drum.style.paddingBottom = pad + 'px';
+  drum.scrollTop = 0;
+  updateDrumOpacity();
+  drum.addEventListener('scroll', updateDrumOpacity, { passive: true });
 }
 
 // ── Overlay: añadir spot ──

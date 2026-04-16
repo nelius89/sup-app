@@ -39,7 +39,7 @@
       <span class="results__spot-name" id="results-spot-name">Pont del Petroli</span>
     </header>
 
-    <div class="results__body">
+    <div class="results__main">
 
       <!-- Capa 2: Alerta offshore -->
       <div class="offshore-alert hidden" id="offshore-alert">
@@ -58,55 +58,102 @@
         <p class="diagnosis__desc" id="diagnosis-desc"></p>
       </div>
 
-      <!-- Capa 3: Métricas -->
-      <div class="metrics" id="metrics">
-        <div class="metric" id="metric-wind">
-          <div class="metric__icon">💨</div>
-          <div class="metric__data">
-            <span class="metric__value" id="metric-wind-value">—</span>
-            <span class="metric__label" id="metric-wind-label"></span>
+      <!-- Capa 3: Drum de métricas -->
+      <div class="metrics-drum" id="metrics-drum">
+
+        <!-- Viento -->
+        <div class="drum-item" id="drum-wind">
+          <div class="drum-item__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+            </svg>
           </div>
-          <p class="metric__phrase" id="metric-wind-phrase"></p>
+          <div class="drum-item__body">
+            <div class="drum-item__main">
+              <span class="drum-item__name">Viento</span>
+              <span class="drum-item__value" id="dv-wind">—</span>
+              <span class="drum-item__label" id="dl-wind"></span>
+            </div>
+            <p class="drum-item__phrase" id="dp-wind"></p>
+          </div>
         </div>
 
-        <div class="metric" id="metric-wave">
-          <div class="metric__icon">🌊</div>
-          <div class="metric__data">
-            <span class="metric__value" id="metric-wave-value">—</span>
-            <span class="metric__label" id="metric-wave-label"></span>
+        <!-- Ola -->
+        <div class="drum-item" id="drum-wave">
+          <div class="drum-item__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+              <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+              <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+            </svg>
           </div>
-          <p class="metric__phrase" id="metric-wave-phrase"></p>
+          <div class="drum-item__body">
+            <div class="drum-item__main">
+              <span class="drum-item__name">Ola</span>
+              <span class="drum-item__value" id="dv-wave">—</span>
+              <span class="drum-item__label" id="dl-wave"></span>
+            </div>
+            <p class="drum-item__phrase" id="dp-wave"></p>
+          </div>
         </div>
 
-        <div class="metric" id="metric-gusts">
-          <div class="metric__icon">🌬️</div>
-          <div class="metric__data">
-            <span class="metric__value" id="metric-gusts-value">—</span>
-            <span class="metric__label" id="metric-gusts-label"></span>
+        <!-- Rachas -->
+        <div class="drum-item" id="drum-gusts">
+          <div class="drum-item__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
           </div>
-          <p class="metric__phrase" id="metric-gusts-phrase"></p>
+          <div class="drum-item__body">
+            <div class="drum-item__main">
+              <span class="drum-item__name">Rachas</span>
+              <span class="drum-item__value" id="dv-gusts">—</span>
+              <span class="drum-item__label" id="dl-gusts"></span>
+            </div>
+            <p class="drum-item__phrase" id="dp-gusts"></p>
+          </div>
         </div>
 
-        <div class="metric" id="metric-period">
-          <div class="metric__icon">⏱️</div>
-          <div class="metric__data">
-            <span class="metric__value" id="metric-period-value">—</span>
-            <span class="metric__label" id="metric-period-label"></span>
+        <!-- Período -->
+        <div class="drum-item" id="drum-period">
+          <div class="drum-item__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 2h4"/><path d="M12 14v-4"/>
+              <path d="M4 13a8 8 0 0 1 8-7 8 8 0 1 1-5.3 14L4 17.6"/>
+              <path d="M9 17H4v5"/>
+            </svg>
           </div>
-          <p class="metric__phrase" id="metric-period-phrase"></p>
+          <div class="drum-item__body">
+            <div class="drum-item__main">
+              <span class="drum-item__name">Período</span>
+              <span class="drum-item__value" id="dv-period">—</span>
+              <span class="drum-item__label" id="dl-period"></span>
+            </div>
+            <p class="drum-item__phrase" id="dp-period"></p>
+          </div>
         </div>
 
-        <div class="metric" id="metric-direction">
-          <div class="metric__icon">🧭</div>
-          <div class="metric__data">
-            <span class="metric__value" id="metric-direction-value">—</span>
-            <span class="metric__label" id="metric-direction-label"></span>
+        <!-- Dirección -->
+        <div class="drum-item" id="drum-dir">
+          <div class="drum-item__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+            </svg>
           </div>
-          <p class="metric__phrase" id="metric-direction-phrase"></p>
+          <div class="drum-item__body">
+            <div class="drum-item__main">
+              <span class="drum-item__name">Dirección</span>
+              <span class="drum-item__value" id="dv-dir">—</span>
+              <span class="drum-item__label" id="dl-dir"></span>
+            </div>
+            <p class="drum-item__phrase" id="dp-dir"></p>
+          </div>
         </div>
-      </div>
 
-    </div>
+      </div><!-- /metrics-drum -->
+
+    </div><!-- /results__main -->
 
     <!-- Barra temporal -->
     <div class="time-bar">
