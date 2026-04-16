@@ -2,10 +2,29 @@
 // APP — Lógica principal y navegación
 // ─────────────────────────────────────────
 
+// ── Iconos SVG (Lucide) ──
+const ICONS = {
+  wind: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>`,
+  wave: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>`,
+  zap:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  timer:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M12 14v-4"/><path d="M4 13a8 8 0 0 1 8-7 8 8 0 1 1-5.3 14L4 17.6"/><path d="M9 17H4v5"/></svg>`,
+  compass:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+};
+
+// ── Datos del drum (mutables — renderResults los actualiza) ──
+const METRICS = [
+  { id: 'wind',   icon: ICONS.wind,    name: 'Viento',    value: '—', label: '', phrase: '' },
+  { id: 'wave',   icon: ICONS.wave,    name: 'Ola',       value: '—', label: '', phrase: '' },
+  { id: 'gusts',  icon: ICONS.zap,     name: 'Rachas',    value: '—', label: '', phrase: '' },
+  { id: 'period', icon: ICONS.timer,   name: 'Período',   value: '—', label: '', phrase: '' },
+  { id: 'dir',    icon: ICONS.compass, name: 'Dirección', value: '—', label: '', phrase: '' },
+];
+
 // ── Estado ──
-let currentSpot   = null;
-let currentData   = null; // { marine, forecast }
-let deleteMode    = null; // id del spot en modo borrar
+let currentSpot = null;
+let currentData = null;
+let deleteMode  = null;
+let wheel       = null;   // instancia WheelPicker
 
 // ── Vistas ──
 function showView(id) {
@@ -84,7 +103,16 @@ async function loadSpot(spot) {
     sliderEl.max   = (FRANJAS.length * FORECAST_DAYS) - 1;
     sliderEl.value = initIndex;
     renderResults(initIndex);
-    initDrum();
+
+    // Inicializar o redimensionar el wheel una vez el DOM es visible
+    requestAnimationFrame(() => {
+      if (!wheel) {
+        wheel = new WheelPicker(document.getElementById('metrics-drum'), METRICS);
+      } else {
+        wheel.resize();
+        wheel.refresh();
+      }
+    });
   } catch (err) {
     document.getElementById('diagnosis-title').textContent = 'Sin conexión';
     document.getElementById('diagnosis-desc').textContent  = 'No se han podido cargar los datos. Comprueba tu conexión.';
@@ -109,61 +137,36 @@ function renderResults(sliderIndex) {
   const offshore = esOffshore(d.windDir, currentSpot);
   document.getElementById('offshore-alert').classList.toggle('hidden', !offshore);
 
-  // Capa 3: Drum de métricas — nuevos IDs
+  // Capa 3: Actualizar METRICS y refrescar wheel
   const lv = labelViento(d.windKn);
-  document.getElementById('dv-wind').textContent = `${d.windKn.toFixed(1)} kn`;
-  document.getElementById('dl-wind').textContent = lv.label;
-  document.getElementById('dp-wind').textContent = lv.phrase;
+  METRICS[0].value  = `${d.windKn.toFixed(1)} kn`;
+  METRICS[0].label  = lv.label;
+  METRICS[0].phrase = lv.phrase;
 
   const lo = labelOla(d.waveH);
-  document.getElementById('dv-wave').textContent = `${d.waveH.toFixed(1)} m`;
-  document.getElementById('dl-wave').textContent = lo.label;
-  document.getElementById('dp-wave').textContent = lo.phrase;
+  METRICS[1].value  = `${d.waveH.toFixed(1)} m`;
+  METRICS[1].label  = lo.label;
+  METRICS[1].phrase = lo.phrase;
 
   const lr = labelRacha(d.gustKn);
-  document.getElementById('dv-gusts').textContent = `${d.gustKn.toFixed(1)} kn`;
-  document.getElementById('dl-gusts').textContent = lr.label;
-  document.getElementById('dp-gusts').textContent = lr.phrase;
+  METRICS[2].value  = `${d.gustKn.toFixed(1)} kn`;
+  METRICS[2].label  = lr.label;
+  METRICS[2].phrase = lr.phrase;
 
   const lp = labelPeriodo(d.wavePer);
-  document.getElementById('dv-period').textContent = `${d.wavePer.toFixed(0)} s`;
-  document.getElementById('dl-period').textContent = lp.label;
-  document.getElementById('dp-period').textContent = lp.phrase;
+  METRICS[3].value  = `${d.wavePer.toFixed(0)} s`;
+  METRICS[3].label  = lp.label;
+  METRICS[3].phrase = lp.phrase;
 
   const ld = labelDireccion(d.windDir);
-  document.getElementById('dv-dir').textContent = degreesToCardinal(d.windDir);
-  document.getElementById('dl-dir').textContent = ld.label;
-  document.getElementById('dp-dir').textContent = ld.phrase;
+  METRICS[4].value  = degreesToCardinal(d.windDir);
+  METRICS[4].label  = ld.label;
+  METRICS[4].phrase = ld.phrase;
+
+  if (wheel) wheel.refresh();
 
   // Barra temporal: etiqueta
   document.getElementById('time-bar-label').textContent = sliderLabel(sliderIndex);
-}
-
-// ── Drum: scroll e inicio ──
-const ITEM_HEIGHT = 80;
-
-function updateDrumOpacity() {
-  const drum  = document.getElementById('metrics-drum');
-  const items = [...drum.querySelectorAll('.drum-item')];
-  const center = drum.scrollTop + drum.clientHeight / 2;
-
-  items.forEach(item => {
-    const itemCenter = item.offsetTop + ITEM_HEIGHT / 2;
-    const dist = Math.abs(center - itemCenter);
-    const isActive = dist < ITEM_HEIGHT * 0.55;
-    item.classList.toggle('active', isActive);
-  });
-}
-
-function initDrum() {
-  const drum = document.getElementById('metrics-drum');
-  // Padding dinámico para que primer y último item lleguen al centro
-  const pad = Math.max(0, (drum.clientHeight / 2) - (ITEM_HEIGHT / 2));
-  drum.style.paddingTop    = pad + 'px';
-  drum.style.paddingBottom = pad + 'px';
-  drum.scrollTop = 0;
-  updateDrumOpacity();
-  drum.addEventListener('scroll', updateDrumOpacity, { passive: true });
 }
 
 // ── Overlay: añadir spot ──

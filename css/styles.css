@@ -307,117 +307,126 @@ ul { list-style: none; }
   max-width: 280px;
 }
 
-/* ── Metrics drum ── */
+/* ── Metrics drum — contenedor del WheelPicker ── */
 .metrics-drum {
   flex: 1;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  /* Fade top/bottom — sólo dentro del contenedor, no afecta tiempo-bar */
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  min-height: 0;
+  /* Fade progresivo en bordes — da la sensación de profundidad del cilindro */
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 28%,
-    black 72%,
+    black 22%,
+    black 78%,
     transparent 100%
   );
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 28%,
-    black 72%,
+    black 22%,
+    black 78%,
     transparent 100%
   );
-  min-height: 0;
 }
 
-.metrics-drum::-webkit-scrollbar { display: none; }
+.metrics-drum:active { cursor: grabbing; }
 
-/* Cada item ocupa el snap point */
-.drum-item {
-  height: 80px;
-  scroll-snap-align: center;
+/* ── Slot (generado por WheelPicker) ── */
+.drum-slot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 64px;          /* debe coincidir con WheelPicker.ITEM_H */
   display: flex;
   align-items: center;
   gap: 16px;
-  opacity: 0.15;
-  transition: opacity 0.25s ease;
-  cursor: default;
+  padding: 0 28px;
+  transform-origin: center center;
+  will-change: transform, opacity;
+  pointer-events: none;
+  box-sizing: border-box;
 }
 
-.drum-item.active {
-  opacity: 1;
-}
-
-/* Icono SVG en círculo */
-.drum-item__icon {
-  width: 40px;
-  height: 40px;
+/* Icono en círculo */
+.drum-slot__icon {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: rgba(49, 79, 255, 0.07);
+  background: rgba(49, 79, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   color: var(--blue);
+  transition: background 0.2s ease;
 }
 
-.drum-item__icon svg {
-  width: 18px;
-  height: 18px;
+.drum-slot.active .drum-slot__icon {
+  background: rgba(49, 79, 255, 0.13);
 }
 
-/* Contenido del item */
-.drum-item__body {
+.drum-slot__icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Cuerpo del slot */
+.drum-slot__body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   min-width: 0;
 }
 
-.drum-item__main {
+.drum-slot__main {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 8px;
 }
 
-.drum-item__name {
-  font-size: 11px;
+.drum-slot__name {
+  font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.45);
+  color: rgba(10, 10, 10, 0.38);
   flex-shrink: 0;
 }
 
-.drum-item__value {
+.drum-slot__value {
   font-size: 20px;
   font-weight: 600;
   color: var(--black);
   line-height: 1;
+  transition: color 0.2s ease;
 }
 
-.drum-item__label {
+.drum-slot.active .drum-slot__value {
+  color: var(--blue);
+}
+
+.drum-slot__label {
   font-size: 11px;
-  font-weight: 400;
-  color: rgba(10, 10, 10, 0.4);
+  color: rgba(10, 10, 10, 0.35);
 }
 
-/* Frase — solo visible en el item activo */
-.drum-item__phrase {
-  font-size: 12px;
-  color: rgba(10, 10, 10, 0.45);
+/* Frase — solo visible en el slot activo */
+.drum-slot__phrase {
+  font-size: 11px;
+  color: rgba(10, 10, 10, 0.4);
   line-height: 1.4;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.2s ease;
 }
 
-.drum-item.active .drum-item__phrase {
+.drum-slot.active .drum-slot__phrase {
   opacity: 1;
 }
 
