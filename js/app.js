@@ -15,46 +15,49 @@ function showView(id) {
 
 // ── Home ──
 function renderSpotList() {
-  const list   = document.getElementById('spot-list');
-  const spots  = getAllSpots();
-  list.innerHTML = '';
+  const row   = document.getElementById('spots-row');
+  const spots = getAllSpots();
+  row.innerHTML = '';
 
   spots.forEach(spot => {
-    const li = document.createElement('li');
-    li.className = 'spot-item' + (deleteMode === spot.id ? ' spot-item--delete-mode' : '');
-    li.dataset.id = spot.id;
-    li.innerHTML = `
-      <div>
-        <div class="spot-item__name">${spot.name}</div>
-        <div class="spot-item__city">${spot.city}</div>
-      </div>
-      ${!spot.hardcoded ? `<button class="spot-item__delete" data-delete="${spot.id}">✕</button>` : ''}
+    const btn = document.createElement('button');
+    btn.className = 'spot-item' + (deleteMode === spot.id ? ' spot-item--delete-mode' : '');
+    btn.dataset.id = spot.id;
+    btn.innerHTML = `
+      <span class="spot-item__name">${spot.name}</span>
+      ${!spot.hardcoded ? `<span class="spot-item__delete" data-delete="${spot.id}">✕</span>` : ''}
     `;
 
-    // Tap → navegar a resultados
-    li.addEventListener('click', (e) => {
-      if (e.target.dataset.delete) return; // lo maneja el botón de borrar
+    btn.addEventListener('click', (e) => {
+      if (e.target.dataset.delete) return;
       loadSpot(spot);
     });
 
-    // Long press → modo borrar (solo spots de usuario)
     if (!spot.hardcoded) {
       let pressTimer;
-      li.addEventListener('pointerdown', () => {
+      btn.addEventListener('pointerdown', () => {
         pressTimer = setTimeout(() => {
           deleteMode = spot.id;
           renderSpotList();
         }, 600);
       });
-      li.addEventListener('pointerup',   () => clearTimeout(pressTimer));
-      li.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+      btn.addEventListener('pointerup',    () => clearTimeout(pressTimer));
+      btn.addEventListener('pointerleave', () => clearTimeout(pressTimer));
     }
 
-    list.appendChild(li);
+    row.appendChild(btn);
   });
 
-  // Botón borrar dentro del item
-  list.querySelectorAll('[data-delete]').forEach(btn => {
+  // Botón añadir — siempre al final del grid
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn-add-spot';
+  addBtn.id = 'btn-add-spot';
+  addBtn.textContent = '+';
+  addBtn.addEventListener('click', openOverlay);
+  row.appendChild(addBtn);
+
+  // Botones borrar
+  row.querySelectorAll('[data-delete]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       removeUserSpot(btn.dataset.delete);
@@ -208,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Abrir overlay
-  document.getElementById('btn-add-spot').addEventListener('click', openOverlay);
   document.getElementById('btn-close-overlay').addEventListener('click', closeOverlay);
 
   // Cerrar overlay tocando fuera
