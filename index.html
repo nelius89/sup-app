@@ -56,7 +56,14 @@
 
     <div class="results__main">
 
-      <!-- Capa 2: Alerta terral (graduada) -->
+      <!-- 1: Diagnóstico principal -->
+      <div class="diagnosis">
+        <div class="illus-placeholder illus-placeholder--results" id="diagnosis-illus"></div>
+        <h1 class="diagnosis__title" id="diagnosis-title">Cargando...</h1>
+        <p class="diagnosis__desc" id="diagnosis-desc"></p>
+      </div>
+
+      <!-- 2: Aviso terral (solo si nivel >= 1) -->
       <div class="offshore-alert hidden" id="offshore-alert">
         <span class="offshore-alert__icon" id="terral-icon"></span>
         <div class="offshore-alert__body">
@@ -65,14 +72,7 @@
         </div>
       </div>
 
-      <!-- Capa 1: Diagnóstico principal -->
-      <div class="diagnosis">
-        <div class="illus-placeholder illus-placeholder--results" id="diagnosis-illus"></div>
-        <h1 class="diagnosis__title" id="diagnosis-title">Cargando...</h1>
-        <p class="diagnosis__desc" id="diagnosis-desc"></p>
-      </div>
-
-      <!-- Capa 3: Carrusel radial de métricas -->
+      <!-- 3: Carrusel radial de métricas -->
       <div class="metrics-arc" id="metrics-arc"></div>
 
     </div><!-- /results__main -->

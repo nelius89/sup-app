@@ -135,8 +135,8 @@ ul { list-style: none; }
 }
 
 .illus-placeholder--results {
-  width: 180px;
-  height: 180px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   /* sobre fondo beige: azul */
   background: rgba(49, 79, 255, 0.08);
@@ -261,7 +261,7 @@ ul { list-style: none; }
   position: relative;
   display: flex;
   align-items: center;
-  padding: 36px 24px 12px;
+  padding: 36px 20px 8px;
   flex-shrink: 0;
 }
 
@@ -290,28 +290,24 @@ ul { list-style: none; }
 /* ── Time nav ── */
 .time-nav {
   flex-shrink: 0;
-  padding: 0 24px 12px;
+  padding: 0 20px 8px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .time-nav__days {
   display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  gap: 4px;
 }
 
-.time-nav__days::-webkit-scrollbar { display: none; }
-
 .time-nav__day {
-  flex-shrink: 0;
-  padding: 5px 12px;
+  flex: 1;
+  text-align: center;
+  padding: 5px 0;
   border-radius: 100px;
   font-family: var(--font);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -389,14 +385,14 @@ ul { list-style: none; }
   text-transform: uppercase;
 }
 
-/* ── Main (diagnosis + drum) ── */
+/* ── Main ── */
 .results__main {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 0 28px 0;
-  gap: 20px;
+  padding: 0 20px calc(8px + var(--safe-bottom));
+  gap: 14px;
   min-height: 0;
 }
 
@@ -468,23 +464,23 @@ ul { list-style: none; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   text-align: center;
   flex-shrink: 0;
 }
 
 .diagnosis__title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--blue);
   line-height: 1.2;
 }
 
 .diagnosis__desc {
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.6;
   color: rgba(49, 79, 255, 0.6);
-  max-width: 280px;
+  max-width: 260px;
 }
 
 /* ── Metrics arc — carrusel radial simulado ── */
