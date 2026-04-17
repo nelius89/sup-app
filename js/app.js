@@ -199,11 +199,15 @@ function renderResults(sliderIndex) {
   document.getElementById('diagnosis-title').textContent    = info.titulo;
   document.getElementById('diagnosis-desc').textContent     = info.desc;
 
-  const illustMap = { 'perfecto': 'Perfecto.png', 'bueno': 'Bueno.png' };
-  const illusEl   = document.getElementById('diagnosis-illus');
+  const illustMap = {
+    'perfecto': { file: 'Perfecto.png', offsetY: '-55%' },
+    'bueno':    { file: 'Bueno.png',    offsetY: '-46%' },
+  };
+  const illusEl = document.getElementById('diagnosis-illus');
   illusEl.dataset.estado = estado;
   if (illustMap[estado]) {
-    illusEl.innerHTML = `<img src="assets/illustrations/${illustMap[estado]}" alt="" style="position:absolute;width:160%;height:160%;top:50%;left:50%;transform:translate(-50%,-46%);object-fit:contain;pointer-events:none;">`;
+    const { file, offsetY } = illustMap[estado];
+    illusEl.innerHTML = `<img src="assets/illustrations/${file}" alt="" style="position:absolute;width:160%;height:160%;top:50%;left:50%;transform:translate(-50%,${offsetY});object-fit:contain;pointer-events:none;">`;
   } else {
     illusEl.innerHTML = '';
   }
