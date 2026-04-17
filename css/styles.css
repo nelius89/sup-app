@@ -399,7 +399,7 @@ ul { list-style: none; }
 }
 
 .diagnosis__illus {
-  height: 88px;
+  height: 120px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -527,6 +527,17 @@ ul { list-style: none; }
   flex-direction: column;
   overflow: hidden;
   margin-top: auto;
+}
+
+/* Slide 2 activo: ocupa todo el espacio restante para centrar el texto */
+.metrics-slides.is-text {
+  flex: 1;
+  margin-top: 0;
+}
+
+.metrics-slides.is-text .metrics-track {
+  flex: 1;
+  align-items: stretch;
 }
 
 .metrics-track {

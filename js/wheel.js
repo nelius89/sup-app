@@ -63,6 +63,9 @@ class SlideSwiper {
     this.dotsEl.querySelectorAll('.mdot').forEach((d, i) =>
       d.classList.toggle('mdot--active', i === this.current)
     );
+    // Expandir contenedor en slide 2 para que el texto se centre en el espacio disponible
+    const slidesEl = this.track.parentElement;
+    if (slidesEl) slidesEl.classList.toggle('is-text', this.current === 1);
   }
 
   reset() { this.goTo(0); }
