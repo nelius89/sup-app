@@ -203,7 +203,7 @@ function renderResults(sliderIndex) {
   const illusEl   = document.getElementById('diagnosis-illus');
   illusEl.dataset.estado = estado;
   if (illustMap[estado]) {
-    illusEl.innerHTML = `<img src="assets/illustrations/${illustMap[estado]}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    illusEl.innerHTML = `<img src="assets/illustrations/${illustMap[estado]}" alt="" style="position:absolute;width:170%;height:170%;top:50%;left:50%;transform:translate(-50%,-55%);object-fit:contain;pointer-events:none;">`;
   } else {
     illusEl.innerHTML = '';
   }
