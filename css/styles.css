@@ -487,127 +487,100 @@ ul { list-style: none; }
   max-width: 280px;
 }
 
-/* ── Metrics drum — contenedor del WheelPicker ── */
-.metrics-drum {
+/* ── Metrics arc — carrusel radial simulado ── */
+.metrics-arc {
   flex: 1;
   position: relative;
+  min-height: 150px;
   overflow: hidden;
   cursor: grab;
-  min-height: 0;
-  /* Fade progresivo en bordes — da la sensación de profundidad del cilindro */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 22%,
-    black 78%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 22%,
-    black 78%,
-    transparent 100%
-  );
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 16%, black 84%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 16%, black 84%, transparent 100%);
 }
 
-.metrics-drum:active { cursor: grabbing; }
+.metrics-arc:active { cursor: grabbing; }
 
-/* ── Slot (generado por WheelPicker) ── */
-.drum-slot {
+/* Ficha individual */
+.metric-card {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 64px;          /* debe coincidir con WheelPicker.ITEM_H */
+  top: 50%;
+  left: 50%;
+  width: 62%;
+  max-width: 220px;
+  background: var(--beige);
+  border: 1px solid rgba(49, 79, 255, 0.2);
+  border-radius: 18px;
+  padding: 20px 18px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 0 28px;
+  gap: 5px;
+  text-align: center;
   transform-origin: center center;
   will-change: transform, opacity;
-  pointer-events: none;
-  box-sizing: border-box;
 }
 
-/* Icono en círculo */
-.drum-slot__icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(49, 79, 255, 0.06);
+.metric-card.active {
+  border-color: rgba(49, 79, 255, 0.45);
+}
+
+/* Icono */
+.metric-card__icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(49, 79, 255, 0.18);
   color: var(--blue);
-  transition: background 0.2s ease;
+  margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
-.drum-slot.active .drum-slot__icon {
-  background: rgba(49, 79, 255, 0.13);
+.metric-card.active .metric-card__icon {
+  border-color: rgba(49, 79, 255, 0.38);
 }
 
-.drum-slot__icon svg {
-  width: 17px;
-  height: 17px;
+.metric-card__icon svg {
+  width: 15px;
+  height: 15px;
 }
 
-/* Cuerpo del slot */
-.drum-slot__body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.drum-slot__main {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.drum-slot__name {
-  font-size: 10px;
-  font-weight: 500;
+/* Nombre */
+.metric-card__name {
+  font-size: 9px;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.38);
-  flex-shrink: 0;
+  color: rgba(49, 79, 255, 0.45);
 }
 
-.drum-slot__value {
-  font-size: 20px;
+/* Valor */
+.metric-card__value {
+  font-size: 26px;
   font-weight: 600;
-  color: var(--black);
   line-height: 1;
-  transition: color 0.2s ease;
-}
-
-.drum-slot.active .drum-slot__value {
+  letter-spacing: -0.02em;
   color: var(--blue);
+  margin: 2px 0;
 }
 
-.drum-slot__label {
+/* Etiqueta — solo en ficha activa (JS controla el texto) */
+.metric-card__label {
   font-size: 11px;
-  color: rgba(10, 10, 10, 0.35);
+  font-weight: 500;
+  color: rgba(49, 79, 255, 0.6);
+  min-height: 14px;
 }
 
-/* Frase — solo visible en el slot activo */
-.drum-slot__phrase {
+/* Frase — solo en ficha activa (JS controla el texto) */
+.metric-card__phrase {
   font-size: 11px;
-  color: rgba(10, 10, 10, 0.4);
-  line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.drum-slot.active .drum-slot__phrase {
-  opacity: 1;
+  line-height: 1.5;
+  color: rgba(49, 79, 255, 0.42);
+  max-width: 190px;
+  min-height: 17px;
 }
 
 /* ─────────────────────────────────────────

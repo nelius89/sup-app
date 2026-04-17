@@ -42,7 +42,7 @@ const FRANJA_ICONS = [
 let currentSpot   = null;
 let currentData   = null;
 let deleteMode    = null;
-let wheel         = null;   // instancia WheelPicker
+let radial        = null;   // instancia RadialMetrics
 let currentDay    = 0;
 let currentFranja = 1;
 
@@ -171,13 +171,13 @@ async function loadSpot(spot) {
     renderTimeNav();
     renderResults(sliderIndex(currentDay, currentFranja));
 
-    // Inicializar o redimensionar el wheel una vez el DOM es visible
+    // Inicializar o redimensionar el carrusel radial una vez el DOM es visible
     requestAnimationFrame(() => {
-      if (!wheel) {
-        wheel = new WheelPicker(document.getElementById('metrics-drum'), METRICS);
+      if (!radial) {
+        radial = new RadialMetrics(document.getElementById('metrics-arc'), METRICS);
       } else {
-        wheel.resize();
-        wheel.refresh();
+        radial.resize();
+        radial.refresh();
       }
     });
   } catch (err) {
@@ -247,7 +247,7 @@ function renderResults(sliderIndex) {
   METRICS[4].label  = ld.label;
   METRICS[4].phrase = ld.phrase;
 
-  if (wheel) wheel.refresh();
+  if (radial) radial.refresh();
 }
 
 // ── Search screen: añadir spot ──
