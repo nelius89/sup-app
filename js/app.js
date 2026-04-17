@@ -4,21 +4,13 @@
 
 // ── Iconos SVG (Lucide) ──
 const ICONS = {
-  wind: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>`,
-  wave: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>`,
-  zap:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-  timer:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M12 14v-4"/><path d="M4 13a8 8 0 0 1 8-7 8 8 0 1 1-5.3 14L4 17.6"/><path d="M9 17H4v5"/></svg>`,
-  compass:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+  wind:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>`,
+  wave:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>`,
+  zap:         `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  timer:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M12 14v-4"/><path d="M4 13a8 8 0 0 1 8-7 8 8 0 1 1-5.3 14L4 17.6"/><path d="M9 17H4v5"/></svg>`,
+  compass:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+  thermometer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>`,
 };
-
-// ── Datos del drum (mutables — renderResults los actualiza) ──
-const METRICS = [
-  { id: 'wind',   icon: ICONS.wind,    name: 'Viento',    value: '—', label: '', phrase: '' },
-  { id: 'wave',   icon: ICONS.wave,    name: 'Ola',       value: '—', label: '', phrase: '' },
-  { id: 'gusts',  icon: ICONS.zap,     name: 'Rachas',    value: '—', label: '', phrase: '' },
-  { id: 'period', icon: ICONS.timer,   name: 'Período',   value: '—', label: '', phrase: '' },
-  { id: 'dir',    icon: ICONS.compass, name: 'Dirección', value: '—', label: '', phrase: '' },
-];
 
 // ── Iconos SVG para cada franja horaria ──
 const FRANJA_ICONS = [
@@ -42,7 +34,7 @@ const FRANJA_ICONS = [
 let currentSpot   = null;
 let currentData   = null;
 let deleteMode    = null;
-let radial        = null;   // instancia RadialMetrics
+let swiper        = null;   // instancia SlideSwiper
 let currentDay    = 0;
 let currentFranja = 1;
 
@@ -171,15 +163,15 @@ async function loadSpot(spot) {
     renderTimeNav();
     renderResults(sliderIndex(currentDay, currentFranja));
 
-    // Inicializar o redimensionar el carrusel radial una vez el DOM es visible
-    requestAnimationFrame(() => {
-      if (!radial) {
-        radial = new RadialMetrics(document.getElementById('metrics-arc'), METRICS);
-      } else {
-        radial.resize();
-        radial.refresh();
-      }
-    });
+    // Inicializar swiper una vez; reset al slide 1 en cada carga
+    if (!swiper) {
+      swiper = new SlideSwiper(
+        document.getElementById('metrics-track'),
+        document.getElementById('metrics-dots')
+      );
+    } else {
+      swiper.reset();
+    }
   } catch (err) {
     document.getElementById('diagnosis-title').textContent = 'Sin conexión';
     document.getElementById('diagnosis-desc').textContent  = 'No se han podido cargar los datos. Comprueba tu conexión.';
@@ -233,33 +225,42 @@ function renderResults(sliderIndex) {
     document.getElementById('terral-desc').textContent  = ti.desc;
   }
 
-  // Capa 3: Actualizar METRICS y refrescar wheel
+  // Capa 3: Bloques visuales
   const lv = labelViento(d.windKn);
-  METRICS[0].value  = `${d.windKn.toFixed(1)} kn`;
-  METRICS[0].label  = lv.label;
-  METRICS[0].phrase = lv.phrase;
-
   const lo = labelOla(d.waveH);
-  METRICS[1].value  = `${d.waveH.toFixed(1)} m`;
-  METRICS[1].label  = lo.label;
-  METRICS[1].phrase = lo.phrase;
-
   const lr = labelRacha(d.gustKn);
-  METRICS[2].value  = `${d.gustKn.toFixed(1)} kn`;
-  METRICS[2].label  = lr.label;
-  METRICS[2].phrase = lr.phrase;
-
   const lp = labelPeriodo(d.wavePer);
-  METRICS[3].value  = `${d.wavePer.toFixed(0)} s`;
-  METRICS[3].label  = lp.label;
-  METRICS[3].phrase = lp.phrase;
+  const card = degreesToCardinal(d.windDir);
 
-  const ld = labelDireccion(d.windDir);
-  METRICS[4].value  = degreesToCardinal(d.windDir);
-  METRICS[4].label  = ld.label;
-  METRICS[4].phrase = ld.phrase;
+  function setBlock(suffix, iconSvg, value, label) {
+    document.getElementById(`m-${suffix}-icon`).innerHTML  = iconSvg;
+    document.getElementById(`m-${suffix}-value`).textContent = value;
+    document.getElementById(`m-${suffix}-label`).textContent = label;
+  }
 
-  if (radial) radial.refresh();
+  setBlock('temp',   ICONS.thermometer, `${Math.round(d.tempC)}°`,        labelTemp(d.tempC));
+  setBlock('wind',   ICONS.wind,        `${d.windKn.toFixed(1)} kn`,      lv.label);
+  setBlock('wave',   ICONS.wave,        `${d.waveH.toFixed(1)} m`,        lo.label);
+  setBlock('gusts',  ICONS.zap,         `${d.gustKn.toFixed(1)} kn`,      lr.label);
+  setBlock('period', ICONS.timer,       `${d.wavePer.toFixed(0)} s`,       lp.label);
+  setBlock('dir',    ICONS.compass,     card,                              shortDirLabel(d.windDir));
+
+  // Capa 4: Resumen de texto
+  document.getElementById('metrics-summary').innerHTML = generateSummary(d);
+}
+
+function shortDirLabel(degrees) {
+  if (degrees >= 225 && degrees <= 315) return 'Terral';
+  if (degrees >= 45  && degrees <= 135) return 'De mar';
+  return 'Lateral';
+}
+
+function generateSummary(d) {
+  const lv   = labelViento(d.windKn);
+  const lo   = labelOla(d.waveH);
+  const lr   = labelRacha(d.gustKn);
+  const card = degreesToCardinal(d.windDir);
+  return `<b>${lv.label}</b> a <b>${d.windKn.toFixed(1)} kn</b> del <b>${card}</b>, con <b>rachas ${lr.label.toLowerCase()}</b> de ${d.gustKn.toFixed(1)} kn. Ola <b>${lo.label.toLowerCase()}</b> de <b>${d.waveH.toFixed(1)} m</b> y período de <b>${d.wavePer.toFixed(0)} s</b>.`;
 }
 
 // ── Search screen: añadir spot ──

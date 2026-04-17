@@ -12,7 +12,7 @@ async function fetchSpotData(spot) {
 
   const [marineRes, forecastRes] = await Promise.all([
     fetch(`https://marine-api.open-meteo.com/v1/marine?${params}&hourly=wave_height,wave_direction,wave_period,swell_wave_height,wind_wave_height,wind_wave_period`),
-    fetch(`https://api.open-meteo.com/v1/forecast?${params}&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m,weathercode,cloudcover`)
+    fetch(`https://api.open-meteo.com/v1/forecast?${params}&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m,weathercode,cloudcover,temperature_2m`)
   ]);
 
   if (!marineRes.ok || !forecastRes.ok) throw new Error('Error al obtener datos del mar');
@@ -127,6 +127,7 @@ function getDataForSlider(index, marine, forecast) {
     waveH,
     wavePer,
     cloudPct,
-    weathercode
+    weathercode,
+    tempC:       avg(h.temperature_2m),
   };
 }

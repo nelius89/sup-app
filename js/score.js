@@ -145,6 +145,14 @@ function labelPeriodo(s) {
   return      { label: 'Ola organizada',         phrase: 'Ola larga y predecible. La mejor.' };
 }
 
+function labelTemp(c) {
+  if (c <= 16) return 'Fresquito';
+  if (c <= 20) return 'Templado';
+  if (c <= 25) return 'Agradable';
+  if (c <= 30) return 'Calor';
+  return 'Mucho calor';
+}
+
 function labelDireccion(degrees) {
   const card = degreesToCardinal(degrees);
   // Onshore para BCN/Badalona: viento del E/SE (llega del mar)
