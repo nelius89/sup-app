@@ -549,7 +549,7 @@ ul { list-style: none; }
 }
 
 .metrics-slide--visual {
-  justify-content: stretch;
+  justify-content: flex-start;
 }
 
 .metrics-slide--text {
@@ -567,12 +567,10 @@ ul { list-style: none; }
 
 .mrow--top {
   grid-template-columns: 1fr 1fr;
-  flex: 1.2;
 }
 
 .mrow--bot {
   grid-template-columns: repeat(4, 1fr);
-  flex: 1;
 }
 
 /* Bloques */
