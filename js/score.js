@@ -100,6 +100,132 @@ const ESTADOS = {
   'no-salir':   { titulo: 'Hoy mejor quedarse en casa',        subtitulo: 'No está el agua para nadie' },
 };
 
+// ── Textos cortos para pantalla principal (1 línea por bloque) ──
+function buildMainBlocks(d) {
+  let windShort;
+  if      (d.windKn <= 6)  windShort = 'Viento suave.';
+  else if (d.windKn <= 10) windShort = 'Brisa ligera.';
+  else if (d.windKn <= 14) windShort = 'Viento moderado.';
+  else if (d.windKn <= 19) windShort = 'Viento fuerte.';
+  else                     windShort = 'Viento muy fuerte.';
+
+  let seaShort;
+  if      (d.waveH <= 0.3) seaShort = 'Olas muy pequeñas.';
+  else if (d.waveH <= 0.6) seaShort = 'Olas pequeñas.';
+  else if (d.waveH <= 1.0) seaShort = 'Olas medianas.';
+  else if (d.waveH <= 1.5) seaShort = 'Olas grandes.';
+  else                     seaShort = 'Mar muy agitado.';
+
+  return { windShort, seaShort };
+}
+
+// ── Textos técnicos para el sheet expandido (3 párrafos por métrica) ──
+function buildTechBlocks(d, estado) {
+  // Viento
+  let windP1, windP2, windP3;
+  if (d.windKn <= 6) {
+    windP1 = 'El viento es muy suave. Apenas lo notarás al remar.';
+    windP2 = 'El mar se mantiene cómodo y fácil de controlar.';
+    windP3 = 'Por debajo de 6 nudos suele hablarse de calma. Ahora mismo estás en ese rango.';
+  } else if (d.windKn <= 10) {
+    windP1 = 'El viento sopla con brisa ligera. Se nota al remar, pero no molesta.';
+    windP2 = 'Las condiciones son manejables y el esfuerzo, normal.';
+    windP3 = 'Entre 7 y 10 nudos es brisa ligera. Cómodo para paddle surf.';
+  } else if (d.windKn <= 14) {
+    windP1 = 'El viento es moderado. Remar contra él ya empieza a costar.';
+    windP2 = 'Notarás el esfuerzo en la vuelta si el viento está en contra.';
+    windP3 = 'Entre 11 y 14 nudos el viento empieza a condicionar la salida.';
+  } else if (d.windKn <= 19) {
+    windP1 = 'El viento es fuerte. Puede cansarte rápido y complicar el control de la tabla.';
+    windP2 = 'Si el viento sopla contra ti, volver puede ser muy difícil.';
+    windP3 = 'Por encima de 15 nudos las condiciones se complican para SUP recreativo.';
+  } else {
+    windP1 = 'El viento es demasiado fuerte para estar en el agua.';
+    windP2 = 'Una racha puede echarte al agua lejos de la orilla.';
+    windP3 = 'Por encima de 20 nudos no es seguro salir en tabla.';
+  }
+
+  // Rachas
+  let gustP1, gustP2, gustP3;
+  if (d.gustKn <= 8) {
+    gustP1 = 'Las rachas son muy leves. El viento es estable y constante.';
+    gustP2 = 'No habrá sorpresas ni empujones bruscos.';
+    gustP3 = 'Poca diferencia entre viento base y rachas: el viento es muy regular.';
+  } else if (d.gustKn <= 12) {
+    gustP1 = 'Hay alguna racha puntual. El viento base sigue siendo estable.';
+    gustP2 = 'Pueden pillarte descolocado de vez en cuando, sin ser peligroso.';
+    gustP3 = 'Diferencia moderada entre base y rachas. Normal en condiciones costeras.';
+  } else if (d.gustKn <= 16) {
+    gustP1 = 'Las rachas son fuertes y pueden sorprenderte aunque el viento base sea suave.';
+    gustP2 = 'Pueden desestabilizarte. Mantén una posición baja en la tabla.';
+    gustP3 = 'Diferencia importante entre base y rachas. Hay que estar atento.';
+  } else {
+    gustP1 = 'Las rachas son peligrosas incluso si el viento base parece tranquilo.';
+    gustP2 = 'Una racha puede empujarte hacia mar abierto o echarte al agua.';
+    gustP3 = 'Diferencia muy alta entre base y rachas. No es seguro sin mucha experiencia.';
+  }
+
+  // Ola
+  let seaP1, seaP2, seaP3;
+  if (d.waveH <= 0.3) {
+    seaP1 = 'Las olas son muy pequeñas. El mar está casi plano.';
+    seaP2 = 'El equilibrio es fácil y el esfuerzo para mantenerte de pie es mínimo.';
+    seaP3 = 'Por debajo de 0.3 m el mar se considera plano. Condiciones ideales.';
+  } else if (d.waveH <= 0.6) {
+    seaP1 = 'Las olas son pequeñas. Habrá algo de balanceo, pero controlable.';
+    seaP2 = 'Con estas olas el equilibrio no es difícil para alguien con algo de práctica.';
+    seaP3 = 'Entre 0.3 y 0.6 m hay movimiento, pero no es preocupante.';
+  } else if (d.waveH <= 1.0) {
+    seaP1 = 'Las olas son medianas. El mar tiene movimiento real.';
+    seaP2 = 'Mantener el equilibrio requiere concentración y algo de técnica.';
+    seaP3 = 'Por encima de 0.6 m las condiciones ya se notan. Para quienes tienen práctica.';
+  } else if (d.waveH <= 1.5) {
+    seaP1 = 'Las olas son grandes. El mar está agitado.';
+    seaP2 = 'Mantenerse de pie es difícil. Solo apto para remadores con experiencia.';
+    seaP3 = 'Por encima de 1 m no se recomienda para paddle surf recreativo.';
+  } else {
+    seaP1 = 'Las olas son peligrosas para hacer paddle surf.';
+    seaP2 = 'El riesgo de caer y alejarse de la orilla es muy alto.';
+    seaP3 = 'Por encima de 1.5 m el mar no es apto para actividades recreativas.';
+  }
+
+  // Período
+  let perP1, perP2, perP3;
+  if (d.wavePer >= 7) {
+    perP1 = 'Las olas tienen un ritmo largo y ordenado.';
+    perP2 = 'Un período largo hace las olas más predecibles y fáciles de leer.';
+    perP3 = 'Por encima de 7 s se considera oleaje organizado. Fácil de manejar.';
+  } else if (d.wavePer >= 5) {
+    perP1 = 'El mar tiene un ritmo normal. Las olas son manejables.';
+    perP2 = 'Ni demasiado caótico ni demasiado organizado.';
+    perP3 = 'Entre 5 y 7 s es un período normal. El mar se mantiene predecible.';
+  } else if (d.wavePer >= 4) {
+    perP1 = 'Las olas tienen un ritmo algo irregular.';
+    perP2 = 'El mar puede sorprenderte de vez en cuando.';
+    perP3 = 'Por debajo de 5 s las olas son más cortas e impredecibles.';
+  } else {
+    perP1 = 'El mar está nervioso y con olas muy cortas.';
+    perP2 = 'Este tipo de oleaje hace difícil mantener el equilibrio.';
+    perP3 = 'Por debajo de 4 s el mar está muy revuelto. Condiciones complicadas.';
+  }
+
+  const cierres = {
+    'perfecto':   'En conjunto, es un buen día para salir con comodidad.',
+    'bueno':      'En conjunto, las condiciones acompañan. Puedes salir sin problema.',
+    'aceptable':  'En conjunto, las condiciones tienen sus límites. Elige bien el momento.',
+    'complicado': 'En conjunto, hoy no es el mejor día. Mejor esperar.',
+    'no-salir':   'En conjunto, hoy no es el día para salir al agua.',
+  };
+
+  return {
+    wind:   { p1: windP1, p2: windP2, p3: windP3 },
+    gusts:  { p1: gustP1, p2: gustP2, p3: gustP3 },
+    sea:    { p1: seaP1,  p2: seaP2,  p3: seaP3  },
+    period: { p1: perP1,  p2: perP2,  p3: perP3  },
+    closing: cierres[estado],
+  };
+}
+
 // ── Resumen corto para la pantalla principal (2-3 frases) ──
 function buildSummary(d, estado) {
   // Viento — intensidad + estabilidad en una sola frase

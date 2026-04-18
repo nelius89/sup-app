@@ -163,7 +163,7 @@ function renderTimeNav() {
   }
   document.getElementById('franja-slider').value = currentFranja;
   document.getElementById('time-nav-icon').innerHTML    = FRANJA_ICONS[currentFranja];
-  document.getElementById('time-nav-label').textContent = FRANJAS[currentFranja].label;
+  document.getElementById('time-nav-label').textContent = franjaLabel(currentFranja);
 }
 
 // ── Cargar datos y mostrar resultados ──
@@ -177,8 +177,9 @@ async function loadSpot(spot) {
   document.getElementById('results-spot-name').textContent = spot.name;
   document.getElementById('diagnosis-title').textContent    = 'Cargando...';
   document.getElementById('diagnosis-subtitle').textContent = '';
-  document.getElementById('diagnosis-sea').textContent      = '';
   document.getElementById('diagnosis-wind').textContent     = '';
+  document.getElementById('diagnosis-sea').textContent      = '';
+  document.getElementById('terral-card').classList.add('hidden');
 
   try {
     currentData = await fetchSpotData(spot);
@@ -188,8 +189,6 @@ async function loadSpot(spot) {
   } catch (err) {
     document.getElementById('diagnosis-title').textContent    = 'Sin conexión';
     document.getElementById('diagnosis-subtitle').textContent = 'No se han podido cargar los datos. Comprueba tu conexión.';
-    document.getElementById('diagnosis-sea').textContent      = '';
-    document.getElementById('diagnosis-wind').textContent     = '';
   }
 }
 
@@ -209,11 +208,11 @@ function renderResults(sliderIdx) {
   const estado = getEstado(score, d.weathercode);
   const info   = ESTADOS[estado];
 
-  // Tiempo en el header
-  document.getElementById('results-weather-icon').innerHTML    = getWeatherIcon(d.weathercode);
-  document.getElementById('results-weather-temp').textContent  = `${Math.round(d.tempC)}°`;
+  // Header: icono tiempo + temperatura
+  document.getElementById('results-weather-icon').innerHTML   = getWeatherIcon(d.weathercode);
+  document.getElementById('results-weather-temp').textContent = `${Math.round(d.tempC)}°`;
 
-  // Título de decisión + subtítulo de personalidad
+  // Bloque 2 — decisión principal
   document.getElementById('diagnosis-title').textContent    = info.titulo;
   document.getElementById('diagnosis-subtitle').textContent = info.subtitulo;
 
@@ -228,55 +227,56 @@ function renderResults(sliderIdx) {
     illusEl.innerHTML = '';
   }
 
-  // Terral
-  const nivelTerral = calcularRiesgoTerral(d.windKn, d.gustKn, d.windDir, d.waveH, currentSpot);
+  // Bloques cortos viento + mar (pantalla principal)
+  const main = buildMainBlocks(d);
+  document.getElementById('diagnosis-wind-icon').innerHTML  = ICONS.wind;
+  document.getElementById('diagnosis-wind').textContent     = main.windShort;
+  document.getElementById('diagnosis-sea-icon').innerHTML   = ICONS.wave;
+  document.getElementById('diagnosis-sea').textContent      = main.seaShort;
 
-  // Terral pill en pantalla principal
-  const pillEl = document.getElementById('terral-pill');
+  // Terral — card en Bloque 2
+  const nivelTerral = calcularRiesgoTerral(d.windKn, d.gustKn, d.windDir, d.waveH, currentSpot);
+  const terralCard  = document.getElementById('terral-card');
   if (nivelTerral === 0) {
-    pillEl.classList.add('hidden');
+    terralCard.classList.add('hidden');
   } else {
-    pillEl.classList.remove('hidden');
-    document.getElementById('terral-pill-label').textContent = TERRAL_INFO[nivelTerral].pillLabel;
+    terralCard.classList.remove('hidden');
+    const ti = TERRAL_INFO[nivelTerral];
+    document.getElementById('terral-card-title').textContent  = ti.title;
+    document.getElementById('terral-card-desc').textContent   = ti.desc;
+    document.getElementById('terral-card-advice').textContent = ti.advice;
   }
 
-  // Bloques interpretativos en el sheet y en la pantalla principal
-  const blocks = buildBlocks(d, estado);
-  document.getElementById('diagnosis-sea').textContent  = blocks.seaTitle;
-  document.getElementById('diagnosis-wind').textContent = blocks.windTitle;
-  document.getElementById('explain-wind-icon').innerHTML   = ICONS.wind;
-  document.getElementById('explain-wind-title').textContent = blocks.windTitle;
-  document.getElementById('explain-wind-desc').textContent  = blocks.windDesc;
-  document.getElementById('explain-sea-icon').innerHTML    = ICONS.wave;
-  document.getElementById('explain-sea-title').textContent  = blocks.seaTitle;
-  document.getElementById('explain-sea-desc').textContent   = blocks.seaDesc;
-  document.getElementById('explain-closing').textContent    = blocks.closing;
-
-  // Bloque terral en el sheet
+  // Terral en el sheet técnico
   const explainTerral = document.getElementById('explain-terral');
   if (nivelTerral === 0) {
     explainTerral.classList.add('hidden');
   } else {
     explainTerral.classList.remove('hidden');
     const ti = TERRAL_INFO[nivelTerral];
-    document.getElementById('explain-terral-title').textContent = ti.title;
-    document.getElementById('explain-terral-desc').textContent  = ti.desc;
+    document.getElementById('explain-terral-title').textContent  = ti.title;
+    document.getElementById('explain-terral-desc').textContent   = ti.desc;
     document.getElementById('explain-terral-advice').textContent = ti.advice;
   }
 
-  // Métricas con sublabels
-  const card = degreesToCardinal(d.windDir);
-  function setMetric(suffix, iconSvg, value, sub) {
-    document.getElementById(`m-${suffix}-icon`).innerHTML    = iconSvg;
-    document.getElementById(`m-${suffix}-value`).textContent = value;
-    const subEl = document.getElementById(`m-${suffix}-sub`);
-    if (subEl) subEl.textContent = sub;
+  // Bloque 3 — info técnica (tech rows)
+  const tech = buildTechBlocks(d, estado);
+
+  function setTechRow(prefix, iconSvg, value, sub, block) {
+    document.getElementById(`tr-${prefix}-icon`).innerHTML    = iconSvg;
+    document.getElementById(`tr-${prefix}-value`).textContent = value;
+    document.getElementById(`tr-${prefix}-sub`).textContent   = sub;
+    document.getElementById(`tr-${prefix}-p1`).textContent    = block.p1;
+    document.getElementById(`tr-${prefix}-p2`).textContent    = block.p2;
+    document.getElementById(`tr-${prefix}-p3`).textContent    = block.p3;
   }
-  setMetric('wind',   ICONS.wind,    `${d.windKn.toFixed(1)} kn`,  labelViento(d.windKn).label);
-  setMetric('wave',   ICONS.wave,    `${d.waveH.toFixed(1)} m`,    labelOla(d.waveH).label);
-  setMetric('gusts',  ICONS.zap,     `${d.gustKn.toFixed(1)} kn`,  labelRacha(d.gustKn).label);
-  setMetric('period', ICONS.timer,   `${d.wavePer.toFixed(0)} s`,  labelPeriodo(d.wavePer).label);
-  setMetric('dir',    ICONS.compass, card,                          shortDirLabel(d.windDir));
+
+  setTechRow('wind',   ICONS.wind,  `${d.windKn.toFixed(1)} kn`, labelViento(d.windKn).label, tech.wind);
+  setTechRow('gusts',  ICONS.zap,   `${d.gustKn.toFixed(1)} kn`, labelRacha(d.gustKn).label,  tech.gusts);
+  setTechRow('wave',   ICONS.wave,  `${d.waveH.toFixed(1)} m`,   labelOla(d.waveH).label,     tech.sea);
+  setTechRow('period', ICONS.timer, `${d.wavePer.toFixed(0)} s`, labelPeriodo(d.wavePer).label, tech.period);
+
+  document.getElementById('tech-closing').textContent = tech.closing;
 }
 
 function shortDirLabel(degrees) {
@@ -418,16 +418,16 @@ function initSuggestionsSheet() {
 
 // ── Explain sheet ──
 function openExplainSheet() {
-  document.getElementById('explain-overlay').classList.add('active');
   document.getElementById('explain-sheet').classList.add('expanded');
+  document.body.classList.add('sheet-expanded');
 }
 
 function closeExplainSheet() {
   const sheet = document.getElementById('explain-sheet');
   sheet.style.transition = '';
   sheet.style.transform  = '';
-  document.getElementById('explain-overlay').classList.remove('active');
   sheet.classList.remove('expanded');
+  document.body.classList.remove('sheet-expanded');
 }
 
 function initExplainSheet() {
@@ -467,6 +467,13 @@ function initExplainSheet() {
       openExplainSheet();
     }
   });
+}
+
+// ── Franja label con horas ──
+function franjaLabel(franjaIndex) {
+  const f = FRANJAS[franjaIndex];
+  const h = f.hours;
+  return `${f.label} · ${h[0]}h–${h[h.length - 1]}h`;
 }
 
 // ── Search screen: añadir spot ──
@@ -564,18 +571,18 @@ document.addEventListener('DOMContentLoaded', () => {
   initAboutSheet();
   initSuggestionsSheet();
 
-  // Terral pill → abrir explain sheet
-  document.getElementById('terral-pill').addEventListener('click', openExplainSheet);
   // Handle del sheet → expandir
   document.getElementById('explain-handle').addEventListener('click', openExplainSheet);
-  // Overlay → cerrar
-  document.getElementById('explain-overlay').addEventListener('click', closeExplainSheet);
   initExplainSheet();
 
-  // Back button
+  // Back button — doble función: cierra el sheet si está abierto, sino vuelve a home
   document.getElementById('btn-back').addEventListener('click', () => {
-    showView('view-home');
-    renderSpotList();
+    if (document.getElementById('explain-sheet').classList.contains('expanded')) {
+      closeExplainSheet();
+    } else {
+      showView('view-home');
+      renderSpotList();
+    }
   });
 
   // Search screen — cerrar
@@ -602,7 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('franja-slider').addEventListener('input', (e) => {
     currentFranja = parseInt(e.target.value);
     document.getElementById('time-nav-icon').innerHTML    = FRANJA_ICONS[currentFranja];
-    document.getElementById('time-nav-label').textContent = FRANJAS[currentFranja].label;
+    document.getElementById('time-nav-label').textContent = franjaLabel(currentFranja);
     renderResults(sliderIndex(currentDay, currentFranja));
   });
 

@@ -45,10 +45,12 @@
 
     <header class="results__header">
       <button class="btn-back" id="btn-back">←</button>
-      <span class="results__spot-name" id="results-spot-name">Pont del Petroli</span>
-      <div class="results__weather">
-        <span class="results__weather-icon" id="results-weather-icon"></span>
-        <span class="results__weather-temp" id="results-weather-temp"></span>
+      <div class="results__center">
+        <span class="results__spot-name" id="results-spot-name">Pont del Petroli</span>
+        <div class="results__weather">
+          <span class="results__weather-icon" id="results-weather-icon"></span>
+          <span class="results__weather-temp" id="results-weather-temp"></span>
+        </div>
       </div>
     </header>
 
@@ -66,27 +68,37 @@
 
     <div class="results__main">
 
+      <!-- Aviso terral — card expandible, visible solo si hay terral -->
+      <div class="terral-card hidden" id="terral-card">
+        <div class="terral-card__icon-wrap">
+          <span class="terral-card__bang">!</span>
+        </div>
+        <div class="terral-card__text">
+          <strong class="terral-card__title" id="terral-card-title">AVISO VIENTO TERRAL</strong>
+          <p class="terral-card__desc" id="terral-card-desc"></p>
+          <p class="terral-card__advice" id="terral-card-advice"></p>
+        </div>
+      </div>
+
       <!-- Diagnóstico principal -->
       <div class="diagnosis">
-        <!-- Terral pill — visible solo si hay terral, abre el sheet -->
-        <button class="terral-pill hidden" id="terral-pill">
-          <span class="terral-pill__icon">!</span>
-          <span class="terral-pill__label" id="terral-pill-label">TERRAL LEVE</span>
-          <span class="terral-pill__more">Ver más ›</span>
-        </button>
-
         <div class="diagnosis__illus" id="diagnosis-illus"></div>
         <p class="diagnosis__pretitle">Estado del mar</p>
         <h1 class="diagnosis__title" id="diagnosis-title">Cargando...</h1>
         <p class="diagnosis__subtitle" id="diagnosis-subtitle"></p>
-        <div class="diagnosis__blocks" id="diagnosis-blocks">
-          <p class="diagnosis__block" id="diagnosis-sea"></p>
-          <p class="diagnosis__block" id="diagnosis-wind"></p>
+        <div class="diagnosis__blocks">
+          <div class="diagnosis__block-row">
+            <span class="diagnosis__block-icon" id="diagnosis-wind-icon"></span>
+            <span class="diagnosis__block-text" id="diagnosis-wind"></span>
+          </div>
+          <div class="diagnosis__block-row">
+            <span class="diagnosis__block-icon" id="diagnosis-sea-icon"></span>
+            <span class="diagnosis__block-text" id="diagnosis-sea"></span>
+          </div>
         </div>
       </div>
 
     </div><!-- /results__main -->
-
 
   </div>
 
@@ -211,51 +223,19 @@
     </div>
   </div>
 
-  <!-- Explain bottom sheet — siempre visible en peek (métricas), expandible (explicación) -->
-  <div class="explain-overlay" id="explain-overlay"></div>
+  <!-- Explain bottom sheet — handle visible, expandible con fondo azul -->
   <div class="explain-sheet" id="explain-sheet">
-    <div class="explain-sheet__handle" id="explain-handle"></div>
 
-    <!-- Estado colapsado: datos técnicos -->
-    <div class="explain-sheet__peek">
-      <div class="metrics-grid">
-        <div class="mgrid__cell">
-          <span class="mgrid__icon" id="m-wind-icon"></span>
-          <span class="mgrid__label">Viento</span>
-          <span class="mgrid__value" id="m-wind-value">—</span>
-          <span class="mgrid__sub" id="m-wind-sub"></span>
-        </div>
-        <div class="mgrid__cell">
-          <span class="mgrid__icon" id="m-wave-icon"></span>
-          <span class="mgrid__label">Ola</span>
-          <span class="mgrid__value" id="m-wave-value">—</span>
-          <span class="mgrid__sub" id="m-wave-sub"></span>
-        </div>
-        <div class="mgrid__cell">
-          <span class="mgrid__icon" id="m-gusts-icon"></span>
-          <span class="mgrid__label">Rachas</span>
-          <span class="mgrid__value" id="m-gusts-value">—</span>
-          <span class="mgrid__sub" id="m-gusts-sub"></span>
-        </div>
-        <div class="mgrid__cell">
-          <span class="mgrid__icon" id="m-period-icon"></span>
-          <span class="mgrid__label">Período</span>
-          <span class="mgrid__value" id="m-period-value">—</span>
-          <span class="mgrid__sub" id="m-period-sub"></span>
-        </div>
-        <div class="mgrid__cell">
-          <span class="mgrid__icon" id="m-dir-icon"></span>
-          <span class="mgrid__label">Dirección</span>
-          <span class="mgrid__value" id="m-dir-value">—</span>
-          <span class="mgrid__sub" id="m-dir-sub"></span>
-        </div>
-      </div>
+    <!-- Handle — siempre visible, invita a desplegar -->
+    <div class="explain-sheet__handle" id="explain-handle">
+      <div class="explain-sheet__handle-bar"></div>
+      <span class="explain-sheet__handle-label">Información técnica completa</span>
     </div>
 
-    <!-- Estado expandido: explicación interpretativa -->
+    <!-- Contenido técnico — visible solo al expandir -->
     <div class="explain-sheet__body" id="explain-body">
 
-      <!-- Bloque terral (condicional) -->
+      <!-- Terral (si aplica, primero) -->
       <div class="explain-terral hidden" id="explain-terral">
         <div class="explain-terral__icon-wrap">
           <span class="explain-terral__bang">!</span>
@@ -267,26 +247,73 @@
         </div>
       </div>
 
-      <!-- Bloque viento (intensidad + rachas unificados) -->
-      <div class="explain-block">
-        <span class="explain-block__icon" id="explain-wind-icon"></span>
-        <div class="explain-block__text">
-          <strong class="explain-block__title" id="explain-wind-title"></strong>
-          <p class="explain-block__desc" id="explain-wind-desc"></p>
+      <!-- Viento -->
+      <div class="tech-row">
+        <div class="tech-row__card">
+          <span class="tech-row__icon" id="tr-wind-icon"></span>
+          <span class="tech-row__label">VIENTO</span>
+          <span class="tech-row__value" id="tr-wind-value"></span>
+          <span class="tech-row__sub" id="tr-wind-sub"></span>
+        </div>
+        <div class="tech-row__text">
+          <p id="tr-wind-p1"></p>
+          <p id="tr-wind-p2"></p>
+          <p id="tr-wind-p3"></p>
         </div>
       </div>
+      <div class="tech-divider"></div>
 
-      <!-- Bloque mar (ola + período unificados) -->
-      <div class="explain-block">
-        <span class="explain-block__icon" id="explain-sea-icon"></span>
-        <div class="explain-block__text">
-          <strong class="explain-block__title" id="explain-sea-title"></strong>
-          <p class="explain-block__desc" id="explain-sea-desc"></p>
+      <!-- Rachas -->
+      <div class="tech-row">
+        <div class="tech-row__card">
+          <span class="tech-row__icon" id="tr-gusts-icon"></span>
+          <span class="tech-row__label">RACHAS</span>
+          <span class="tech-row__value" id="tr-gusts-value"></span>
+          <span class="tech-row__sub" id="tr-gusts-sub"></span>
+        </div>
+        <div class="tech-row__text">
+          <p id="tr-gusts-p1"></p>
+          <p id="tr-gusts-p2"></p>
+          <p id="tr-gusts-p3"></p>
+        </div>
+      </div>
+      <div class="tech-divider"></div>
+
+      <!-- Ola -->
+      <div class="tech-row">
+        <div class="tech-row__card">
+          <span class="tech-row__icon" id="tr-wave-icon"></span>
+          <span class="tech-row__label">OLA</span>
+          <span class="tech-row__value" id="tr-wave-value"></span>
+          <span class="tech-row__sub" id="tr-wave-sub"></span>
+        </div>
+        <div class="tech-row__text">
+          <p id="tr-wave-p1"></p>
+          <p id="tr-wave-p2"></p>
+          <p id="tr-wave-p3"></p>
+        </div>
+      </div>
+      <div class="tech-divider"></div>
+
+      <!-- Período -->
+      <div class="tech-row">
+        <div class="tech-row__card">
+          <span class="tech-row__icon" id="tr-period-icon"></span>
+          <span class="tech-row__label">PERÍODO</span>
+          <span class="tech-row__value" id="tr-period-value"></span>
+          <span class="tech-row__sub" id="tr-period-sub"></span>
+        </div>
+        <div class="tech-row__text">
+          <p id="tr-period-p1"></p>
+          <p id="tr-period-p2"></p>
+          <p id="tr-period-p3"></p>
         </div>
       </div>
 
       <!-- Cierre -->
-      <p class="explain-closing" id="explain-closing"></p>
+      <div class="tech-closing">
+        <p id="tech-closing"></p>
+      </div>
 
     </div>
   </div>

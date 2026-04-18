@@ -250,11 +250,11 @@ ul { list-style: none; }
 
 /* ── Header ── */
 .results__header {
-  position: relative;
   display: flex;
   align-items: center;
-  padding: calc(env(safe-area-inset-top, 0px) + 14px) 64px 10px 20px;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 10px;
   flex-shrink: 0;
+  transition: background 0.35s ease;
 }
 
 .btn-back {
@@ -262,41 +262,50 @@ ul { list-style: none; }
   color: var(--blue);
   padding: 4px;
   line-height: 1;
-  position: relative;
-  z-index: 1;
+  flex-shrink: 0;
+  transition: color 0.35s ease;
+}
+
+/* Centro del header: nombre + clima juntos */
+.results__center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .results__spot-name {
-  position: absolute;
-  left: 0;
-  right: 0;
-  text-align: center;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--blue);
   text-transform: uppercase;
-  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.35s ease;
 }
 
 .results__weather {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-left: auto;
-  position: relative;
-  z-index: 1;
+  flex-shrink: 0;
 }
 .results__weather-icon {
   display: flex;
   align-items: center;
   color: rgba(10, 10, 10, 0.45);
+  transition: color 0.35s ease;
 }
 .results__weather-icon svg { width: 16px; height: 16px; }
 .results__weather-temp {
   font-size: 13px;
   font-weight: 500;
   color: rgba(10, 10, 10, 0.55);
+  transition: color 0.35s ease;
 }
 
 /* ── Time nav ── */
@@ -462,86 +471,98 @@ ul { list-style: none; }
 .diagnosis__blocks {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 12px;
-  max-width: 280px;
+  gap: 6px;
+  margin-top: 14px;
   width: 100%;
+  max-width: 260px;
 }
 
-.diagnosis__block {
-  font-size: 12px;
-  line-height: 1.5;
-  color: rgba(10, 10, 10, 0.45);
-  text-align: center;
-}
-
-/* ── Terral pill — notificación compacta en pantalla principal ── */
-.terral-pill {
-  display: none;
+.diagnosis__block-row {
+  display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--black);
-  border-radius: 100px;
-  padding: 8px 14px 8px 8px;
-  font-family: var(--font);
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-  border: none;
-  margin-bottom: 4px;
+  gap: 8px;
+  justify-content: center;
 }
 
-.terral-pill:not(.hidden) { display: flex; }
-.terral-pill:active { opacity: 0.75; }
+.diagnosis__block-icon {
+  display: flex;
+  align-items: center;
+  color: rgba(49, 79, 255, 0.35);
+  flex-shrink: 0;
+}
 
-.terral-pill__icon {
-  width: 28px;
-  height: 28px;
+.diagnosis__block-icon svg { width: 14px; height: 14px; }
+
+.diagnosis__block-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(10, 10, 10, 0.5);
+  line-height: 1.4;
+}
+
+/* ── Terral card — tarjeta expandible en pantalla principal ── */
+.terral-card {
+  display: none;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--black);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  animation: resultIn 0.25s ease both;
+}
+
+.terral-card:not(.hidden) { display: flex; }
+
+.terral-card__icon-wrap {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.terral-card__bang {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
   line-height: 1;
 }
 
-.terral-pill__label {
+.terral-card__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.terral-card__title {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #fff;
-  flex: 1;
 }
 
-.terral-pill__more {
-  font-size: 10px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.45);
-  white-space: nowrap;
+.terral-card__desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.72);
 }
 
-/* ── Explain sheet — siempre peekable, expandible ── */
-.explain-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 300;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
+.terral-card__advice {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
 }
 
-.explain-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
+/* ── Explain sheet — peekable con label, expandible con fondo azul ── */
 .explain-sheet {
-  --peek: 140px; /* handle + métricas */
+  --peek: 68px;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -551,7 +572,7 @@ ul { list-style: none; }
   border-radius: 20px 20px 0 0;
   transform: translateY(calc(100% - var(--peek)));
   transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  max-height: 90vh;
+  max-height: 92vh;
   overflow: hidden;
   box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.07);
 }
@@ -561,19 +582,38 @@ ul { list-style: none; }
   overflow-y: auto;
 }
 
-/* Handle con animación bounce para invitar a subir */
+/* Handle: barra + label "Información técnica completa" */
 .explain-sheet__handle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px 10px;
+  cursor: pointer;
+  min-height: var(--peek);
+  box-sizing: border-box;
+}
+
+.explain-sheet__handle-bar {
   width: 36px;
   height: 4px;
   background: rgba(10, 10, 10, 0.12);
   border-radius: 2px;
-  margin: 12px auto 0;
-  cursor: pointer;
   animation: handleBounce 2.4s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
-.explain-sheet.expanded .explain-sheet__handle {
+.explain-sheet.expanded .explain-sheet__handle-bar {
   animation: none;
+}
+
+.explain-sheet__handle-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, 0.3);
+  white-space: nowrap;
 }
 
 @keyframes handleBounce {
@@ -582,26 +622,33 @@ ul { list-style: none; }
   60%       { transform: translateY(-2px); }
 }
 
-/* Métricas en estado colapsado */
-.explain-sheet__peek {
-  padding: 0 0 calc(8px + var(--safe-bottom));
-}
-
-.explain-sheet.expanded .explain-sheet__peek {
-  display: none;
-}
-
-/* Cuerpo de explicación en estado expandido */
+/* Cuerpo técnico — solo visible al expandir */
 .explain-sheet__body {
   display: none;
   flex-direction: column;
-  gap: 0;
-  padding: 8px 20px calc(32px + var(--safe-bottom));
+  padding: 4px 20px calc(40px + var(--safe-bottom));
 }
 
 .explain-sheet.expanded .explain-sheet__body {
   display: flex;
 }
+
+/* ── Estado expandido: fondo azul en la vista ── */
+body.sheet-expanded .view--results {
+  background: var(--blue);
+  transition: background 0.35s ease;
+}
+
+body.sheet-expanded .results__spot-name,
+body.sheet-expanded .results__weather-temp { color: rgba(255, 255, 255, 0.9); }
+
+body.sheet-expanded .results__weather-icon { color: rgba(255, 255, 255, 0.7); }
+
+body.sheet-expanded .btn-back { color: rgba(255, 255, 255, 0.8); }
+
+body.sheet-expanded .btn-menu { color: rgba(255, 255, 255, 0.8); }
+
+body.sheet-expanded .explain-sheet__handle-label { color: rgba(10, 10, 10, 0.2); }
 
 /* Bloque terral en el sheet */
 .explain-terral {
@@ -662,94 +709,93 @@ ul { list-style: none; }
   margin-top: 2px;
 }
 
-/* Bloques de contenido (viento + mar) */
-.explain-block {
+/* ── Tech rows — filas métricas en el sheet expandido ── */
+.tech-row {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   align-items: flex-start;
-  padding: 16px 0;
-  border-bottom: 1px solid rgba(10, 10, 10, 0.06);
+  padding: 20px 0;
 }
 
-.explain-block:last-of-type {
-  border-bottom: none;
-}
-
-.explain-block__icon {
-  display: flex;
-  align-items: center;
-  color: var(--blue);
-  opacity: 0.5;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.explain-block__icon svg { width: 18px; height: 18px; }
-
-.explain-block__text {
-  flex: 1;
+.tech-row__card {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
+  background: rgba(49, 79, 255, 0.05);
+  border-radius: 14px;
+  padding: 14px 10px;
+  min-width: 78px;
+  max-width: 78px;
+  flex-shrink: 0;
+  text-align: center;
 }
 
-.explain-block__title {
-  font-size: 14px;
+.tech-row__icon {
+  display: flex;
+  align-items: center;
+  color: rgba(49, 79, 255, 0.4);
+}
+.tech-row__icon svg { width: 18px; height: 18px; }
+
+.tech-row__label {
+  font-size: 8px;
   font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(49, 79, 255, 0.45);
+}
+
+.tech-row__value {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--blue);
+  line-height: 1;
+}
+
+.tech-row__sub {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(49, 79, 255, 0.5);
   line-height: 1.3;
 }
 
-.explain-block__desc {
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(10, 10, 10, 0.45);
-}
-
-/* Cierre */
-.explain-closing {
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(49, 79, 255, 0.55);
-  text-align: center;
-  padding: 16px 8px 4px;
-  border: 1px solid rgba(49, 79, 255, 0.15);
-  border-radius: 12px;
-  margin-top: 8px;
-}
-
-/* ── Metrics grid 5×1 ── */
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  border-top: 1px solid rgba(10, 10, 10, 0.07);
-  padding-top: 4px;
-}
-
-.mgrid__cell {
+.tech-row__text {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 10px 6px;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.tech-row__text p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(10, 10, 10, 0.55);
+}
+
+.tech-divider {
+  height: 1px;
+  background: rgba(10, 10, 10, 0.06);
+}
+
+.tech-closing {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid rgba(49, 79, 255, 0.18);
+  border-radius: 14px;
   text-align: center;
 }
 
-.mgrid__icon {
-  display: flex;
-  align-items: center;
-  color: rgba(10, 10, 10, 0.2);
+.tech-closing p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(49, 79, 255, 0.65);
 }
-.mgrid__icon svg { width: 13px; height: 13px; }
 
-.mgrid__label {
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.25);
-}
+/* ── Metrics grid (obsoleto — oculto) ── */
+.metrics-grid { display: none; }
 
 .mgrid__value {
   font-size: 15px;
@@ -956,8 +1002,7 @@ body[data-view="view-home"]    .btn-menu { color: var(--beige); }
 body[data-view="view-results"] .btn-menu { color: var(--blue); }
 
 /* El explain-sheet solo es visible en la vista de resultados */
-body[data-view="view-home"] .explain-sheet,
-body[data-view="view-home"] .explain-overlay {
+body[data-view="view-home"] .explain-sheet {
   display: none;
 }
 
