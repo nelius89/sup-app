@@ -176,7 +176,7 @@ async function loadSpot(spot) {
 
   document.getElementById('results-spot-name').textContent = spot.name;
   document.getElementById('diagnosis-title').textContent   = 'Cargando...';
-  document.getElementById('diagnosis-desc').textContent    = '';
+  document.getElementById('diagnosis-summary').textContent = '';
 
   try {
     currentData = await fetchSpotData(spot);
@@ -184,8 +184,8 @@ async function loadSpot(spot) {
     renderResults(sliderIndex(currentDay, currentFranja));
 
   } catch (err) {
-    document.getElementById('diagnosis-title').textContent = 'Sin conexión';
-    document.getElementById('diagnosis-desc').textContent  = 'No se han podido cargar los datos. Comprueba tu conexión.';
+    document.getElementById('diagnosis-title').textContent   = 'Sin conexión';
+    document.getElementById('diagnosis-summary').textContent = 'No se han podido cargar los datos. Comprueba tu conexión.';
   }
 }
 

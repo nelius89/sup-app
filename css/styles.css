@@ -939,6 +939,12 @@ ul { list-style: none; }
 body[data-view="view-home"]    .btn-menu { color: var(--beige); }
 body[data-view="view-results"] .btn-menu { color: var(--blue); }
 
+/* El explain-sheet solo es visible en la vista de resultados */
+body[data-view="view-home"] .explain-sheet,
+body[data-view="view-home"] .explain-overlay {
+  display: none;
+}
+
 /* ─────────────────────────────────────────
    MENU DRAWER
 ───────────────────────────────────────── */
