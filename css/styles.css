@@ -212,6 +212,7 @@ ul { list-style: none; }
 .view--results {
   background: var(--beige);
   color: var(--black);
+  transition: background 0.35s ease;
 }
 
 /* ── Header ── */
@@ -567,6 +568,7 @@ ul { list-style: none; }
 .explain-sheet.expanded {
   transform: translateY(0);
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Handle: barra + label "Información técnica completa" */
@@ -601,6 +603,7 @@ ul { list-style: none; }
   text-transform: uppercase;
   color: rgba(10, 10, 10, 0.3);
   white-space: nowrap;
+  transition: color 0.35s ease;
 }
 
 @keyframes handleBounce {
@@ -609,21 +612,16 @@ ul { list-style: none; }
   60%       { transform: translateY(-2px); }
 }
 
-/* Cuerpo técnico — solo visible al expandir */
+/* Cuerpo técnico — siempre renderizado, visible al expandir por overflow del sheet */
 .explain-sheet__body {
-  display: none;
+  display: flex;
   flex-direction: column;
   padding: 4px 20px calc(40px + var(--safe-bottom));
-}
-
-.explain-sheet.expanded .explain-sheet__body {
-  display: flex;
 }
 
 /* ── Estado expandido: fondo azul en la vista ── */
 body.sheet-expanded .view--results {
   background: var(--blue);
-  transition: background 0.35s ease;
 }
 
 body.sheet-expanded .results__spot-name,
@@ -971,7 +969,7 @@ body.sheet-expanded .explain-sheet__handle-label { color: rgba(10, 10, 10, 0.2);
   background: none;
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, color 0.35s ease;
 }
 
 .btn-menu:active { opacity: 0.5; }

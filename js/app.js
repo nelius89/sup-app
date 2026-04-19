@@ -430,42 +430,81 @@ function closeExplainSheet() {
 }
 
 function initExplainSheet() {
-  const sheet = document.getElementById('explain-sheet');
-  let startY = 0, dragY = 0, dragging = false;
-  let isExpanded = false;
+  const sheet  = document.getElementById('explain-sheet');
+  const handle = document.getElementById('explain-handle');
+  const body   = document.getElementById('explain-body');
+  const view   = document.querySelector('.view--results');
+  const PEEK   = 68;
+  const BEIGE  = [249, 246, 239];
+  const BLUE   = [49, 79, 255];
+  let startY = 0, dragY = 0, dragging = false, isExpanded = false, sheetH = 0;
+  let bodyTouchStartY = 0;
 
-  sheet.addEventListener('touchstart', (e) => {
-    startY   = e.touches[0].clientY;
-    dragY    = 0;
-    dragging = true;
-    isExpanded = sheet.classList.contains('expanded');
+  function lerpColor(t) {
+    t = Math.max(0, Math.min(1, t));
+    const r = Math.round(BEIGE[0] + (BLUE[0] - BEIGE[0]) * t);
+    const g = Math.round(BEIGE[1] + (BLUE[1] - BEIGE[1]) * t);
+    const b = Math.round(BEIGE[2] + (BLUE[2] - BEIGE[2]) * t);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function startDrag(clientY, expanded) {
+    sheetH = sheet.getBoundingClientRect().height;
+    startY = clientY; dragY = 0; dragging = true; isExpanded = expanded;
     sheet.style.transition = 'none';
-  }, { passive: true });
+    view.style.transition  = 'none';
+  }
 
-  sheet.addEventListener('touchmove', (e) => {
+  function moveDrag(clientY) {
     if (!dragging) return;
-    const delta = e.touches[0].clientY - startY;
-    if (isExpanded) {
-      // Arrastrando hacia abajo desde expandido
-      dragY = Math.max(0, delta);
-    } else {
-      // Arrastrando hacia arriba desde colapsado
-      dragY = Math.min(0, delta);
+    const delta = clientY - startY;
+    const maxTravel = sheetH - PEEK;
+    dragY = isExpanded ? Math.max(0, delta) : Math.min(0, delta);
+    if (dragY !== 0) {
+      sheet.style.transform = `translateY(${dragY}px)`;
+      const progress = isExpanded
+        ? 1 - dragY / maxTravel
+        : Math.abs(dragY) / maxTravel;
+      view.style.background = lerpColor(progress);
     }
-    if (dragY !== 0) sheet.style.transform = `translateY(${dragY}px)`;
-  }, { passive: true });
+  }
 
-  sheet.addEventListener('touchend', () => {
+  function endDrag() {
     if (!dragging) return;
     dragging = false;
     sheet.style.transition = '';
     sheet.style.transform  = '';
-    if (isExpanded && dragY > 60) {
-      closeExplainSheet();
-    } else if (!isExpanded && dragY < -40) {
-      openExplainSheet();
+    view.style.transition  = '';
+    view.style.background  = '';
+    if (isExpanded && dragY > 60)  closeExplainSheet();
+    else if (!isExpanded && dragY < -40) openExplainSheet();
+  }
+
+  // Handle: drag para abrir y cerrar
+  handle.addEventListener('touchstart', (e) => {
+    startDrag(e.touches[0].clientY, sheet.classList.contains('expanded'));
+  }, { passive: true });
+  handle.addEventListener('touchmove',  (e) => moveDrag(e.touches[0].clientY), { passive: true });
+  handle.addEventListener('touchend',   endDrag);
+
+  // Body: solo cierra si scrollTop === 0 y el dedo va hacia abajo
+  body.addEventListener('touchstart', (e) => {
+    bodyTouchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  body.addEventListener('touchmove', (e) => {
+    if (!sheet.classList.contains('expanded')) return;
+    const delta = e.touches[0].clientY - bodyTouchStartY;
+    if (!dragging) {
+      if (body.scrollTop === 0 && delta > 10) {
+        startDrag(bodyTouchStartY, true);
+      } else {
+        return;
+      }
     }
-  });
+    e.preventDefault();
+    moveDrag(e.touches[0].clientY);
+  }, { passive: false });
+  body.addEventListener('touchend', endDrag);
 }
 
 // ── Franja label con horas ──
