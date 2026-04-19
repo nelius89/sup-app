@@ -219,7 +219,7 @@ function renderResults(sliderIdx) {
   document.getElementById('diagnosis-subtitle').textContent = info.subtitulo;
 
   // Ilustración
-  const ILLUS_MAP = { 'perfecto': 'Perfecto.svg', 'bueno': 'Bueno.png' };
+  const ILLUS_MAP = { 'perfecto': 'Perfecto.svg', 'bueno': 'Bueno.svg' };
   const illusEl = document.getElementById('diagnosis-illus');
   if (ILLUS_MAP[estado]) {
     illusEl.style.display = '';
