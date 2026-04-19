@@ -100,6 +100,97 @@
           </div>
         </div>
 
+        <!-- CTA acordeón técnico -->
+        <button class="tech-toggle" id="tech-toggle">
+          <span class="tech-toggle__label">Ver por qué</span>
+          <span class="tech-toggle__arrow">↓</span>
+        </button>
+
+      </div>
+
+      <!-- Bloque técnico — acordeón -->
+      <div class="tech-section" id="tech-section">
+
+        <!-- Terral (si aplica) -->
+        <div class="explain-terral hidden" id="explain-terral">
+          <div class="explain-terral__icon-wrap">
+            <span class="explain-terral__bang">!</span>
+          </div>
+          <div class="explain-terral__text">
+            <strong class="explain-terral__title" id="explain-terral-title">AVISO VIENTO TERRAL</strong>
+            <p class="explain-terral__desc" id="explain-terral-desc"></p>
+            <p class="explain-terral__advice" id="explain-terral-advice"></p>
+          </div>
+        </div>
+
+        <!-- Viento -->
+        <div class="tech-row">
+          <div class="tech-row__card">
+            <span class="tech-row__icon" id="tr-wind-icon"></span>
+            <span class="tech-row__label">VIENTO</span>
+            <span class="tech-row__value" id="tr-wind-value"></span>
+            <span class="tech-row__sub" id="tr-wind-sub"></span>
+          </div>
+          <div class="tech-row__text">
+            <p id="tr-wind-p1"></p>
+            <p id="tr-wind-p2"></p>
+            <p id="tr-wind-p3"></p>
+          </div>
+        </div>
+        <div class="tech-divider"></div>
+
+        <!-- Rachas -->
+        <div class="tech-row">
+          <div class="tech-row__card">
+            <span class="tech-row__icon" id="tr-gusts-icon"></span>
+            <span class="tech-row__label">RACHAS</span>
+            <span class="tech-row__value" id="tr-gusts-value"></span>
+            <span class="tech-row__sub" id="tr-gusts-sub"></span>
+          </div>
+          <div class="tech-row__text">
+            <p id="tr-gusts-p1"></p>
+            <p id="tr-gusts-p2"></p>
+            <p id="tr-gusts-p3"></p>
+          </div>
+        </div>
+        <div class="tech-divider"></div>
+
+        <!-- Ola -->
+        <div class="tech-row">
+          <div class="tech-row__card">
+            <span class="tech-row__icon" id="tr-wave-icon"></span>
+            <span class="tech-row__label">OLA</span>
+            <span class="tech-row__value" id="tr-wave-value"></span>
+            <span class="tech-row__sub" id="tr-wave-sub"></span>
+          </div>
+          <div class="tech-row__text">
+            <p id="tr-wave-p1"></p>
+            <p id="tr-wave-p2"></p>
+            <p id="tr-wave-p3"></p>
+          </div>
+        </div>
+        <div class="tech-divider"></div>
+
+        <!-- Período -->
+        <div class="tech-row">
+          <div class="tech-row__card">
+            <span class="tech-row__icon" id="tr-period-icon"></span>
+            <span class="tech-row__label">PERÍODO</span>
+            <span class="tech-row__value" id="tr-period-value"></span>
+            <span class="tech-row__sub" id="tr-period-sub"></span>
+          </div>
+          <div class="tech-row__text">
+            <p id="tr-period-p1"></p>
+            <p id="tr-period-p2"></p>
+            <p id="tr-period-p3"></p>
+          </div>
+        </div>
+
+        <!-- Cierre -->
+        <div class="tech-closing">
+          <p id="tech-closing"></p>
+        </div>
+
       </div>
 
     </div><!-- /results__main -->
@@ -227,99 +318,16 @@
     </div>
   </div>
 
-  <!-- Explain bottom sheet — handle visible, expandible con fondo azul -->
-  <div class="explain-sheet" id="explain-sheet">
-
-    <!-- Handle — siempre visible, invita a desplegar -->
-    <div class="explain-sheet__handle" id="explain-handle">
-      <div class="explain-sheet__handle-bar"></div>
-      <span class="explain-sheet__handle-label">Desplegar información técnica completa</span>
+  <!-- Terral popup -->
+  <div class="terral-overlay hidden" id="terral-overlay"></div>
+  <div class="terral-modal hidden" id="terral-modal">
+    <button class="terral-modal__close" id="terral-modal-close">✕</button>
+    <div class="terral-modal__icon-wrap">
+      <span class="terral-modal__bang">!</span>
     </div>
-
-    <!-- Contenido técnico — visible solo al expandir -->
-    <div class="explain-sheet__body" id="explain-body">
-
-      <!-- Terral (si aplica, primero) -->
-      <div class="explain-terral hidden" id="explain-terral">
-        <div class="explain-terral__icon-wrap">
-          <span class="explain-terral__bang">!</span>
-        </div>
-        <div class="explain-terral__text">
-          <strong class="explain-terral__title" id="explain-terral-title">AVISO VIENTO TERRAL</strong>
-          <p class="explain-terral__desc" id="explain-terral-desc"></p>
-          <p class="explain-terral__advice" id="explain-terral-advice"></p>
-        </div>
-      </div>
-
-      <!-- Viento -->
-      <div class="tech-row">
-        <div class="tech-row__card">
-          <span class="tech-row__icon" id="tr-wind-icon"></span>
-          <span class="tech-row__label">VIENTO</span>
-          <span class="tech-row__value" id="tr-wind-value"></span>
-          <span class="tech-row__sub" id="tr-wind-sub"></span>
-        </div>
-        <div class="tech-row__text">
-          <p id="tr-wind-p1"></p>
-          <p id="tr-wind-p2"></p>
-          <p id="tr-wind-p3"></p>
-        </div>
-      </div>
-      <div class="tech-divider"></div>
-
-      <!-- Rachas -->
-      <div class="tech-row">
-        <div class="tech-row__card">
-          <span class="tech-row__icon" id="tr-gusts-icon"></span>
-          <span class="tech-row__label">RACHAS</span>
-          <span class="tech-row__value" id="tr-gusts-value"></span>
-          <span class="tech-row__sub" id="tr-gusts-sub"></span>
-        </div>
-        <div class="tech-row__text">
-          <p id="tr-gusts-p1"></p>
-          <p id="tr-gusts-p2"></p>
-          <p id="tr-gusts-p3"></p>
-        </div>
-      </div>
-      <div class="tech-divider"></div>
-
-      <!-- Ola -->
-      <div class="tech-row">
-        <div class="tech-row__card">
-          <span class="tech-row__icon" id="tr-wave-icon"></span>
-          <span class="tech-row__label">OLA</span>
-          <span class="tech-row__value" id="tr-wave-value"></span>
-          <span class="tech-row__sub" id="tr-wave-sub"></span>
-        </div>
-        <div class="tech-row__text">
-          <p id="tr-wave-p1"></p>
-          <p id="tr-wave-p2"></p>
-          <p id="tr-wave-p3"></p>
-        </div>
-      </div>
-      <div class="tech-divider"></div>
-
-      <!-- Período -->
-      <div class="tech-row">
-        <div class="tech-row__card">
-          <span class="tech-row__icon" id="tr-period-icon"></span>
-          <span class="tech-row__label">PERÍODO</span>
-          <span class="tech-row__value" id="tr-period-value"></span>
-          <span class="tech-row__sub" id="tr-period-sub"></span>
-        </div>
-        <div class="tech-row__text">
-          <p id="tr-period-p1"></p>
-          <p id="tr-period-p2"></p>
-          <p id="tr-period-p3"></p>
-        </div>
-      </div>
-
-      <!-- Cierre -->
-      <div class="tech-closing">
-        <p id="tech-closing"></p>
-      </div>
-
-    </div>
+    <strong class="terral-modal__title" id="terral-modal-title"></strong>
+    <p class="terral-modal__desc" id="terral-modal-desc"></p>
+    <p class="terral-modal__advice" id="terral-modal-advice"></p>
   </div>
 
   <script src="js/storage.js"></script>

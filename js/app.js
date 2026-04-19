@@ -180,6 +180,8 @@ async function loadSpot(spot) {
   document.getElementById('diagnosis-title').textContent    = 'Cargando...';
   document.getElementById('diagnosis-subtitle').textContent = '';
   document.getElementById('terral-pill').classList.add('hidden');
+  document.getElementById('tech-section').classList.remove('open');
+  document.getElementById('tech-toggle').classList.remove('open');
 
   try {
     currentData = await fetchSpotData(spot);
@@ -242,11 +244,16 @@ function renderResults(sliderIdx) {
   if (nivelTerral === 0) {
     pillEl.classList.add('hidden');
   } else {
+    const ti = TERRAL_INFO[nivelTerral];
     pillEl.classList.remove('hidden');
-    document.getElementById('terral-pill-label').textContent = TERRAL_INFO[nivelTerral].pillLabel;
+    document.getElementById('terral-pill-label').textContent = ti.pillLabel;
+    // Rellenar modal
+    document.getElementById('terral-modal-title').textContent  = ti.title;
+    document.getElementById('terral-modal-desc').textContent   = ti.desc;
+    document.getElementById('terral-modal-advice').textContent = ti.advice;
   }
 
-  // Terral en el sheet técnico
+  // Terral en el acordeón técnico
   const explainTerral = document.getElementById('explain-terral');
   if (nivelTerral === 0) {
     explainTerral.classList.add('hidden');
@@ -415,92 +422,30 @@ function initSuggestionsSheet() {
   });
 }
 
-// ── Explain sheet ──
-function openExplainSheet() {
-  document.getElementById('explain-sheet').classList.add('expanded');
-  document.body.classList.add('sheet-expanded');
-}
-
-function closeExplainSheet() {
-  document.getElementById('explain-sheet').classList.remove('expanded');
-  document.body.classList.remove('sheet-expanded');
-  setTimeout(() => {
-    document.getElementById('explain-body').scrollTop = 0;
-  }, 380);
-}
-
-function initExplainSheet() {
-  const sheet  = document.getElementById('explain-sheet');
-  const handle = document.getElementById('explain-handle');
-  const view   = document.querySelector('.view--results');
-  const PEEK  = 68;
-  const BEIGE = [249, 246, 239], BLUE = [49, 79, 255];
-
-  let startY = 0, startSheetY = 0, maxY = 0;
-  let dragging = false, maybeTap = false;
-  let cleanupTimer;
-
-  function lerpColor(t) {
-    t = Math.max(0, Math.min(1, t));
-    return `rgb(${Math.round(BEIGE[0]+(BLUE[0]-BEIGE[0])*t)},${Math.round(BEIGE[1]+(BLUE[1]-BEIGE[1])*t)},${Math.round(BEIGE[2]+(BLUE[2]-BEIGE[2])*t)})`;
-  }
-
-  handle.addEventListener('touchstart', (e) => {
-    clearTimeout(cleanupTimer);
-    const sheetH = sheet.getBoundingClientRect().height;
-    maxY        = sheetH - PEEK;
-    startSheetY = sheet.classList.contains('expanded') ? 0 : maxY;
-    startY      = e.touches[0].clientY;
-    dragging    = false;
-    maybeTap    = true;
-    sheet.style.transition = 'none';
-    view.style.transition  = 'none';
-  }, { passive: true });
-
-  handle.addEventListener('touchmove', (e) => {
-    const delta = e.touches[0].clientY - startY;
-    if (!dragging && Math.abs(delta) > 6) {
-      dragging = true;
-      maybeTap = false;
-    }
-    if (!dragging) return;
-    const y = Math.max(0, Math.min(maxY, startSheetY + delta));
-    sheet.style.transform = `translateY(${y}px)`;
-    view.style.background  = lerpColor(1 - y / maxY);
-  }, { passive: true });
-
-  handle.addEventListener('touchend', (e) => {
-    if (dragging) {
-      dragging = false;
-      const delta  = e.changedTouches[0].clientY - startY;
-      const finalY = Math.max(0, Math.min(maxY, startSheetY + delta));
-      const goOpen = finalY < maxY / 2;
-
-      // Re-enable transition y animar al punto de snap
-      sheet.style.transition = '';
-      view.style.transition  = '';
-      sheet.style.transform  = `translateY(${goOpen ? 0 : maxY}px)`;
-      view.style.background  = lerpColor(goOpen ? 1 : 0);
-
-      if (goOpen) openExplainSheet();
-      else        closeExplainSheet();
-
-      // Limpiar inline styles después de la animación
-      cleanupTimer = setTimeout(() => {
-        sheet.style.transform  = '';
-        sheet.style.transition = '';
-        view.style.background  = '';
-        view.style.transition  = '';
-      }, 380);
-
-    } else if (maybeTap) {
-      maybeTap = false;
-      sheet.style.transition = '';
-      view.style.transition  = '';
-      if (sheet.classList.contains('expanded')) closeExplainSheet();
-      else                                      openExplainSheet();
+// ── Tech toggle (acordeón técnico) ──
+function initTechToggle() {
+  const toggle  = document.getElementById('tech-toggle');
+  const section = document.getElementById('tech-section');
+  toggle.addEventListener('click', () => {
+    const opening = !section.classList.contains('open');
+    section.classList.toggle('open');
+    toggle.classList.toggle('open');
+    if (opening) {
+      // Scroll suave para que el botón quede visible con el contenido justo debajo
+      setTimeout(() => toggle.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
     }
   });
+}
+
+// ── Terral popup ──
+function openTerralPopup() {
+  document.getElementById('terral-overlay').classList.remove('hidden');
+  document.getElementById('terral-modal').classList.remove('hidden');
+}
+
+function closeTerralPopup() {
+  document.getElementById('terral-overlay').classList.add('hidden');
+  document.getElementById('terral-modal').classList.add('hidden');
 }
 
 // ── Franja label con horas ──
@@ -605,19 +550,16 @@ document.addEventListener('DOMContentLoaded', () => {
   initAboutSheet();
   initSuggestionsSheet();
 
-  // Terral pill → expandir sheet (el terral está primero en el sheet)
-  document.getElementById('terral-pill').addEventListener('click', openExplainSheet);
-  // Handle: tap/drag gestionado por initExplainSheet
-  initExplainSheet();
+  // Terral pill → popup
+  document.getElementById('terral-pill').addEventListener('click', openTerralPopup);
+  document.getElementById('terral-overlay').addEventListener('click', closeTerralPopup);
+  document.getElementById('terral-modal-close').addEventListener('click', closeTerralPopup);
+  initTechToggle();
 
-  // Back button — doble función: cierra el sheet si está abierto, sino vuelve a home
+  // Back button — volver a home
   document.getElementById('btn-back').addEventListener('click', () => {
-    if (document.getElementById('explain-sheet').classList.contains('expanded')) {
-      closeExplainSheet();
-    } else {
-      showView('view-home');
-      renderSpotList();
-    }
+    showView('view-home');
+    renderSpotList();
   });
 
   // Search screen — cerrar

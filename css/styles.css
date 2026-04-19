@@ -212,7 +212,6 @@ ul { list-style: none; }
 .view--results {
   background: var(--beige);
   color: var(--black);
-  transition: background 0.35s ease;
 }
 
 /* ── Header ── */
@@ -221,7 +220,6 @@ ul { list-style: none; }
   align-items: center;
   padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 10px;
   flex-shrink: 0;
-  transition: background 0.35s ease;
 }
 
 .btn-back {
@@ -395,8 +393,7 @@ ul { list-style: none; }
   flex-direction: column;
   padding: 8px 20px 0;
   min-height: 0;
-  /* Espacio para el sheet peekable que se superpone al fondo */
-  padding-bottom: 150px;
+  padding-bottom: 40px;
 }
 
 /* ── Diagnosis ── */
@@ -548,101 +545,134 @@ ul { list-style: none; }
   white-space: nowrap;
 }
 
-/* ── Explain sheet — peekable con label, expandible con fondo azul ── */
-.explain-sheet {
-  --peek: 68px;
+/* ── Tech toggle — CTA acordeón técnico ── */
+.tech-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding: 6px 0;
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.15s ease;
+}
+
+.tech-toggle:active { opacity: 0.35; }
+
+.tech-toggle__arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.tech-toggle.open .tech-toggle__arrow {
+  transform: rotate(180deg);
+}
+
+/* ── Tech section — contenido colapsable ── */
+.tech-section {
+  display: none;
+}
+
+.tech-section.open {
+  display: block;
+  animation: techFadeIn 0.15s ease;
+}
+
+@keyframes techFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Terral popup ── */
+.terral-overlay {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 300;
+}
+
+.terral-modal {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 301;
-  background: var(--beige);
-  border-radius: 20px 20px 0 0;
-  transform: translateY(calc(100% - var(--peek)));
-  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  max-height: 92vh;
-  overflow: hidden;
-  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.07);
-}
-
-.explain-sheet.expanded {
-  transform: translateY(0);
-}
-
-/* Handle: barra + label "Información técnica completa" */
-.explain-sheet__handle {
+  background: var(--black);
+  border-radius: 20px;
+  padding: 28px 24px 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px 10px;
-  cursor: pointer;
-  min-height: var(--peek);
-  box-sizing: border-box;
+  gap: 12px;
 }
 
-.explain-sheet__handle-bar {
-  width: 36px;
-  height: 4px;
-  background: rgba(10, 10, 10, 0.12);
-  border-radius: 2px;
-  animation: handleBounce 2.4s ease-in-out infinite;
+.terral-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.terral-modal__close:active { background: rgba(255, 255, 255, 0.2); }
+
+.terral-modal__icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.explain-sheet.expanded .explain-sheet__handle-bar {
-  animation: none;
+.terral-modal__bang {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
 }
 
-.explain-sheet__handle-label {
+.terral-modal__title {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
+  font-weight: 700;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.3);
-  white-space: nowrap;
-  transition: color 0.35s ease;
+  color: rgba(255, 255, 255, 0.55);
 }
 
-@keyframes handleBounce {
-  0%, 100% { transform: translateY(0); }
-  40%       { transform: translateY(-4px); }
-  60%       { transform: translateY(-2px); }
+.terral-modal__desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font);
 }
 
-/* Cuerpo técnico — siempre renderizado, clipeado por overflow del sheet */
-.explain-sheet__body {
-  display: flex;
-  flex-direction: column;
-  padding: 4px 20px calc(40px + var(--safe-bottom));
-  overflow-y: hidden;
+.terral-modal__advice {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+  font-family: var(--font);
 }
 
-.explain-sheet.expanded .explain-sheet__body {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-/* ── Estado expandido: fondo azul en la vista ── */
-body.sheet-expanded .view--results {
-  background: var(--blue);
-}
-
-body.sheet-expanded .results__spot-name,
-body.sheet-expanded .results__weather-temp { color: rgba(255, 255, 255, 0.9); }
-
-body.sheet-expanded .results__weather-icon { color: rgba(255, 255, 255, 0.7); }
-
-body.sheet-expanded .btn-back { color: rgba(255, 255, 255, 0.8); }
-
-body.sheet-expanded .btn-menu {
-  opacity: 0;
-  pointer-events: none;
-}
-
-body.sheet-expanded .explain-sheet__handle-label { color: rgba(10, 10, 10, 0.2); }
-
-/* Bloque terral en el sheet */
+/* Bloque terral en la sección técnica */
 .explain-terral {
   background: var(--black);
   border-radius: 16px;
@@ -976,7 +1006,7 @@ body.sheet-expanded .explain-sheet__handle-label { color: rgba(10, 10, 10, 0.2);
   background: none;
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease, color 0.35s ease;
+  transition: opacity 0.15s ease;
 }
 
 .btn-menu:active { opacity: 0.5; }
@@ -992,11 +1022,6 @@ body.sheet-expanded .explain-sheet__handle-label { color: rgba(10, 10, 10, 0.2);
 /* Color según vista activa */
 body[data-view="view-home"]    .btn-menu { color: var(--beige); }
 body[data-view="view-results"] .btn-menu { color: var(--blue); }
-
-/* El explain-sheet solo es visible en la vista de resultados */
-body[data-view="view-home"] .explain-sheet {
-  display: none;
-}
 
 /* ─────────────────────────────────────────
    MENU DRAWER
