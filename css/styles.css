@@ -73,59 +73,25 @@ ul { list-style: none; }
   align-items: center;
 }
 
-/* ── Animación de portada (logo + ilustración) ── */
+/* ── Animación de portada — sprite sheet vertical (3 frames × 750×1100px) ── */
 .home-anim {
   position: relative;
   width: 100%;
   max-width: 260px;
   margin: 0 auto;
+  aspect-ratio: 750 / 1100;
+  overflow: hidden;
 }
 
-/* El primer frame establece la altura del contenedor */
-.home-anim__frame--1 {
+.home-anim__sprite {
   display: block;
   width: 100%;
-  height: auto;
-  visibility: hidden;   /* ocupa espacio pero no se ve — los absolutas se ven encima */
+  animation: cocoFrames 0.45s steps(3, end) infinite;
 }
 
-/* Los 3 frames, apilados */
-.home-anim__frame {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: auto;
-}
-
-.home-anim__frame--1 {
-  position: relative; /* anula el absolute para que establezca altura */
-  visibility: visible;
-  animation: frame1 0.45s steps(1, end) infinite;
-}
-
-.home-anim__frame--2 {
-  animation: frame2 0.45s steps(1, end) infinite;
-}
-
-.home-anim__frame--3 {
-  animation: frame3 0.45s steps(1, end) infinite;
-}
-
-@keyframes frame1 {
-  0%, 33.33%  { opacity: 1; }
-  33.34%, 100%{ opacity: 0; }
-}
-
-@keyframes frame2 {
-  0%, 33.33%  { opacity: 0; }
-  33.34%, 66.66% { opacity: 1; }
-  66.67%, 100%{ opacity: 0; }
-}
-
-@keyframes frame3 {
-  0%, 66.66%  { opacity: 0; }
-  66.67%, 100% { opacity: 1; }
+@keyframes cocoFrames {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-100%); }
 }
 
 .illus-placeholder--home {

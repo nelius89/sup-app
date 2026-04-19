@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE_NAME = 'coco-v10';
+const CACHE_NAME = 'coco-v11';
 const STATIC_ASSETS = [
   '/',
   '/css/styles.css',
@@ -9,9 +9,7 @@ const STATIC_ASSETS = [
   '/js/api.js',
   '/js/storage.js',
   '/js/wheel.js',
-  '/assets/illustrations/FR1.png',
-  '/assets/illustrations/FR2.png',
-  '/assets/illustrations/FR-3.png',
+  '/assets/illustrations/cocodrift-home.png',
   '/assets/illustrations/Perfecto.png',
   '/assets/illustrations/Bueno.png',
   '/assets/icons/icon-192.png',
