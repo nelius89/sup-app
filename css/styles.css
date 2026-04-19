@@ -430,20 +430,44 @@ ul { list-style: none; }
   margin-bottom: -2px;
 }
 
+.diagnosis__bubble {
+  position: relative;
+  border: 1.5px solid var(--blue);
+  border-radius: 16px;
+  background: white;
+  padding: 14px 20px 12px;
+  max-width: 290px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.diagnosis__bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 26px;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-right: 1.5px solid var(--blue);
+  border-bottom: 1.5px solid var(--blue);
+  transform: rotate(45deg);
+}
+
 .diagnosis__title {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--blue);
   line-height: 1.15;
 }
 
 .diagnosis__subtitle {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1.4;
   color: rgba(49, 79, 255, 0.65);
   text-align: center;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .diagnosis__blocks {
