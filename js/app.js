@@ -205,10 +205,9 @@ function renderResults(sliderIdx) {
   const { marine, forecast } = currentData;
   const d = getDataForSlider(sliderIdx, marine, forecast);
 
-  // Score y estado
-  const score  = calcularScore(d.windKn, d.waveH, d.gustKn, d.wavePer, d.cloudPct);
-  const estado = getEstado(score, d.weathercode);
-  const info   = ESTADOS[estado];
+  // Diagnóstico
+  const { estado, terralLevel: _terral, warnings } = diagnosticar(d, currentSpot, d.weathercode);
+  const info = ESTADOS[estado];
 
   // Contexto ambiental: icono tiempo + temperatura (bloque diagnóstico)
   document.getElementById('diagnosis-ambient-icon').innerHTML   = getWeatherIcon(d.weathercode);
@@ -219,7 +218,7 @@ function renderResults(sliderIdx) {
   document.getElementById('diagnosis-subtitle').textContent = info.subtitulo;
 
   // Ilustración
-  const ILLUS_MAP = { 'perfecto': 'Perfecto.svg', 'bueno': 'Bueno.svg' };
+  const ILLUS_MAP = { 'piscina': 'Perfecto.svg', 'muy-agradable': 'Bueno.svg' };
   const illusEl = document.getElementById('diagnosis-illus');
   if (ILLUS_MAP[estado]) {
     illusEl.style.display = '';
@@ -239,7 +238,7 @@ function renderResults(sliderIdx) {
   document.getElementById('diagnosis-sea-desc').textContent   = blocks.seaDesc;
 
   // Terral pill en pantalla principal
-  const nivelTerral = calcularRiesgoTerral(d.windKn, d.gustKn, d.windDir, d.waveH, currentSpot);
+  const nivelTerral = warnings.find(w => w.tipo === 'terral')?.nivel ?? 0;
   const pillEl = document.getElementById('terral-pill');
   if (nivelTerral === 0) {
     pillEl.classList.add('hidden');
