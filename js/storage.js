@@ -2,37 +2,14 @@
 // STORAGE — localStorage management
 // ─────────────────────────────────────────
 
-const HARDCODED_SPOTS = [
-  {
-    id: 'pont-petroli',
-    name: 'Pont del Petroli',
-    city: 'Badalona',
-    abbrev: 'BDN',
-    lat: 41.4421,
-    lon: 2.2385,
-    hardcoded: true,
-    offshore_range: [225, 315]
-  },
-  {
-    id: 'platja-llevant',
-    name: 'Platja del Llevant',
-    city: 'Barcelona',
-    abbrev: 'BCN',
-    lat: 41.3934,
-    lon: 2.2048,
-    hardcoded: true,
-    offshore_range: [225, 315]
-  }
-];
-
 const STORAGE_KEY = 'sup-app';
 
 function getStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : { spots: [], activeSpotId: 'pont-petroli', cache: {} };
+    return raw ? JSON.parse(raw) : { spots: [], activeSpotId: null, cache: {} };
   } catch {
-    return { spots: [], activeSpotId: 'pont-petroli', cache: {} };
+    return { spots: [], activeSpotId: null, cache: {} };
   }
 }
 
@@ -41,13 +18,12 @@ function saveStorage(data) {
 }
 
 function getAllSpots() {
-  const { spots } = getStorage();
-  return [...HARDCODED_SPOTS, ...spots];
+  return getStorage().spots;
 }
 
 function addUserSpot(spot) {
   const data = getStorage();
-  if (data.spots.length >= 8) return false; // max 10 total (2 hardcoded + 8 user)
+  if (data.spots.length >= 10) return false;
   data.spots.push(spot);
   saveStorage(data);
   return true;
@@ -56,7 +32,7 @@ function addUserSpot(spot) {
 function removeUserSpot(id) {
   const data = getStorage();
   data.spots = data.spots.filter(s => s.id !== id);
-  if (data.activeSpotId === id) data.activeSpotId = 'pont-petroli';
+  if (data.activeSpotId === id) data.activeSpotId = null;
   saveStorage(data);
 }
 

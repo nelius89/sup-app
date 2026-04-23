@@ -77,6 +77,28 @@ function renderSpotList() {
   const spots     = getAllSpots();
   container.innerHTML = '';
 
+  // Estado A — sin playas guardadas
+  if (spots.length === 0) {
+    const searchBtn = document.createElement('button');
+    searchBtn.className = 'btn-search-main';
+    searchBtn.id = 'btn-search-main';
+    searchBtn.innerHTML = `
+      <span class="btn-search-main__label">Busca tu playa favorita</span>
+      <span class="btn-search-main__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+    `;
+    searchBtn.addEventListener('click', () => openSearch(searchBtn));
+    container.appendChild(searchBtn);
+
+    const sub = document.createElement('p');
+    sub.className = 'home-state-a__sub';
+    sub.textContent = 'Y te cuento si está para salir con la tabla';
+    container.appendChild(sub);
+    return;
+  }
+
+  // Estado B — con playas guardadas
   spots.forEach((spot, index) => {
     const spotRow = document.createElement('div');
     spotRow.className = 'spot-row';
@@ -87,13 +109,13 @@ function renderSpotList() {
     abbrevEl.textContent = cityAbbrev(spot);
     spotRow.appendChild(abbrevEl);
 
-    // Botón
+    // Botón spot
     const btn = document.createElement('button');
     btn.className = 'spot-item' + (deleteMode === spot.id ? ' spot-item--delete-mode' : '');
     btn.dataset.id = spot.id;
     btn.innerHTML = `
       <span class="spot-item__name">${spot.name}</span>
-      ${!spot.hardcoded ? `<span class="spot-item__delete" data-delete="${spot.id}">✕</span>` : ''}
+      <span class="spot-item__delete" data-delete="${spot.id}">✕</span>
     `;
 
     btn.addEventListener('click', (e) => {
@@ -101,28 +123,26 @@ function renderSpotList() {
       loadSpot(spot);
     });
 
-    if (!spot.hardcoded) {
-      let pressTimer;
-      btn.addEventListener('pointerdown', () => {
-        pressTimer = setTimeout(() => {
-          deleteMode = spot.id;
-          renderSpotList();
-        }, 600);
-      });
-      btn.addEventListener('pointerup',    () => clearTimeout(pressTimer));
-      btn.addEventListener('pointerleave', () => clearTimeout(pressTimer));
-    }
+    let pressTimer;
+    btn.addEventListener('pointerdown', () => {
+      pressTimer = setTimeout(() => {
+        deleteMode = spot.id;
+        renderSpotList();
+      }, 600);
+    });
+    btn.addEventListener('pointerup',    () => clearTimeout(pressTimer));
+    btn.addEventListener('pointerleave', () => clearTimeout(pressTimer));
 
     spotRow.appendChild(btn);
 
-    // Botón + solo en el último spot
+    // Botón búsqueda circular solo en el último spot
     if (index === spots.length - 1) {
-      const addBtn = document.createElement('button');
-      addBtn.className = 'btn-add-spot';
-      addBtn.id = 'btn-add-spot';
-      addBtn.textContent = '+';
-      addBtn.addEventListener('click', openSearch);
-      spotRow.appendChild(addBtn);
+      const searchCircle = document.createElement('button');
+      searchCircle.className = 'btn-search-circle';
+      searchCircle.id = 'btn-search-circle';
+      searchCircle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+      searchCircle.addEventListener('click', () => openSearch(searchCircle));
+      spotRow.appendChild(searchCircle);
     }
 
     container.appendChild(spotRow);
@@ -307,22 +327,8 @@ function shortDirLabel(degrees) {
 }
 
 
-// ── Menú hamburguesa ──
-function openMenu() {
-  document.getElementById('menu-overlay').classList.add('active');
-  document.getElementById('menu-drawer').classList.add('active');
-  document.getElementById('btn-menu').style.visibility = 'hidden';
-}
-
-function closeMenu() {
-  document.getElementById('menu-overlay').classList.remove('active');
-  document.getElementById('menu-drawer').classList.remove('active');
-  document.getElementById('btn-menu').style.visibility = '';
-}
-
 // ── About sheet ──
 function openAboutSheet() {
-  closeMenu();
   document.getElementById('about-overlay').classList.add('active');
   document.getElementById('about-sheet').classList.add('active');
 }
@@ -359,7 +365,6 @@ function initAboutSheet() {
 const SUGGESTIONS_WORKER = 'https://coco-suggestions.manel89.workers.dev';
 
 function openSuggestionsSheet() {
-  closeMenu();
   // Reset form state on open
   document.getElementById('suggestions-form').classList.remove('hidden');
   document.getElementById('suggestions-success').classList.add('hidden');
@@ -469,16 +474,16 @@ function franjaLabel(franjaIndex) {
   return `${f.label} · ${h[0]}h–${h[h.length - 1]}h`;
 }
 
-// ── Search screen: añadir spot ──
+// ── Search screen ──
 let selectedGeoResult = null;
 
-function openSearch() {
-  const addBtn = document.getElementById('btn-add-spot');
-  if (!addBtn) return;
-  const rect = addBtn.getBoundingClientRect();
+function openSearch(triggerEl) {
   const screen = document.getElementById('search-screen');
-  screen.style.setProperty('--ox', (rect.left + rect.width  / 2) + 'px');
-  screen.style.setProperty('--oy', (rect.top  + rect.height / 2) + 'px');
+  if (triggerEl) {
+    const rect = triggerEl.getBoundingClientRect();
+    screen.style.setProperty('--ox', (rect.left + rect.width  / 2) + 'px');
+    screen.style.setProperty('--oy', (rect.top  + rect.height / 2) + 'px');
+  }
   screen.classList.add('active');
   document.getElementById('search-input').focus();
 }
@@ -486,10 +491,8 @@ function openSearch() {
 function closeSearch() {
   document.getElementById('search-screen').classList.remove('active');
   setTimeout(() => {
-    document.getElementById('search-input').value      = '';
+    document.getElementById('search-input').value       = '';
     document.getElementById('search-results').innerHTML = '';
-    document.getElementById('search-confirm').classList.add('hidden');
-    document.getElementById('spot-name-input').value  = '';
     selectedGeoResult = null;
   }, 350);
 }
@@ -519,28 +522,17 @@ async function handleSearch(query) {
 }
 
 function selectGeoResult(result) {
-  selectedGeoResult = result;
-  document.getElementById('search-results').innerHTML = '';
-  document.getElementById('search-input').value = result.name;
-  document.getElementById('spot-name-input').value = result.name;
-  document.getElementById('search-confirm').classList.remove('hidden');
-}
-
-function saveNewSpot() {
-  if (!selectedGeoResult) return;
-  const name = document.getElementById('spot-name-input').value.trim() || selectedGeoResult.name;
-  const newSpot = {
-    id: `user-${Date.now()}`,
-    name,
-    city: selectedGeoResult.city || '',
-    lat: selectedGeoResult.latitude,
-    lon: selectedGeoResult.longitude,
-    hardcoded: false,
+  const tempSpot = {
+    id:             `view-${Date.now()}`,
+    name:           result.name,
+    city:           result.city || '',
+    lat:            result.latitude,
+    lon:            result.longitude,
+    hardcoded:      false,
     offshore_range: [225, 315]
   };
-  addUserSpot(newSpot);
   closeSearch();
-  renderSpotList();
+  loadSpot(tempSpot);
 }
 
 // ── Event listeners ──
@@ -553,12 +545,9 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
 
-  // Menú hamburguesa
-  document.getElementById('btn-menu').addEventListener('click', openMenu);
-  document.getElementById('menu-close').addEventListener('click', closeMenu);
-  document.getElementById('menu-overlay').addEventListener('click', closeMenu);
-  document.getElementById('menu-about').addEventListener('click', openAboutSheet);
-  document.getElementById('menu-feedback').addEventListener('click', openSuggestionsSheet);
+  // Header home
+  document.getElementById('btn-home-about').addEventListener('click', openAboutSheet);
+  document.getElementById('btn-home-feedback').addEventListener('click', openSuggestionsSheet);
   document.getElementById('about-overlay').addEventListener('click', closeAboutSheet);
   document.getElementById('suggestions-overlay').addEventListener('click', closeSuggestionsSheet);
   initAboutSheet();
@@ -581,7 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('search-input').addEventListener('input', (e) => {
     clearTimeout(searchTimer);
     const q = e.target.value.trim();
-    document.getElementById('search-confirm').classList.add('hidden');
     selectedGeoResult = null;
     if (q.length < 2) {
       document.getElementById('search-results').innerHTML = '';
@@ -589,9 +577,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     searchTimer = setTimeout(() => handleSearch(q), 350);
   });
-
-  // Guardar spot nuevo
-  document.getElementById('btn-save-spot').addEventListener('click', saveNewSpot);
 
   // Franja slider
   document.getElementById('franja-slider').addEventListener('input', (e) => {

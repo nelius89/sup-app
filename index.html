@@ -22,6 +22,16 @@
   ───────────────────────────────────────── -->
   <div id="view-home" class="view view--home active">
 
+    <!-- Header: acceso directo a info y sugerencias -->
+    <div class="home-header">
+      <button class="home-header__btn" id="btn-home-about" aria-label="Acerca de">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>
+      </button>
+      <button class="home-header__btn" id="btn-home-feedback" aria-label="Sugerencias">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </button>
+    </div>
+
     <div class="home__top">
       <div class="home-anim">
         <img class="home-anim__sprite" src="assets/illustrations/cocodrift-home.png" alt="">
@@ -29,7 +39,7 @@
     </div>
 
     <div class="home__spots">
-      <!-- Spots + botón añadir en grid 2 columnas — renderizado por JS -->
+      <!-- Estado A / B — renderizado por JS -->
       <div class="spots-row" id="spots-row"></div>
     </div>
 
@@ -227,57 +237,6 @@
 
       <ul id="search-results" class="search-results"></ul>
 
-      <div id="search-confirm" class="search-confirm hidden">
-        <input
-          type="text"
-          id="spot-name-input"
-          class="search-field search-field--sm"
-          placeholder="Nombre para este spot"
-        >
-        <button id="btn-save-spot" class="search-save-btn">Guardar</button>
-      </div>
-
-    </div>
-  </div>
-
-
-  <!-- Hamburger button — fixed, siempre visible -->
-  <button class="btn-menu" id="btn-menu" aria-label="Menú">
-    <span class="btn-menu__bar"></span>
-    <span class="btn-menu__bar"></span>
-    <span class="btn-menu__bar"></span>
-  </button>
-
-  <!-- Menu drawer overlay -->
-  <div class="menu-overlay" id="menu-overlay"></div>
-
-  <!-- Menu drawer -->
-  <div class="menu-drawer" id="menu-drawer" role="dialog" aria-label="Menú">
-    <div class="menu-drawer__header">
-      <span class="menu-drawer__brand">Cocodrift</span>
-      <button class="menu-drawer__close" id="menu-close" aria-label="Cerrar menú">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <nav class="menu-drawer__nav">
-      <button class="menu-nav-item" id="menu-about">
-        <span class="menu-nav-item__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>
-        </span>
-        <span class="menu-nav-item__label">Acerca de Cocodrift</span>
-        <span class="menu-nav-item__arrow">›</span>
-      </button>
-      <button class="menu-nav-item" id="menu-feedback">
-        <span class="menu-nav-item__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        </span>
-        <span class="menu-nav-item__label">Sugerencias</span>
-        <span class="menu-nav-item__arrow">›</span>
-      </button>
-    </nav>
-    <div class="menu-drawer__footer">
-      <span>Cocodrift</span>
-      <span class="menu-drawer__version">v1.1</span>
     </div>
   </div>
 
