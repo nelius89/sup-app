@@ -652,7 +652,7 @@ ul { list-style: none; }
 }
 
 .diagnosis__illus {
-  height: 136px;
+  height: 116px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
