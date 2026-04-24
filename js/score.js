@@ -431,6 +431,23 @@ function buildNarrativeBlocks(d, estado, warnings) {
     };
   }
 
+  // Override: ola media con viento suave — el equilibrio exige más que el esfuerzo de remar
+  if (d.waveH > 0.6 && d.windKn <= 5) {
+    demand = {
+      title: 'Remar no cuesta, pero mantenerse estable sí',
+      desc:  'El viento no es el problema. Las olas exigen equilibrio constante.',
+    };
+  }
+
+  // Override: terral activo (nivel ≥ 2) con viento base suave — el riesgo no viene del esfuerzo
+  const terralEnDemand = warnings.some(w => w.tipo === 'terral' && w.nivel >= 2);
+  if (terralEnDemand && d.windKn <= 5) {
+    demand = {
+      title: 'Remar parece fácil, pero el terral cambia la ecuación',
+      desc:  'Viento suave ahora, pero viene de tierra. Si arrecía, la vuelta puede complicarse.',
+    };
+  }
+
   // ── Fit — para quién encaja ──
   const hasCriticalWarnings = warnings.some(
     w => w.categoria === 'alerta' || w.categoria === 'cuidado'

@@ -4,6 +4,9 @@
 node_modules/
 package-lock.json
 
+# Work in progress — nunca al repo
+_onwork/
+
 # Archivos de diseño — nunca al repo
 *.psd
 *.ai
