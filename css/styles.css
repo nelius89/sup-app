@@ -105,7 +105,7 @@ ul { list-style: none; }
 
 /* ── Spot list ── */
 .home__spots {
-  padding: 0 32px;
+  /* Sin padding extra: el view--home ya aplica 36px horizontal */
 }
 
 /* Lista de spots — una playa por línea */
@@ -115,9 +115,10 @@ ul { list-style: none; }
   gap: 8px;
 }
 
-/* Fila individual: abbrev + botón (+ opcionalmente el +) */
+/* Fila individual: 3 columnas simétricas → pill siempre centrado */
 .spot-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
   align-items: center;
   gap: 10px;
 }
