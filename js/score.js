@@ -439,13 +439,21 @@ function buildNarrativeBlocks(d, estado, warnings) {
     };
   }
 
-  // Override: terral activo (nivel ≥ 2) con viento base suave — el riesgo no viene del esfuerzo
-  const terralEnDemand = warnings.some(w => w.tipo === 'terral' && w.nivel >= 2);
-  if (terralEnDemand && d.windKn <= 5) {
-    demand = {
-      title: 'Remar parece fácil, pero el terral cambia la ecuación',
-      desc:  'Viento suave ahora, pero viene de tierra. Si arrecía, la vuelta puede complicarse.',
-    };
+  // Override: terral activo con viento base suave — el riesgo no viene del esfuerzo de remar
+  // Nivel 1 (leve): aviso suave. Nivel ≥ 2 (relevante/fuerte): mensaje más directo.
+  const terralWarningDemand = warnings.find(w => w.tipo === 'terral');
+  if (terralWarningDemand && d.windKn <= 5) {
+    if (terralWarningDemand.nivel >= 2) {
+      demand = {
+        title: 'Remar parece fácil, pero el viento te aleja de la orilla',
+        desc:  'El viento viene de tierra y te empuja hacia el mar. Si se pone más fuerte, volver va a costar más.',
+      };
+    } else {
+      demand = {
+        title: 'El viento viene de tierra, hoy está suave',
+        desc:  'Te empuja un poco hacia el mar. No es un problema si no te alejas demasiado.',
+      };
+    }
   }
 
   // ── Fit — para quién encaja ──
@@ -469,13 +477,13 @@ function buildNarrativeBlocks(d, estado, warnings) {
       break;
     case 'se-puede-salir':
       fit = hasCriticalWarnings
-        ? { title: 'Solo para gente con experiencia', desc: 'Si no tienes control, lo vas a pasar mal.' }
+        ? { title: 'Mejor si tienes experiencia', desc: 'Si no controlas mucho, te puede costar.' }
         : { title: 'Mejor con algo de experiencia',   desc: 'Si ya controlas la tabla, es buen día. Si no, puede costar.' };
       break;
     case 'exigente':
       fit = {
-        title: 'Solo para gente con experiencia',
-        desc:  'Si no tienes control, lo vas a pasar mal.',
+        title: 'Mejor si tienes experiencia',
+        desc:  'Si no controlas mucho, te puede costar.',
       };
       break;
     case 'no-recomendable':
