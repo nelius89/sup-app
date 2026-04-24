@@ -1548,7 +1548,7 @@ ul { list-style: none; }
   background: var(--black);
   z-index: 300;
   clip-path: circle(0px at var(--ox, 50%) var(--oy, 50%));
-  transition: clip-path 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
   opacity: 1;
 }

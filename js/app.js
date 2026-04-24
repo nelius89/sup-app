@@ -874,7 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     overlay.style.setProperty('--ox', (rect.left + rect.width  / 2) + 'px');
     overlay.style.setProperty('--oy', (rect.top  + rect.height / 2) + 'px');
-    overlay.style.transition = 'clip-path 0.38s cubic-bezier(0.4, 0, 0.2, 1)';
+    overlay.style.transition = 'clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
     overlay.style.opacity    = '1';
     overlay.classList.add('expanding');
 
@@ -885,20 +885,20 @@ document.addEventListener('DOMContentLoaded', () => {
       renderInfoTech();
       showView('view-info');
 
-      // Fade out del overlay
+      // Fade out suave del overlay
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           viewInfo.classList.remove('no-transition');
-          overlay.style.transition = 'opacity 0.28s ease';
+          overlay.style.transition = 'opacity 0.45s ease';
           overlay.style.opacity    = '0';
           setTimeout(() => {
             overlay.classList.remove('expanding');
             overlay.style.transition = '';
             overlay.style.opacity    = '';
-          }, 280);
+          }, 450);
         });
       });
-    }, 360);
+    }, 500);
   });
 
   // Back desde info técnica → volver a results
