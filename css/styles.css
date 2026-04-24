@@ -916,6 +916,18 @@ ul { list-style: none; }
 .tech-terral-warn svg { width: 16px; height: 16px; }
 .tech-terral-alert .tech-state-icon { color: rgba(10, 10, 10, 0.25); }
 
+.tech-terral-alert--orange {
+  border-color: rgba(249, 115, 22, 0.50);
+  background: transparent;
+}
+.tech-terral-alert--orange .tech-terral-label { color: #F97316; }
+.tech-terral-alert--orange .tech-terral-icon  { color: #F97316; }
+.tech-terral-alert--orange .tech-terral-warn  {
+  border-color: rgba(249, 115, 22, 0.45);
+  color: #F97316;
+}
+.tech-terral-alert--orange .tech-terral-warn svg { width: 20px; height: 20px; }
+
 .tech-cell__value--muted {
   font-size: 13px;
   font-weight: 500;
