@@ -352,6 +352,7 @@ async function loadSpot(spot) {
   document.getElementById('nb-demand-desc').textContent     = '—';
   document.getElementById('nb-fit-title').textContent       = '—';
   document.getElementById('nb-fit-desc').textContent        = '—';
+  document.getElementById('tech-blocks').innerHTML          = '';
 
   renderDateBtn();
   renderFranjas();
@@ -395,6 +396,9 @@ function renderResults(sliderIdx) {
   document.getElementById('nb-demand-desc').textContent     = nb.demand.desc;
   document.getElementById('nb-fit-title').textContent       = nb.fit.title;
   document.getElementById('nb-fit-desc').textContent        = nb.fit.desc;
+
+  // Bloques técnicos
+  renderTechBlocks(d, warnings);
 }
 
 // ── Favoritos ──
@@ -433,212 +437,168 @@ function shortDirLabel(degrees) {
   return 'Lateral';
 }
 
-// ── Info técnica v2.0 ──
+// ── Tech blocks — datos técnicos inline ──
 
-const TERRAL_COPY = {
-  1: {
-    body: 'El viento viene de tierra. Hoy es suave, pero te empuja hacia el mar.',
-    rec:  'No te alejes demasiado de la orilla.',
-  },
-  2: {
-    body: 'El viento de tierra empuja hacia mar abierto. Quédate cerca de la orilla en todo momento.',
-    rec:  'Si tienes dudas, mejor no salir hoy.',
-  },
-  3: {
-    body: 'El viento de tierra empuja fuerte hacia mar abierto. El agua puede parecer tranquila desde la orilla — no lo es.',
-    rec:  'Hoy es mejor quedarse en tierra.',
-  },
-};
+const INFO_SVG = `<svg class="tech-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>`;
+const WARN_SVG = `<svg class="tech-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.4"/></svg>`;
 
-const CHEVRON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
+function stateIcon(s) { return s === 'red' ? WARN_SVG : INFO_SVG; }
 
-function renderInfoTech() {
-  if (!currentData) return;
-  const { marine, forecast } = currentData;
-  const d = getDataForSlider(sliderIndex(currentDay, currentFranja), marine, forecast);
-  const { estado, warnings, alertaConsolidada } = diagnosticar(d, currentSpot, d.weathercode);
-  const tech = buildTechBlocks(d, estado);
-
-  document.getElementById('info-spot-name').textContent = currentSpot.name;
-
-  const body = document.getElementById('info-body');
-  body.innerHTML = '';
-
-  // 1. Aviso terral
-  const terralW = warnings.find(w => w.tipo === 'terral');
-  if (terralW) {
-    const t    = TERRAL_COPY[terralW.nivel] || TERRAL_COPY[2];
-    const block = document.createElement('div');
-    block.className = 'info-block info-block--terral';
-    block.innerHTML = `
-      <div class="info-block__head">
-        <div class="info-alert-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.4"/></svg>
-        </div>
-        <span class="info-block__title info-block__title--red">Aviso viento terral</span>
-      </div>
-      <p class="info-block__body">${t.body}</p>
-      <p class="info-block__rec">${t.rec}</p>
-    `;
-    body.appendChild(block);
-  }
-
-  // 2. A tener en cuenta
-  const infoWarnings = warnings.filter(w => w.tipo !== 'terral' && w.categoria !== 'narrativa');
-  if (infoWarnings.length > 0) {
-    const block = document.createElement('div');
-    block.className = 'info-block info-block--info';
-    const items = infoWarnings.map(w => {
-      const icon = (w.tipo === 'variabilidad' || w.tipo === 'rachas') ? ICONS.wind : ICONS.wave;
-      return `<div class="info-block__item">
-        <span class="info-block__item-icon">${icon}</span>
-        <div class="info-block__item-body">
-          <strong class="info-block__item-label">${w.label}</strong>
-          <p class="info-block__item-copy">${w.copy}</p>
-        </div>
-      </div>`;
-    }).join('');
-    block.innerHTML = `
-      <div class="info-block__head">
-        <span class="info-block__title info-block__title--blue">A tener en cuenta</span>
-        <div class="info-info-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>
-        </div>
-      </div>
-      <div class="info-block__items">${items}</div>
-    `;
-    body.appendChild(block);
-  }
-
-  // 3. Viento
-  body.appendChild(buildInfoVientoSection(d, tech));
-
-  // 4. Ola
-  body.appendChild(buildInfoOlaSection(d, tech));
-
-  // 5. Nota inferior
-  const nota = document.createElement('p');
-  nota.className = 'info__nota';
-  nota.textContent = 'Los valores son medias de la franja seleccionada. Toca cada bloque para entender mejor cómo leerlos.';
-  body.appendChild(nota);
+function windSpeedState(kn)      { return kn > 20 ? 'red' : kn > 10 ? 'orange' : 'ok'; }
+function gustSpeedState(kn)      { return kn > 22 ? 'red' : kn > 12 ? 'orange' : 'ok'; }
+function varState(v)             { return v > 10  ? 'red' : v > 4   ? 'orange' : 'ok'; }
+function terralCellState(level)  { return level === 3 ? 'red' : level >= 1 ? 'orange' : 'ok'; }
+function waveHState(h)           { return h > 1.0 ? 'red' : h > 0.6 ? 'orange' : 'ok'; }
+function wavePeriodState(per, h) {
+  if (h <= 0.2) return 'ok';
+  return per < 3 ? 'red' : per < 5 ? 'orange' : 'ok';
 }
 
-function buildInfoVientoSection(d, tech) {
-  const cardinal = degreesToCardinal(d.windDir);
-  const dirType  = shortDirLabel(d.windDir);
-  const windLab  = labelViento(d.windKn).label;
-  const gustLab  = labelRacha(d.gustKn).label;
+function tipoMar(swellH, windWaveH) {
+  const diff = swellH - windWaveH;
+  if (Math.abs(diff) < 0.1) return 'Mar mixto';
+  return diff > 0 ? 'Fondo' : 'Viento';
+}
 
-  const sec = document.createElement('div');
-  sec.className = 'info-section';
-  sec.innerHTML = `
-    <div class="info-section__top">
-      <span class="info-section__tag">Viento</span>
-    </div>
-    <div class="info-section__summary">
-      <div class="compass" style="--dir:${d.windDir}deg">
-        <div class="compass__needle"></div>
+function renderTechBlocks(d, warnings) {
+  const container = document.getElementById('tech-blocks');
+  if (!container) return;
+
+  const terralW     = warnings.find(w => w.tipo === 'terral');
+  const terralLevel = terralW ? terralW.nivel : 0;
+  const variabilidad = calcularVariabilidad(d.windKn, d.gustKn);
+  const windCard    = degreesToCardinal(d.windDir);
+  const waveCard    = d.waveDir != null ? degreesToCardinal(d.waveDir) : '—';
+  const waveDeg     = d.waveDir != null ? Math.round(d.waveDir) + '°' : '—';
+
+  const sWind   = windSpeedState(d.windKn);
+  const sGust   = gustSpeedState(d.gustKn);
+  const sVar    = varState(variabilidad);
+  const sTerral = terralCellState(terralLevel);
+  const sWaveH  = waveHState(d.waveH);
+  const sWavePer = wavePeriodState(d.wavePer, d.waveH);
+
+  const terralLabels = ['', 'Leve', 'Relevante', 'Fuerte'];
+
+  container.innerHTML = `
+    <div class="tech-block">
+      <div class="tech-block__header">
+        <span class="tech-block__header-icon">${ICONS.wind}</span>
+        <span class="tech-block__title">Viento</span>
       </div>
-      <div class="info-section__dir-block">
-        <div class="info-section__dir-row">
-          <span class="info-section__cardinal">${cardinal}</span>
-          <span class="info-section__dir-type">${dirType}</span>
+      <div class="tech-grid-row tech-grid-row--dir">
+        <div class="tech-cell">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Dirección</span>
+          </div>
+          <div class="tech-cell__dir-body">
+            <div>
+              <div class="tech-cell__value--dir">${windCard}</div>
+              <div class="tech-cell__degrees">${Math.round(d.windDir)}°</div>
+            </div>
+            <div class="tech-compass"></div>
+          </div>
         </div>
-        <div class="info-section__values-row">
-          <span class="info-section__val">${d.windKn.toFixed(1)} <em>kn</em></span>
-          <span class="info-section__val-sep">·</span>
-          <span class="info-section__val">${d.gustKn.toFixed(1)} <em>kn rachas</em></span>
+        <div class="tech-cell tech-cell--${sWind}">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Media</span>
+            ${stateIcon(sWind)}
+          </div>
+          <div class="tech-cell__value">${d.windKn.toFixed(1)} <em>kn</em></div>
+          <div class="tech-cell__sub">${d.windKmh} km/h</div>
         </div>
-        <div class="info-section__labels-row">
-          <span class="info-section__lab">${windLab}</span>
-          <span class="info-section__lab-sep">·</span>
-          <span class="info-section__lab">${gustLab}</span>
+        <div class="tech-cell tech-cell--${sGust}">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Rachas</span>
+            ${stateIcon(sGust)}
+          </div>
+          <div class="tech-cell__value">${d.gustKn.toFixed(1)} <em>kn</em></div>
+          <div class="tech-cell__sub">${d.gustKmh} km/h</div>
+        </div>
+      </div>
+      <div class="tech-grid-row tech-grid-row--2">
+        <div class="tech-cell tech-cell--${sVar}">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Variabilidad</span>
+            ${stateIcon(sVar)}
+          </div>
+          <div class="tech-cell__value">${variabilidad.toFixed(1)} <em>kn</em></div>
+          <div class="tech-cell__sub">(rachas − media)</div>
+        </div>
+        <div class="tech-cell tech-cell--${sTerral}">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Terral</span>
+            ${stateIcon(sTerral)}
+          </div>
+          <div class="tech-cell__value ${terralLevel === 0 ? 'tech-cell__value--muted' : ''}">${terralLevel === 0 ? 'Sin terral' : 'Viento de tierra'}</div>
+          ${terralLevel > 0 ? `<div class="tech-cell__sub">${terralLabels[terralLevel]}</div>` : ''}
         </div>
       </div>
     </div>
-    <button class="info-section__cta" type="button">
-      <span>Entender el viento</span>
-      <span class="info-section__cta-arrow">${CHEVRON_SVG}</span>
-    </button>
-    <div class="info-section__detail hidden">
-      <div class="info-section__sub">
-        <span class="info-section__sub-label">¿Qué significa?</span>
-        <p>${tech.wind.p1}</p>
+
+    <div class="tech-block">
+      <div class="tech-block__header">
+        <span class="tech-block__header-icon">${ICONS.wave}</span>
+        <span class="tech-block__title">Oleaje</span>
       </div>
-      <div class="info-section__sub">
-        <span class="info-section__sub-label">¿Qué implica hoy?</span>
-        <p>${tech.wind.p2}</p>
-        <p>${tech.gusts.p2}</p>
+      <div class="tech-grid-row tech-grid-row--3">
+        <div class="tech-cell tech-cell--${sWaveH}">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Altura de ola</span>
+            ${stateIcon(sWaveH)}
+          </div>
+          <div class="tech-cell__value">${d.waveH.toFixed(1)} <em>m</em></div>
+        </div>
+        <div class="tech-cell tech-cell--${sWavePer}">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Período</span>
+            ${stateIcon(sWavePer)}
+          </div>
+          <div class="tech-cell__value">${Math.round(d.wavePer)} <em>s</em></div>
+        </div>
+        <div class="tech-cell">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Dir. de ola</span>
+            ${INFO_SVG}
+          </div>
+          <div class="tech-cell__value--dir">${waveCard}</div>
+          <div class="tech-cell__degrees">${waveDeg}</div>
+        </div>
       </div>
-      <div class="info-section__sub info-section__sub--key">
-        <span class="info-section__sub-label">Clave</span>
-        <p>${tech.wind.p3}</p>
+      <div class="tech-grid-row tech-grid-row--3">
+        <div class="tech-cell">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Mar de fondo</span>
+            ${INFO_SVG}
+          </div>
+          <div class="tech-cell__value">${(d.swellH || 0).toFixed(1)} <em>m</em></div>
+        </div>
+        <div class="tech-cell">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Mar de viento</span>
+            ${INFO_SVG}
+          </div>
+          <div class="tech-cell__value">${(d.windWaveH || 0).toFixed(1)} <em>m</em></div>
+        </div>
+        <div class="tech-cell">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Tipo de mar</span>
+            ${INFO_SVG}
+          </div>
+          <div class="tech-cell__tipo">
+            ${ICONS.wave}
+            <span class="tech-cell__tipo-text">${tipoMar(d.swellH || 0, d.windWaveH || 0)}</span>
+          </div>
+        </div>
       </div>
     </div>
+
+    <p class="tech-nota">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>
+      Valores medios de la franja seleccionada.
+    </p>
   `;
-  _initInfoSectionToggle(sec);
-  return sec;
 }
-
-function buildInfoOlaSection(d, tech) {
-  const olaLab = labelOla(d.waveH).label;
-  const perLab = labelPeriodo(d.wavePer).label;
-
-  const sec = document.createElement('div');
-  sec.className = 'info-section';
-  sec.innerHTML = `
-    <div class="info-section__top">
-      <span class="info-section__tag">Ola</span>
-    </div>
-    <div class="info-section__summary">
-      <div class="info-section__wave-icon">${ICONS.wave}</div>
-      <div class="info-section__dir-block">
-        <div class="info-section__values-row">
-          <span class="info-section__val">${d.waveH.toFixed(1)} <em>m</em></span>
-          <span class="info-section__val-sep">·</span>
-          <span class="info-section__val">${d.wavePer.toFixed(0)} <em>s</em></span>
-        </div>
-        <div class="info-section__labels-row">
-          <span class="info-section__lab">${olaLab}</span>
-          <span class="info-section__lab-sep">·</span>
-          <span class="info-section__lab">${perLab}</span>
-        </div>
-      </div>
-    </div>
-    <button class="info-section__cta" type="button">
-      <span>Entender la ola</span>
-      <span class="info-section__cta-arrow">${CHEVRON_SVG}</span>
-    </button>
-    <div class="info-section__detail hidden">
-      <div class="info-section__sub">
-        <span class="info-section__sub-label">¿Qué significa?</span>
-        <p>${tech.sea.p1}</p>
-      </div>
-      <div class="info-section__sub">
-        <span class="info-section__sub-label">¿Qué implica hoy?</span>
-        <p>${tech.sea.p2}</p>
-        <p>${tech.period.p2}</p>
-      </div>
-      <div class="info-section__sub info-section__sub--key">
-        <span class="info-section__sub-label">Clave</span>
-        <p>${tech.sea.p3}</p>
-      </div>
-    </div>
-  `;
-  _initInfoSectionToggle(sec);
-  return sec;
-}
-
-function _initInfoSectionToggle(sec) {
-  const cta    = sec.querySelector('.info-section__cta');
-  const detail = sec.querySelector('.info-section__detail');
-  const arrow  = sec.querySelector('.info-section__cta-arrow svg');
-  cta.addEventListener('click', () => {
-    const isHidden = detail.classList.toggle('hidden');
-    if (arrow) arrow.style.transform = isHidden ? '' : 'rotate(180deg)';
-  });
-}
-
 
 // ── About sheet ──
 function openAboutSheet() {
@@ -867,37 +827,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.results__date-wrap')) {
       closeDateDropdown();
     }
-  });
-
-  // CTA info detallada — crossfade con scale sutil
-  document.getElementById('btn-detail').addEventListener('click', () => {
-    const viewResults = document.getElementById('view-results');
-    const viewInfo    = document.getElementById('view-info');
-
-    // Preparar view-info invisible antes de mostrarla
-    viewInfo.classList.add('entering');
-    renderInfoTech();
-    showView('view-info');
-
-    // Results sale con leve scale-down
-    viewResults.classList.add('leaving');
-
-    // Activar entrada de view-info en el siguiente frame
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        viewInfo.classList.remove('entering');
-        viewInfo.classList.add('entering-active');
-        setTimeout(() => {
-          viewInfo.classList.remove('entering-active');
-          viewResults.classList.remove('leaving');
-        }, 320);
-      });
-    });
-  });
-
-  // Back desde info técnica → volver a results
-  document.getElementById('btn-back-info').addEventListener('click', () => {
-    showView('view-results');
   });
 
   // Search screen — cerrar

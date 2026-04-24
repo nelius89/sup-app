@@ -108,12 +108,15 @@ function getDataForSlider(index, marine, forecast) {
   const h = forecast.hourly;
   const m = marine.hourly;
 
-  const windKmh  = avg(h.wind_speed_10m);
-  const gustKmh  = avg(h.wind_gusts_10m);
-  const windDir  = avg(h.wind_direction_10m);
-  const waveH    = avg(m.wave_height);
-  const wavePer  = avg(m.wave_period);
-  const cloudPct = avg(h.cloudcover);
+  const windKmh   = avg(h.wind_speed_10m);
+  const gustKmh   = avg(h.wind_gusts_10m);
+  const windDir   = avg(h.wind_direction_10m);
+  const waveH     = avg(m.wave_height);
+  const wavePer   = avg(m.wave_period);
+  const waveDir   = m.wave_direction   ? avg(m.wave_direction)   : null;
+  const swellH    = m.swell_wave_height ? avg(m.swell_wave_height) : 0;
+  const windWaveH = m.wind_wave_height  ? avg(m.wind_wave_height)  : 0;
+  const cloudPct  = avg(h.cloudcover);
   // weathercode: usar el máximo del periodo (más pesimista)
   const weathercode = Math.max(...hourIndices.map(i => h.weathercode[i] || 0));
 
@@ -125,9 +128,13 @@ function getDataForSlider(index, marine, forecast) {
     windKn:      kmhToKnots(windKmh),
     windKmh:     Math.round(windKmh),
     gustKn:      kmhToKnots(gustKmh),
+    gustKmh:     Math.round(gustKmh),
     windDir,
     waveH,
     wavePer,
+    waveDir,
+    swellH,
+    windWaveH,
     cloudPct,
     weathercode,
     tempC:       h.temperature_2m ? avg(h.temperature_2m) : 0,
