@@ -346,6 +346,212 @@ function shortDirLabel(degrees) {
   return 'Lateral';
 }
 
+// ── Info técnica v2.0 ──
+
+const TERRAL_COPY = {
+  1: {
+    body: 'El viento viene de tierra. Hoy es suave, pero te empuja hacia el mar.',
+    rec:  'No te alejes demasiado de la orilla.',
+  },
+  2: {
+    body: 'El viento de tierra empuja hacia mar abierto. Quédate cerca de la orilla en todo momento.',
+    rec:  'Si tienes dudas, mejor no salir hoy.',
+  },
+  3: {
+    body: 'El viento de tierra empuja fuerte hacia mar abierto. El agua puede parecer tranquila desde la orilla — no lo es.',
+    rec:  'Hoy es mejor quedarse en tierra.',
+  },
+};
+
+const CHEVRON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
+
+function renderInfoTech() {
+  if (!currentData) return;
+  const { marine, forecast } = currentData;
+  const d = getDataForSlider(sliderIndex(currentDay, currentFranja), marine, forecast);
+  const { estado, warnings, alertaConsolidada } = diagnosticar(d, currentSpot, d.weathercode);
+  const tech = buildTechBlocks(d, estado);
+
+  document.getElementById('info-spot-name').textContent = currentSpot.name;
+
+  const body = document.getElementById('info-body');
+  body.innerHTML = '';
+
+  // 1. Aviso terral
+  const terralW = warnings.find(w => w.tipo === 'terral');
+  if (terralW) {
+    const t    = TERRAL_COPY[terralW.nivel] || TERRAL_COPY[2];
+    const block = document.createElement('div');
+    block.className = 'info-block info-block--terral';
+    block.innerHTML = `
+      <div class="info-block__head">
+        <div class="info-alert-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.4"/></svg>
+        </div>
+        <span class="info-block__title info-block__title--red">Aviso viento terral</span>
+      </div>
+      <p class="info-block__body">${t.body}</p>
+      <p class="info-block__rec">${t.rec}</p>
+    `;
+    body.appendChild(block);
+  }
+
+  // 2. A tener en cuenta
+  const infoWarnings = warnings.filter(w => w.tipo !== 'terral' && w.categoria !== 'narrativa');
+  if (infoWarnings.length > 0) {
+    const block = document.createElement('div');
+    block.className = 'info-block info-block--info';
+    const items = infoWarnings.map(w => {
+      const icon = (w.tipo === 'variabilidad' || w.tipo === 'rachas') ? ICONS.wind : ICONS.wave;
+      return `<div class="info-block__item">
+        <span class="info-block__item-icon">${icon}</span>
+        <div class="info-block__item-body">
+          <strong class="info-block__item-label">${w.label}</strong>
+          <p class="info-block__item-copy">${w.copy}</p>
+        </div>
+      </div>`;
+    }).join('');
+    block.innerHTML = `
+      <div class="info-block__head">
+        <span class="info-block__title info-block__title--blue">A tener en cuenta</span>
+        <div class="info-info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>
+        </div>
+      </div>
+      <div class="info-block__items">${items}</div>
+    `;
+    body.appendChild(block);
+  }
+
+  // 3. Viento
+  body.appendChild(buildInfoVientoSection(d, tech));
+
+  // 4. Ola
+  body.appendChild(buildInfoOlaSection(d, tech));
+
+  // 5. Nota inferior
+  const nota = document.createElement('p');
+  nota.className = 'info__nota';
+  nota.textContent = 'Los valores son medias de la franja seleccionada. Toca cada bloque para entender mejor cómo leerlos.';
+  body.appendChild(nota);
+}
+
+function buildInfoVientoSection(d, tech) {
+  const cardinal = degreesToCardinal(d.windDir);
+  const dirType  = shortDirLabel(d.windDir);
+  const windLab  = labelViento(d.windKn).label;
+  const gustLab  = labelRacha(d.gustKn).label;
+
+  const sec = document.createElement('div');
+  sec.className = 'info-section';
+  sec.innerHTML = `
+    <div class="info-section__top">
+      <span class="info-section__tag">Viento</span>
+    </div>
+    <div class="info-section__summary">
+      <div class="compass" style="--dir:${d.windDir}deg">
+        <div class="compass__needle"></div>
+      </div>
+      <div class="info-section__dir-block">
+        <div class="info-section__dir-row">
+          <span class="info-section__cardinal">${cardinal}</span>
+          <span class="info-section__dir-type">${dirType}</span>
+        </div>
+        <div class="info-section__values-row">
+          <span class="info-section__val">${d.windKn.toFixed(1)} <em>kn</em></span>
+          <span class="info-section__val-sep">·</span>
+          <span class="info-section__val">${d.gustKn.toFixed(1)} <em>kn rachas</em></span>
+        </div>
+        <div class="info-section__labels-row">
+          <span class="info-section__lab">${windLab}</span>
+          <span class="info-section__lab-sep">·</span>
+          <span class="info-section__lab">${gustLab}</span>
+        </div>
+      </div>
+    </div>
+    <button class="info-section__cta" type="button">
+      <span>Entender el viento</span>
+      <span class="info-section__cta-arrow">${CHEVRON_SVG}</span>
+    </button>
+    <div class="info-section__detail hidden">
+      <div class="info-section__sub">
+        <span class="info-section__sub-label">¿Qué significa?</span>
+        <p>${tech.wind.p1}</p>
+      </div>
+      <div class="info-section__sub">
+        <span class="info-section__sub-label">¿Qué implica hoy?</span>
+        <p>${tech.wind.p2}</p>
+        <p>${tech.gusts.p2}</p>
+      </div>
+      <div class="info-section__sub info-section__sub--key">
+        <span class="info-section__sub-label">Clave</span>
+        <p>${tech.wind.p3}</p>
+      </div>
+    </div>
+  `;
+  _initInfoSectionToggle(sec);
+  return sec;
+}
+
+function buildInfoOlaSection(d, tech) {
+  const olaLab = labelOla(d.waveH).label;
+  const perLab = labelPeriodo(d.wavePer).label;
+
+  const sec = document.createElement('div');
+  sec.className = 'info-section';
+  sec.innerHTML = `
+    <div class="info-section__top">
+      <span class="info-section__tag">Ola</span>
+    </div>
+    <div class="info-section__summary">
+      <div class="info-section__wave-icon">${ICONS.wave}</div>
+      <div class="info-section__dir-block">
+        <div class="info-section__values-row">
+          <span class="info-section__val">${d.waveH.toFixed(1)} <em>m</em></span>
+          <span class="info-section__val-sep">·</span>
+          <span class="info-section__val">${d.wavePer.toFixed(0)} <em>s</em></span>
+        </div>
+        <div class="info-section__labels-row">
+          <span class="info-section__lab">${olaLab}</span>
+          <span class="info-section__lab-sep">·</span>
+          <span class="info-section__lab">${perLab}</span>
+        </div>
+      </div>
+    </div>
+    <button class="info-section__cta" type="button">
+      <span>Entender la ola</span>
+      <span class="info-section__cta-arrow">${CHEVRON_SVG}</span>
+    </button>
+    <div class="info-section__detail hidden">
+      <div class="info-section__sub">
+        <span class="info-section__sub-label">¿Qué significa?</span>
+        <p>${tech.sea.p1}</p>
+      </div>
+      <div class="info-section__sub">
+        <span class="info-section__sub-label">¿Qué implica hoy?</span>
+        <p>${tech.sea.p2}</p>
+        <p>${tech.period.p2}</p>
+      </div>
+      <div class="info-section__sub info-section__sub--key">
+        <span class="info-section__sub-label">Clave</span>
+        <p>${tech.sea.p3}</p>
+      </div>
+    </div>
+  `;
+  _initInfoSectionToggle(sec);
+  return sec;
+}
+
+function _initInfoSectionToggle(sec) {
+  const cta    = sec.querySelector('.info-section__cta');
+  const detail = sec.querySelector('.info-section__detail');
+  const arrow  = sec.querySelector('.info-section__cta-arrow svg');
+  cta.addEventListener('click', () => {
+    const isHidden = detail.classList.toggle('hidden');
+    if (arrow) arrow.style.transform = isHidden ? '' : 'rotate(180deg)';
+  });
+}
+
 
 // ── About sheet ──
 function openAboutSheet() {
@@ -575,9 +781,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // CTA info detallada — pendiente step 4
+  // CTA info detallada
   document.getElementById('btn-detail').addEventListener('click', () => {
-    // TODO step 4: showView('view-info');
+    renderInfoTech();
+    showView('view-info');
+  });
+
+  // Back desde info técnica → volver a results
+  document.getElementById('btn-back-info').addEventListener('click', () => {
+    showView('view-results');
   });
 
   // Search screen — cerrar
