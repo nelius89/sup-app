@@ -101,12 +101,23 @@ let swiper        = null;   // unused — carrusel eliminado
 let currentDay    = 0;
 let currentFranja = 1;
 let showSevenDay  = false;
+let _historyNavigation = false;
 
 // ── Vistas ──
-function showView(id) {
+function _applyView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.body.dataset.view = id;
+}
+
+function showView(id) {
+  const state = history.state;
+  if (id === 'view-results' && !state?.sheet && state?.view === 'view-home') {
+    history.pushState({ view: id }, '');
+  } else {
+    history.replaceState({ view: id }, '');
+  }
+  _applyView(id);
 }
 
 // ── Abreviatura de ciudad ──
@@ -790,11 +801,13 @@ function openInfoSheet(key) {
     </div>`)
     .join('');
 
+  history.pushState({ view: history.state?.view, sheet: 'info' }, '');
   document.getElementById('info-overlay').classList.add('active');
   document.getElementById('info-sheet').classList.add('active');
 }
 
 function closeInfoSheet() {
+  if (!_historyNavigation) history.back();
   const sheet = document.getElementById('info-sheet');
   sheet.style.transform = '';
   sheet.style.transition = '';
@@ -824,11 +837,13 @@ function initInfoSheet() {
 
 // ── About sheet ──
 function openAboutSheet() {
+  history.pushState({ view: history.state?.view, sheet: 'about' }, '');
   document.getElementById('about-overlay').classList.add('active');
   document.getElementById('about-sheet').classList.add('active');
 }
 
 function closeAboutSheet() {
+  if (!_historyNavigation) history.back();
   const sheet = document.getElementById('about-sheet');
   sheet.style.transform = '';
   sheet.style.transition = '';
@@ -860,6 +875,7 @@ function initAboutSheet() {
 const SUGGESTIONS_WORKER = 'https://coco-suggestions.manel89.workers.dev';
 
 function openSuggestionsSheet() {
+  history.pushState({ view: history.state?.view, sheet: 'suggestions' }, '');
   // Reset form state on open
   document.getElementById('suggestions-form').classList.remove('hidden');
   document.getElementById('suggestions-success').classList.add('hidden');
@@ -871,6 +887,7 @@ function openSuggestionsSheet() {
 }
 
 function closeSuggestionsSheet() {
+  if (!_historyNavigation) history.back();
   const sheet = document.getElementById('suggestions-sheet');
   sheet.style.transform = '';
   sheet.style.transition = '';
@@ -948,6 +965,7 @@ function franjaLabel(franjaIndex) {
 let selectedGeoResult = null;
 
 function openSearch(triggerEl) {
+  history.pushState({ view: history.state?.view, sheet: 'search' }, '');
   const screen = document.getElementById('search-screen');
   if (triggerEl) {
     const rect = triggerEl.getBoundingClientRect();
@@ -958,13 +976,18 @@ function openSearch(triggerEl) {
   document.getElementById('search-input').focus();
 }
 
-function closeSearch() {
+function _closeSearchDOM() {
   document.getElementById('search-screen').classList.remove('active');
   setTimeout(() => {
     document.getElementById('search-input').value       = '';
     document.getElementById('search-results').innerHTML = '';
     selectedGeoResult = null;
   }, 350);
+}
+
+function closeSearch() {
+  if (!_historyNavigation) history.back();
+  _closeSearchDOM();
 }
 
 async function handleSearch(query) {
@@ -1001,7 +1024,7 @@ function selectGeoResult(result) {
     hardcoded:      false,
     offshore_range: [225, 315]
   };
-  closeSearch();
+  _closeSearchDOM();
   loadSpot(tempSpot);
 }
 
@@ -1010,6 +1033,18 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSpotList();
   showView('view-home');
   initInstallButton();
+
+  // Sistema de navegación con historial del navegador
+  window.addEventListener('popstate', (e) => {
+    _historyNavigation = true;
+    const state = e.state ?? { view: 'view-home' };
+    if (state.sheet === 'about')       closeAboutSheet();
+    else if (state.sheet === 'suggestions') closeSuggestionsSheet();
+    else if (state.sheet === 'info')   closeInfoSheet();
+    else if (state.sheet === 'search') closeSearch();
+    else                               _applyView(state.view ?? 'view-home');
+    _historyNavigation = false;
+  });
 
   // Service Worker
   if ('serviceWorker' in navigator) {
@@ -1034,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Back button — volver a home
   document.getElementById('btn-back').addEventListener('click', () => {
-    showView('view-home');
+    history.back();
     renderSpotList();
   });
 
