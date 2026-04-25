@@ -67,43 +67,25 @@
         </button>
       </div>
 
-      <!-- Título + ciudad + clima -->
-      <div class="results__main-row">
-        <div class="results__title-block">
-          <div class="results__name-row">
-            <button class="btn-favorite" id="btn-favorite" aria-label="Guardar playa">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </button>
-            <span class="results__spot-name" id="results-spot-name">—</span>
-          </div>
-          <div class="results__city-row">
-            <svg class="results__city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span id="ctx-city">—</span>
-          </div>
+      <!-- Hero: nombre + ciudad -->
+      <div class="results__hero">
+        <div class="results__hero-name">
+          <button class="btn-favorite" id="btn-favorite" aria-label="Guardar playa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          <span class="results__spot-name" id="results-spot-name">—</span>
         </div>
-        <div class="results__clima">
-          <div class="results__clima-weather">
-            <span class="results__clima-icon" id="ctx-weather-icon"></span>
-            <span class="results__clima-temp" id="ctx-temp">—</span>
-          </div>
-          <div class="results__clima-rain">
-            <svg class="results__rain-drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-            <div class="results__rain-vals">
-              <span class="results__rain-pct" id="ctx-rain">—</span>
-              <span class="results__rain-label">lluvia</span>
-            </div>
-          </div>
+        <div class="results__city-row">
+          <svg class="results__city-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="ctx-city">—</span>
         </div>
       </div>
 
-      <!-- Selector de fecha -->
-      <div class="results__date-wrap">
-        <button class="results__date-btn" id="results-date-btn">
-          <span class="results__date-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-          <span class="results__date-label" id="results-date-label">Hoy</span>
-          <span class="results__date-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
-        </button>
-        <div class="results__date-dropdown hidden" id="results-date-dropdown"></div>
+      <!-- Day tabs: Hoy | Mañana | 7 días -->
+      <div class="results__day-tabs">
+        <button class="results__day-tab" data-day="0">Hoy</button>
+        <button class="results__day-tab" data-day="1">Mañana</button>
+        <button class="results__day-tab" data-day="7">7 días</button>
       </div>
 
       <!-- Separador -->
@@ -117,45 +99,51 @@
     <!-- ── Zona resultado ── -->
     <div class="results__body">
 
-      <div class="diagnosis">
-        <p class="diagnosis__pre">¿Está para salir?</p>
-        <div class="diagnosis__illus" id="diagnosis-illus"></div>
-        <h1 class="diagnosis__title" id="diagnosis-title">Cargando...</h1>
-      </div>
+      <div id="results-main-content">
+        <div class="diagnosis">
+          <p class="diagnosis__pre">¿Está para salir?</p>
+          <div class="diagnosis__illus" id="diagnosis-illus"></div>
+          <h1 class="diagnosis__title" id="diagnosis-title">Cargando...</h1>
+        </div>
 
-      <!-- 3 bloques narrativos -->
-      <div class="narrative-blocks">
-        <div class="narrative-block">
-          <div class="narrative-block__icon-wrap">
-            <img class="narrative-block__icon-img" src="assets/illustrations/Resolucion/Bloques/1%20quetevasaencontrar.svg" alt="">
+        <!-- 3 bloques narrativos -->
+        <div class="narrative-blocks">
+          <div class="narrative-block">
+            <div class="narrative-block__icon-wrap">
+              <img class="narrative-block__icon-img" src="assets/illustrations/Resolucion/Bloques/1%20quetevasaencontrar.svg" alt="">
+            </div>
+            <div class="narrative-block__body">
+              <strong class="narrative-block__title" id="nb-encounter-title">—</strong>
+              <span class="narrative-block__desc" id="nb-encounter-desc">—</span>
+            </div>
           </div>
-          <div class="narrative-block__body">
-            <strong class="narrative-block__title" id="nb-encounter-title">—</strong>
-            <span class="narrative-block__desc" id="nb-encounter-desc">—</span>
+          <div class="narrative-block">
+            <div class="narrative-block__icon-wrap">
+              <img class="narrative-block__icon-img" src="assets/illustrations/Resolucion/Bloques/2%20quetevaapedir.svg" alt="">
+            </div>
+            <div class="narrative-block__body">
+              <strong class="narrative-block__title" id="nb-demand-title">—</strong>
+              <span class="narrative-block__desc" id="nb-demand-desc">—</span>
+            </div>
+          </div>
+          <div class="narrative-block">
+            <div class="narrative-block__icon-wrap">
+              <img class="narrative-block__icon-img" src="assets/illustrations/Resolucion/Bloques/3%20paraquienencaja.svg" alt="">
+            </div>
+            <div class="narrative-block__body">
+              <strong class="narrative-block__title" id="nb-fit-title">—</strong>
+              <span class="narrative-block__desc" id="nb-fit-desc">—</span>
+            </div>
           </div>
         </div>
-        <div class="narrative-block">
-          <div class="narrative-block__icon-wrap">
-            <img class="narrative-block__icon-img" src="assets/illustrations/Resolucion/Bloques/2%20quetevaapedir.svg" alt="">
-          </div>
-          <div class="narrative-block__body">
-            <strong class="narrative-block__title" id="nb-demand-title">—</strong>
-            <span class="narrative-block__desc" id="nb-demand-desc">—</span>
-          </div>
-        </div>
-        <div class="narrative-block">
-          <div class="narrative-block__icon-wrap">
-            <img class="narrative-block__icon-img" src="assets/illustrations/Resolucion/Bloques/3%20paraquienencaja.svg" alt="">
-          </div>
-          <div class="narrative-block__body">
-            <strong class="narrative-block__title" id="nb-fit-title">—</strong>
-            <span class="narrative-block__desc" id="nb-fit-desc">—</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Bloques técnicos -->
-      <div class="tech-blocks" id="tech-blocks"></div>
+        <!-- Bloques técnicos -->
+        <div class="tech-blocks" id="tech-blocks"></div>
+      </div><!-- /results-main-content -->
+
+      <div id="results-seven-day" class="hidden results__seven-day-empty">
+        <p>Vista de 7 días en camino.</p>
+      </div>
 
     </div><!-- /results__body -->
 

@@ -100,6 +100,7 @@ let deleteMode    = null;
 let swiper        = null;   // unused — carrusel eliminado
 let currentDay    = 0;
 let currentFranja = 1;
+let showSevenDay  = false;
 
 // ── Vistas ──
 function showView(id) {
@@ -249,80 +250,36 @@ function renderSpotList() {
 
 // ── Navegación temporal v2.0 ──
 
-function dayFullLabel(offset) {
-  if (offset === 0) return 'Hoy';
-  if (offset === 1) return 'Mañana';
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  const weekday = d.toLocaleDateString('es-ES', { weekday: 'long' });
-  const day     = d.getDate();
-  const month   = d.toLocaleDateString('es-ES', { month: 'long' });
-  const wCap    = weekday.charAt(0).toUpperCase() + weekday.slice(1);
-  const mCap    = month.charAt(0).toUpperCase() + month.slice(1);
-  return `${wCap} ${day}, ${mCap}`;
+// Day tabs: Hoy | Mañana | 7 días
+function renderDayTabs() {
+  document.querySelectorAll('.results__day-tab').forEach(tab => {
+    const day = tab.dataset.day;
+    const isActive = showSevenDay ? day === '7' : day === String(currentDay);
+    tab.classList.toggle('results__day-tab--active', isActive);
+  });
 }
 
-function dayShortDate(offset) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-}
-
-// Selector de fecha — botón
-function renderDateBtn() {
-  const label = document.getElementById('results-date-label');
-  if (label) label.textContent = dayFullLabel(currentDay);
-}
-
-// Selector de fecha — dropdown (7 días)
-function renderDateDropdown() {
-  const dropdown = document.getElementById('results-date-dropdown');
-  dropdown.innerHTML = '';
-  for (let i = 0; i < FORECAST_DAYS; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'results__date-option' + (i === currentDay ? ' selected' : '');
-    btn.innerHTML = `
-      <span class="results__date-option__day">${dayFullLabel(i)}</span>
-      <span class="results__date-option__date">${dayShortDate(i)}</span>
-    `;
-    btn.addEventListener('click', () => {
-      currentDay = i;
-      closeDateDropdown();
-      renderDateBtn();
-      renderResults(sliderIndex(currentDay, currentFranja));
-    });
-    dropdown.appendChild(btn);
-  }
-}
-
-function openDateDropdown() {
-  const dropdown = document.getElementById('results-date-dropdown');
-  const btn      = document.getElementById('results-date-btn');
-  renderDateDropdown();
-  dropdown.classList.remove('hidden');
-  btn.classList.add('open');
-}
-
-function closeDateDropdown() {
-  const dropdown = document.getElementById('results-date-dropdown');
-  const btn      = document.getElementById('results-date-btn');
-  dropdown.classList.add('hidden');
-  btn.classList.remove('open');
-}
-
-// Franjas — nueva vista: columnas con icono + nombre + horas
+// Franjas — nombre + icono weather real + temperatura
 function renderFranjas() {
   const container = document.getElementById('results-franjas-pills');
   container.innerHTML = '';
   FRANJAS.forEach((f, i) => {
+    let weatherIcon = '';
+    let tempStr = '';
+    if (currentData) {
+      const d = getDataForSlider(sliderIndex(currentDay, i), currentData.marine, currentData.forecast);
+      weatherIcon = getWeatherIcon(d.weathercode);
+      tempStr = `${Math.round(d.tempC)}°`;
+    }
     const pill = document.createElement('button');
     pill.className = 'results__franja-pill' + (i === currentFranja ? ' active' : '');
     pill.innerHTML = `
-      <span class="results__franja-icon">${FRANJA_ICONS[i]}</span>
       <span class="results__franja-name">${f.label}</span>
-      <span class="results__franja-hours">${f.range}</span>
+      <span class="results__franja-icon">${weatherIcon}</span>
+      <span class="results__franja-temp">${tempStr}</span>
     `;
     pill.addEventListener('click', () => {
+      if (showSevenDay) return;
       currentFranja = i;
       renderFranjas();
       renderResults(sliderIndex(currentDay, currentFranja));
@@ -336,15 +293,12 @@ async function loadSpot(spot) {
   currentSpot   = spot;
   currentDay    = 0;
   currentFranja = getCurrentFranjaIndex();
+  showSevenDay  = false;
   setActiveSpot(spot.id);
   showView('view-results');
-  closeDateDropdown();
 
   document.getElementById('results-spot-name').textContent = spot.name;
   document.getElementById('ctx-city').textContent         = spot.city || '—';
-  document.getElementById('ctx-temp').textContent         = '—';
-  document.getElementById('ctx-rain').textContent         = '—';
-  document.getElementById('ctx-weather-icon').innerHTML   = '';
   document.getElementById('diagnosis-title').textContent = 'Cargando...';
   document.getElementById('diagnosis-illus').innerHTML   = '';
   document.getElementById('nb-encounter-title').textContent = '—';
@@ -354,8 +308,10 @@ async function loadSpot(spot) {
   document.getElementById('nb-fit-title').textContent       = '—';
   document.getElementById('nb-fit-desc').textContent        = '—';
   document.getElementById('tech-blocks').innerHTML          = '';
+  document.getElementById('results-main-content').classList.remove('hidden');
+  document.getElementById('results-seven-day').classList.add('hidden');
 
-  renderDateBtn();
+  renderDayTabs();
   renderFranjas();
   updateFavoriteBtn();
 
@@ -377,11 +333,8 @@ function renderResults(sliderIdx) {
   const { estado, warnings } = diagnosticar(d, currentSpot, d.weathercode);
   const info = ESTADOS[estado];
 
-  // Clima
-  document.getElementById('ctx-city').textContent       = currentSpot.city || '—';
-  document.getElementById('ctx-weather-icon').innerHTML = getWeatherIcon(d.weathercode);
-  document.getElementById('ctx-temp').textContent       = `${Math.round(d.tempC)}°`;
-  document.getElementById('ctx-rain').textContent       = `${d.precipPct}%`;
+  // Ciudad (actualizar por si acaso)
+  document.getElementById('ctx-city').textContent = currentSpot.city || '—';
 
   // Título diagnóstico
   document.getElementById('diagnosis-title').textContent = info.titulo;
@@ -401,6 +354,9 @@ function renderResults(sliderIdx) {
 
   // Bloques técnicos
   renderTechBlocks(d, warnings);
+
+  // Actualizar franjas con datos reales (weather icon + temp)
+  renderFranjas();
 }
 
 // ── Favoritos ──
@@ -1051,7 +1007,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Back button — volver a home
   document.getElementById('btn-back').addEventListener('click', () => {
-    closeDateDropdown();
     showView('view-home');
     renderSpotList();
   });
@@ -1059,21 +1014,26 @@ document.addEventListener('DOMContentLoaded', () => {
   // Favorito
   document.getElementById('btn-favorite').addEventListener('click', toggleFavorite);
 
-  // Selector de fecha
-  document.getElementById('results-date-btn').addEventListener('click', () => {
-    const dropdown = document.getElementById('results-date-dropdown');
-    if (dropdown.classList.contains('hidden')) {
-      openDateDropdown();
-    } else {
-      closeDateDropdown();
-    }
-  });
-
-  // Cerrar dropdown de fecha al tocar fuera
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.results__date-wrap')) {
-      closeDateDropdown();
-    }
+  // Day tabs: Hoy | Mañana | 7 días
+  document.querySelectorAll('.results__day-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const day = parseInt(tab.dataset.day);
+      if (day === 7) {
+        showSevenDay = true;
+        renderDayTabs();
+        renderFranjas();
+        document.getElementById('results-main-content').classList.add('hidden');
+        document.getElementById('results-seven-day').classList.remove('hidden');
+      } else {
+        showSevenDay = false;
+        currentDay = day;
+        renderDayTabs();
+        renderFranjas();
+        document.getElementById('results-main-content').classList.remove('hidden');
+        document.getElementById('results-seven-day').classList.add('hidden');
+        if (currentData) renderResults(sliderIndex(currentDay, currentFranja));
+      }
+    });
   });
 
   // Search screen — cerrar
