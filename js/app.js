@@ -95,6 +95,7 @@ function initInstallButton() {
 // ── Estado ──
 let currentSpot   = null;
 let currentData   = null;
+let currentD      = null;
 let deleteMode    = null;
 let swiper        = null;   // unused — carrusel eliminado
 let currentDay    = 0;
@@ -372,6 +373,7 @@ function renderResults(sliderIdx) {
   const d = getDataForSlider(sliderIdx, marine, forecast);
 
   // Diagnóstico
+  currentD = d;
   const { estado, warnings } = diagnosticar(d, currentSpot, d.weathercode);
   const info = ESTADOS[estado];
 
@@ -479,6 +481,7 @@ const INFO_COPY = {
       { range: '15 – 20 kn', label: 'Viento fuerte' },
       { range: '+20 kn',     label: 'Muy fuerte / limitante' },
     ],
+    matchFn: v => v >= 20 ? 4 : v >= 15 ? 3 : v >= 10 ? 2 : v >= 6 ? 1 : 0,
   },
   'wind-gusts': {
     title: 'Rachas',
@@ -490,6 +493,7 @@ const INFO_COPY = {
       { range: '16 – 22 kn', label: 'Rachas fuertes' },
       { range: '+22 kn',     label: 'Rachas muy fuertes' },
     ],
+    matchFn: v => v >= 22 ? 4 : v >= 16 ? 3 : v >= 12 ? 2 : v >= 8 ? 1 : 0,
   },
   'wind-variability': {
     title: 'Variabilidad',
@@ -500,6 +504,7 @@ const INFO_COPY = {
       { range: '6 – 10', label: 'Variable' },
       { range: '+10',    label: 'Muy variable' },
     ],
+    matchFn: v => v >= 10 ? 3 : v >= 6 ? 2 : v >= 3 ? 1 : 0,
   },
   'wind-direction': {
     title: 'Dirección del viento',
@@ -520,16 +525,18 @@ const INFO_COPY = {
       { range: '1.0 – 1.5 m', label: 'Mar movido' },
       { range: '+1.5 m',      label: 'Mar grande / complicado' },
     ],
+    matchFn: v => v >= 1.5 ? 4 : v >= 1.0 ? 3 : v >= 0.6 ? 2 : v >= 0.2 ? 1 : 0,
   },
   'wave-period': {
     title: 'Período medio',
     intro: 'El tiempo entre olas. Define si el mar es ordenado o caótico.',
     rows: [
-      { range: '+7 s',   label: 'Olas largas y ordenadas (fácil)' },
+      { range: '+7 s',    label: 'Olas largas y ordenadas (fácil)' },
       { range: '5 – 7 s', label: 'Ritmo normal' },
       { range: '4 – 5 s', label: 'Algo irregular' },
-      { range: '<4 s',   label: 'Caótico y difícil' },
+      { range: '<4 s',    label: 'Caótico y difícil' },
     ],
+    matchFn: v => v < 4 ? 3 : v < 5 ? 2 : v < 7 ? 1 : 0,
   },
   'wave-direction': {
     title: 'Dirección de ola',
@@ -544,21 +551,23 @@ const INFO_COPY = {
     title: 'Mar de fondo',
     intro: 'Olas limpias que vienen de lejos. Más fáciles de leer y predecir.',
     rows: [
-      { range: '0 m',        label: 'No hay' },
-      { range: '0 – 0.5 m',  label: 'Débil' },
+      { range: '0 m',         label: 'No hay' },
+      { range: '0 – 0.5 m',   label: 'Débil' },
       { range: '0.5 – 1.0 m', label: 'Presente' },
-      { range: '+1.0 m',     label: 'Predomina' },
+      { range: '+1.0 m',      label: 'Predomina' },
     ],
+    matchFn: v => v > 1.0 ? 3 : v > 0.5 ? 2 : v > 0 ? 1 : 0,
   },
   'wind-wave': {
     title: 'Mar de viento',
     intro: 'Olas generadas por el viento local. Más incómodas y desordenadas que el mar de fondo.',
     rows: [
-      { range: '0 m',        label: 'No hay' },
-      { range: '0 – 0.3 m',  label: 'Leve' },
+      { range: '0 m',         label: 'No hay' },
+      { range: '0 – 0.3 m',   label: 'Leve' },
       { range: '0.3 – 0.6 m', label: 'Presente' },
-      { range: '+0.6 m',     label: 'Predomina' },
+      { range: '+0.6 m',      label: 'Predomina' },
     ],
+    matchFn: v => v > 0.6 ? 3 : v > 0.3 ? 2 : v > 0 ? 1 : 0,
   },
   'sea-type': {
     title: 'Tipo de mar',
@@ -636,7 +645,7 @@ function renderTechBlocks(d, warnings) {
         <span class="tech-block__title">Viento</span>
       </div>
       <div class="tech-grid-row tech-grid-row--dir">
-        <div class="tech-cell">
+        <div class="tech-cell" data-info="wind-direction">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Dirección</span>
             ${infoSvg('wind-direction')}
@@ -649,7 +658,7 @@ function renderTechBlocks(d, warnings) {
             ${buildCompassSVG(d.windDir)}
           </div>
         </div>
-        <div class="tech-cell tech-cell--${sWind}">
+        <div class="tech-cell tech-cell--${sWind}" data-info="wind-speed">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Media</span>
             ${stateIcon(sWind, 'wind-speed')}
@@ -658,7 +667,7 @@ function renderTechBlocks(d, warnings) {
           <div class="tech-cell__unit">nudos</div>
           <div class="tech-cell__sub">${d.windKmh} km/h</div>
         </div>
-        <div class="tech-cell tech-cell--${sGust}">
+        <div class="tech-cell tech-cell--${sGust}" data-info="wind-gusts">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Rachas</span>
             ${stateIcon(sGust, 'wind-gusts')}
@@ -669,7 +678,7 @@ function renderTechBlocks(d, warnings) {
         </div>
       </div>
       <div class="tech-grid-row tech-grid-row--2">
-        <div class="tech-cell tech-cell--${sVar}">
+        <div class="tech-cell tech-cell--${sVar}" data-info="wind-variability">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Variabilidad</span>
             ${stateIcon(sVar, 'wind-variability')}
@@ -678,14 +687,14 @@ function renderTechBlocks(d, warnings) {
           <div class="tech-cell__sub">(rachas − media)</div>
         </div>
         ${terralLevel === 0
-          ? `<div class="tech-cell tech-cell--ok">
+          ? `<div class="tech-cell tech-cell--ok" data-info="terral">
               <div class="tech-cell__top">
                 <span class="tech-cell__label">Terral</span>
                 ${infoSvg('terral')}
               </div>
               <div class="tech-cell__value--muted">Sin terral</div>
             </div>`
-          : `<div class="tech-terral-alert tech-terral-alert--${sTerral}">
+          : `<div class="tech-terral-alert tech-terral-alert--${sTerral}" data-info="terral">
               <div class="tech-terral-body">
                 <span class="tech-terral-icon">${ICONS.wind}</span>
                 <div>
@@ -709,21 +718,21 @@ function renderTechBlocks(d, warnings) {
         <span class="tech-block__title">Oleaje</span>
       </div>
       <div class="tech-grid-row tech-grid-row--3">
-        <div class="tech-cell tech-cell--${sWaveH}">
+        <div class="tech-cell tech-cell--${sWaveH}" data-info="wave-height">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Altura de ola</span>
             ${stateIcon(sWaveH, 'wave-height')}
           </div>
           <div class="tech-cell__value">${d.waveH.toFixed(1)} <em>m</em></div>
         </div>
-        <div class="tech-cell tech-cell--${sWavePer}">
+        <div class="tech-cell tech-cell--${sWavePer}" data-info="wave-period">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Período medio</span>
             ${stateIcon(sWavePer, 'wave-period')}
           </div>
           <div class="tech-cell__value">${Math.round(d.wavePer)} <em>s</em></div>
         </div>
-        <div class="tech-cell">
+        <div class="tech-cell" data-info="wave-direction">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Dirección de ola</span>
             ${infoSvg('wave-direction')}
@@ -733,21 +742,21 @@ function renderTechBlocks(d, warnings) {
         </div>
       </div>
       <div class="tech-grid-row tech-grid-row--3">
-        <div class="tech-cell">
+        <div class="tech-cell" data-info="swell">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Mar de fondo</span>
             ${infoSvg('swell')}
           </div>
           <div class="tech-cell__value">${(d.swellH || 0).toFixed(1)} <em>m</em></div>
         </div>
-        <div class="tech-cell">
+        <div class="tech-cell" data-info="wind-wave">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Mar de viento</span>
             ${infoSvg('wind-wave')}
           </div>
           <div class="tech-cell__value">${(d.windWaveH || 0).toFixed(1)} <em>m</em></div>
         </div>
-        <div class="tech-cell">
+        <div class="tech-cell" data-info="sea-type">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Tipo de mar</span>
             ${infoSvg('sea-type')}
@@ -768,14 +777,32 @@ function renderTechBlocks(d, warnings) {
 }
 
 // ── Info sheet ──
+function getValueForKey(key) {
+  if (!currentD) return null;
+  const variabilidad = calcularVariabilidad(currentD.windKn, currentD.gustKn);
+  switch (key) {
+    case 'wind-speed':       return currentD.windKn;
+    case 'wind-gusts':       return currentD.gustKn;
+    case 'wind-variability': return variabilidad;
+    case 'wave-height':      return currentD.waveH;
+    case 'wave-period':      return currentD.wavePer;
+    case 'swell':            return currentD.swellH || 0;
+    case 'wind-wave':        return currentD.windWaveH || 0;
+    default:                 return null;
+  }
+}
+
 function openInfoSheet(key) {
   const data = INFO_COPY[key];
   if (!data) return;
 
+  const value    = getValueForKey(key);
+  const activeIdx = (data.matchFn && value !== null) ? data.matchFn(value) : -1;
+
   document.getElementById('info-sheet-title').textContent = data.title;
   document.getElementById('info-sheet-intro').textContent = data.intro;
   document.getElementById('info-sheet-rows').innerHTML = data.rows
-    .map(r => `<div class="info-sheet__row">
+    .map((r, i) => `<div class="info-sheet__row${i === activeIdx ? ' info-sheet__row--active' : ''}">
       <span class="info-sheet__range">${r.range}</span>
       <span class="info-sheet__label">${r.label}</span>
     </div>`)
@@ -1016,10 +1043,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initSuggestionsSheet();
   initInfoSheet();
 
-  // Info sheet — delegación en tech-blocks
+  // Info sheet — delegación en tech-blocks (celda entera o botón)
   document.getElementById('tech-blocks').addEventListener('click', (e) => {
-    const btn = e.target.closest('.tech-info-btn');
-    if (btn?.dataset.info) openInfoSheet(btn.dataset.info);
+    const target = e.target.closest('[data-info]');
+    if (target?.dataset.info) openInfoSheet(target.dataset.info);
   });
   document.getElementById('info-overlay').addEventListener('click', closeInfoSheet);
 

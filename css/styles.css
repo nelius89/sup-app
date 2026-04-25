@@ -1528,6 +1528,13 @@ ul { list-style: none; }
   border-bottom: 1px solid rgba(10, 10, 10, 0.06);
 }
 .info-sheet__row:last-child { border-bottom: none; }
+.info-sheet__row--active {
+  background: rgba(49, 79, 255, 0.08);
+  border-radius: 8px;
+  border-bottom: none;
+  margin: 2px 0;
+}
+.info-sheet__row--active + .info-sheet__row { border-top: none; }
 
 .info-sheet__range {
   font-size: 10px;
