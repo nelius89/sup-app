@@ -359,6 +359,7 @@ function buildBlocks(d, estado) {
 // Bloque 2 (demand):    depende de windKn
 // Bloque 3 (fit):       depende de estado + warnings críticos (alerta/cuidado)
 function buildNarrativeBlocks(d, estado, warnings) {
+  const variabilidad = calcularVariabilidad(d.windKn, d.gustKn);
 
   // ── Encounter — qué te vas a encontrar ──
   let encounter;
