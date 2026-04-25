@@ -35,7 +35,7 @@ Lenguaje directo, físico. Sin tecnicismos, sin abstracciones.
 |---|---|
 | piscina | OH YEAH, SIN DUDARLO |
 | muy-agradable | SÍ, ESTÁ MUY AGRADABLE |
-| se-puede-salir | SÍ, ESTÁ MOVIDO PERO MANEJABLE |
+| se-puede-salir | ESTÁ MOVIDO PERO MANEJABLE |
 | exigente | DEPENDE, ESTÁ EXIGENTE |
 | no-recomendable | MEJOR QUEDARSE EN TIERRA |
 
@@ -58,7 +58,7 @@ Input: `waveH` (metros) + `wavePer` (segundos)
 |---|---|---|
 | waveH < 0.3m | El mar está como una piscina | Sin olas y sin apenas movimiento. Todo se siente estable. |
 | waveH 0.3–0.6m | Algo de movimiento, pero suave | Pequeñas olas y ritmo regular. Nada que sorprenda. |
-| waveH 0.6–1.0m | El mar tiene movimiento real | Olas medias y viento que cambia por momentos. |
+| waveH 0.6–1.0m | El mar tiene movimiento real | Olas medias y movimiento irregular. |
 | waveH > 1.0m ó (waveH > 0.6m y wavePer < 4s) | Mar movido y poco ordenado | Olas que no siguen un ritmo claro y viento incómodo. |
 | waveH > 1.5m | El mar está muy revuelto | Olas grandes, cortas y desordenadas. Todo se mueve a la vez. |
 

@@ -264,7 +264,7 @@ function diagnosticar(d, spot, weathercode) {
 const ESTADOS = {
   'piscina':         { titulo: 'Oh yeah, sin dudarlo',           subtitulo: '¿Está para salir?' },
   'muy-agradable':   { titulo: 'Sí, está muy agradable',         subtitulo: '¿Está para salir?' },
-  'se-puede-salir':  { titulo: 'Sí, está movido pero manejable', subtitulo: '¿Está para salir?' },
+  'se-puede-salir':  { titulo: 'Está movido pero manejable', subtitulo: '¿Está para salir?' },
   'exigente':        { titulo: 'Depende, está exigente',          subtitulo: '¿Está para salir?' },
   'no-recomendable': { titulo: 'Mejor quedarse en tierra',        subtitulo: '¿Está para salir?' },
 };
@@ -324,7 +324,7 @@ function buildBlocks(d, estado) {
     seaDesc  = 'Puede haber algún movimiento inesperado de vez en cuando.';
   } else if (d.waveH <= 1.0 && d.wavePer >= 5) {
     seaTitle = 'Hay movimiento real. Olas medias con ritmo regular.';
-    seaDesc  = 'Necesitarás equilibrio. El mar está vivo pero es predecible.';
+    seaDesc  = 'Necesitarás equilibrio. El mar está activo pero con ritmo.';
   } else if (d.waveH <= 1.0) {
     seaTitle = 'Mar movido y algo agitado. Las olas no siguen un ritmo claro.';
     seaDesc  = 'Mantenerse de pie exige concentración. Espera sorpresas.';
@@ -375,7 +375,7 @@ function buildNarrativeBlocks(d, estado, warnings) {
   } else if (d.waveH > 0.6) {
     encounter = {
       title: 'El mar tiene movimiento real',
-      desc:  'Olas medias y viento que cambia por momentos.',
+      desc:  'Olas medias y movimiento irregular.',
     };
   } else if (d.waveH > 0.3 && d.wavePer < 4) {
     encounter = {
@@ -439,10 +439,28 @@ function buildNarrativeBlocks(d, estado, warnings) {
     };
   }
 
-  // Override: terral activo con viento base suave — el riesgo no viene del esfuerzo de remar
-  // Nivel 1 (leve): aviso suave. Nivel ≥ 2 (relevante/fuerte): mensaje más directo.
+  // Override: variabilidad alta con viento base suave — la media no refleja la experiencia real.
+  // Solo aplica si la ola no es ya el factor dominante (waveH <= 0.6).
+  // Si no, el override de ola anterior ya ha puesto el mensaje correcto.
+  if (variabilidad > 6 && d.windKn <= 5 && d.waveH <= 0.6) {
+    demand = {
+      title: 'El viento base es suave, pero cambia de golpe',
+      desc:  'Las rachas pueden sorprenderte aunque la media parezca tranquila.',
+    };
+  }
+
+  // Override: terral activo con viento base suave — el riesgo no viene del esfuerzo de remar.
+  // Solo aplica si la ola NO es ya el factor dominante (waveH <= 0.6).
+  // Si waveH > 0.6, el override de ola anterior ya ha puesto el mensaje correcto
+  // y el terral no debe pisarlo — aparecerá como aviso independiente en la UI.
+  //
+  // DEUDA TÉCNICA: este mecanismo de overrides secuenciales es frágil.
+  // Cuando añadan nuevos casos (rachas vs periodo, mar de viento vs fondo, etc.)
+  // puede volver a romperse. La solución estructural es calcular una variable
+  // dominantFactor = 'sea' | 'wind' | 'offshore' | 'gusts' | 'balanced'
+  // antes de buildNarrativeBlocks() y elegir mensajes por dominancia, no por orden.
   const terralWarningDemand = warnings.find(w => w.tipo === 'terral');
-  if (terralWarningDemand && d.windKn <= 5) {
+  if (terralWarningDemand && d.windKn <= 5 && d.waveH <= 0.6) {
     if (terralWarningDemand.nivel >= 2) {
       demand = {
         title: 'Remar parece fácil, pero el viento te aleja de la orilla',
