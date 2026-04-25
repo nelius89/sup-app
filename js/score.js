@@ -386,7 +386,7 @@ function buildNarrativeBlocks(d, estado, warnings) {
   } else if (d.waveH > 0.3) {
     encounter = {
       title: 'Algo de movimiento, pero suave',
-      desc:  'Pequeñas olas con ritmo constante. No te van a descolocar.',
+      desc:  'Pequeñas olas con ritmo constante. Nada preocupante.',
     };
   } else {
     encounter = {
@@ -420,7 +420,7 @@ function buildNarrativeBlocks(d, estado, warnings) {
   } else {
     demand = {
       title: 'Remar está fácil y fluido',
-      desc:  'No hay resistencia ni esfuerzo extra. Puedes avanzar sin cansarte.',
+      desc:  'No hay resistencia ni esfuerzo extra. Se avanza tranquilamente.',
     };
   }
 
@@ -445,7 +445,7 @@ function buildNarrativeBlocks(d, estado, warnings) {
   // Si no, el override de ola anterior ya ha puesto el mensaje correcto.
   if (variabilidad > 6 && d.windKn <= 5 && d.waveH <= 0.6) {
     demand = {
-      title: 'El viento parece tranquilo, pero no lo es',
+      title: 'El viento engaña',
       desc:  'Hay ratos de calma y otros en los que empuja de golpe.',
     };
   }
@@ -469,8 +469,8 @@ function buildNarrativeBlocks(d, estado, warnings) {
       };
     } else {
       demand = {
-        title: 'El viento viene de tierra, hoy está suave',
-        desc:  'Te empuja un poco hacia el mar. No es un problema si no te alejas demasiado.',
+        title: 'Leve viento que viene de tierra',
+        desc:  'Y te empuja levemente hacia el mar. 0 drama si no te alejas demasiado.',
       };
     }
   }
