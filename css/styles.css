@@ -677,11 +677,8 @@ ul { list-style: none; }
 .narrative-blocks {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 8px;
 }
-
-.narrative-block:nth-child(1) { margin-bottom: 48px; }
-.narrative-block:nth-child(2) { margin-bottom: 24px; }
 
 .narrative-block {
   display: flex;
@@ -737,7 +734,8 @@ ul { list-style: none; }
 .tech-blocks {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 24px;
+  margin-top: 38px;
 }
 
 .tech-block {
