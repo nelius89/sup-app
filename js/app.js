@@ -102,6 +102,7 @@ let currentDay    = 0;
 let currentFranja = 1;
 let showSevenDay  = false;
 let _historyNavigation = false;
+let _currentState = null;
 
 // ── Vistas ──
 function _applyView(id) {
@@ -112,11 +113,13 @@ function _applyView(id) {
 
 function showView(id) {
   const state = history.state;
+  const newState = { view: id };
   if (id === 'view-results' && !state?.sheet && state?.view === 'view-home') {
-    history.pushState({ view: id }, '');
+    history.pushState(newState, '');
   } else {
-    history.replaceState({ view: id }, '');
+    history.replaceState(newState, '');
   }
+  _currentState = newState;
   _applyView(id);
 }
 
@@ -801,7 +804,8 @@ function openInfoSheet(key) {
     </div>`)
     .join('');
 
-  history.pushState({ view: history.state?.view, sheet: 'info' }, '');
+  _currentState = { view: history.state?.view, sheet: 'info' };
+  history.pushState(_currentState, '');
   document.getElementById('info-overlay').classList.add('active');
   document.getElementById('info-sheet').classList.add('active');
 }
@@ -837,7 +841,8 @@ function initInfoSheet() {
 
 // ── About sheet ──
 function openAboutSheet() {
-  history.pushState({ view: history.state?.view, sheet: 'about' }, '');
+  _currentState = { view: history.state?.view, sheet: 'about' };
+  history.pushState(_currentState, '');
   document.getElementById('about-overlay').classList.add('active');
   document.getElementById('about-sheet').classList.add('active');
 }
@@ -875,7 +880,8 @@ function initAboutSheet() {
 const SUGGESTIONS_WORKER = 'https://coco-suggestions.manel89.workers.dev';
 
 function openSuggestionsSheet() {
-  history.pushState({ view: history.state?.view, sheet: 'suggestions' }, '');
+  _currentState = { view: history.state?.view, sheet: 'suggestions' };
+  history.pushState(_currentState, '');
   // Reset form state on open
   document.getElementById('suggestions-form').classList.remove('hidden');
   document.getElementById('suggestions-success').classList.add('hidden');
@@ -965,7 +971,8 @@ function franjaLabel(franjaIndex) {
 let selectedGeoResult = null;
 
 function openSearch(triggerEl) {
-  history.pushState({ view: history.state?.view, sheet: 'search' }, '');
+  _currentState = { view: history.state?.view, sheet: 'search' };
+  history.pushState(_currentState, '');
   const screen = document.getElementById('search-screen');
   if (triggerEl) {
     const rect = triggerEl.getBoundingClientRect();
@@ -1037,12 +1044,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sistema de navegación con historial del navegador
   window.addEventListener('popstate', (e) => {
     _historyNavigation = true;
-    const state = e.state ?? { view: 'view-home' };
-    if (state.sheet === 'about')       closeAboutSheet();
-    else if (state.sheet === 'suggestions') closeSuggestionsSheet();
-    else if (state.sheet === 'info')   closeInfoSheet();
-    else if (state.sheet === 'search') closeSearch();
-    else                               _applyView(state.view ?? 'view-home');
+    const leaving = _currentState;
+    const arriving = e.state ?? { view: 'view-home' };
+    if (leaving?.sheet === 'about')            closeAboutSheet();
+    else if (leaving?.sheet === 'suggestions') closeSuggestionsSheet();
+    else if (leaving?.sheet === 'info')        closeInfoSheet();
+    else if (leaving?.sheet === 'search')      closeSearch();
+    else                                       _applyView(arriving.view ?? 'view-home');
+    _currentState = arriving;
     _historyNavigation = false;
   });
 
