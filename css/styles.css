@@ -1743,12 +1743,20 @@ ul { list-style: none; }
 .error-report-sheet__send:active { opacity: 0.75; }
 .error-report-sheet__send:disabled { opacity: 0.4; cursor: default; }
 
+.error-report-sheet__success-illus {
+  display: block;
+  width: 80px;
+  height: 80px;
+  margin: 24px auto 16px;
+  filter: invert(24%) sepia(98%) saturate(2000%) hue-rotate(220deg) brightness(90%) contrast(95%);
+}
+
 .error-report-sheet__success-msg {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 700;
   color: #0a0a0a;
   text-align: center;
-  padding: 24px 0 8px;
+  padding: 0 0 24px;
 }
 
 /* ─────────────────────────────────────────
