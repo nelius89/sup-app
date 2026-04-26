@@ -662,6 +662,7 @@ const INFO_COPY = {
       { range: 'Offshore', label: 'De tierra', desc: 'Viene desde tierra hacia el mar. Te empuja hacia fuera. Parece tranquilo, pero te puede alejar sin que lo notes.' },
       { range: 'Lateral',  label: 'Lateral',   desc: 'Sopla de lado. No te acerca ni te aleja directamente, pero te desplaza. Tendrás que corregir dirección constantemente.' },
     ],
+    matchFn: v => windDirCategory(v, currentSpot), // 0=onshore, 1=offshore, 2=lateral
   },
   'wave-height': {
     title: 'Altura de ola',
@@ -694,6 +695,8 @@ const INFO_COPY = {
       { range: 'Lateral',     label: 'Cruzadas',  desc: 'Llegan en diagonal o lateral. Te desestabilizan más porque te mueven de lado. Cuesta mantener el equilibrio.' },
       { range: 'Hacia mar',   label: 'De tierra', desc: 'Apenas afectan en la orilla. El mar suele estar más plano o con menos impacto directo en la tabla.' },
     ],
+    // 0=onshore→Hacia playa(0), 1=offshore→Hacia mar(2), 2=lateral→Cruzadas(1)
+    matchFn: v => { const c = windDirCategory(v, currentSpot); return c === 0 ? 0 : c === 1 ? 2 : 1; },
   },
   'swell': {
     title: 'Mar de fondo',
@@ -927,6 +930,34 @@ function renderTechBlocks(d, warnings) {
 }
 
 // ── Info sheet ──
+
+// Clasifica un ángulo como 0=onshore, 1=offshore, 2=lateral según el offshore_range del spot
+function windDirCategory(deg, spot) {
+  if (!spot?.offshore_range) return -1;
+  const [oMin, oMax] = spot.offshore_range;
+  if (deg >= oMin && deg <= oMax) return 1; // offshore / De tierra
+  const oCenter    = (oMin + oMax) / 2;
+  const onCenter   = (oCenter + 180) % 360;
+  const diff       = Math.abs(((deg - onCenter + 540) % 360) - 180);
+  return diff < 70 ? 0 : 2; // 0=onshore / De mar, 2=lateral
+}
+
+function getStateForKey(key) {
+  if (!currentD) return 'ok';
+  const variabilidad = calcularVariabilidad(currentD.windKn, currentD.gustKn);
+  const terralW      = currentWarnings.find(w => w.tipo === 'terral');
+  const terralLevel  = terralW ? terralW.nivel : 0;
+  switch (key) {
+    case 'wind-speed':       return windSpeedState(currentD.windKn);
+    case 'wind-gusts':       return gustSpeedState(currentD.gustKn);
+    case 'wind-variability': return varState(variabilidad);
+    case 'wave-height':      return waveHState(currentD.waveH);
+    case 'wave-period':      return wavePeriodState(currentD.wavePer, currentD.waveH);
+    case 'terral':           return terralCellState(terralLevel, currentD.windKn);
+    default:                 return 'ok';
+  }
+}
+
 function getValueForKey(key) {
   if (!currentD) return null;
   const variabilidad = calcularVariabilidad(currentD.windKn, currentD.gustKn);
@@ -934,8 +965,10 @@ function getValueForKey(key) {
     case 'wind-speed':       return currentD.windKn;
     case 'wind-gusts':       return currentD.gustKn;
     case 'wind-variability': return variabilidad;
+    case 'wind-direction':   return currentD.windDir;
     case 'wave-height':      return currentD.waveH;
     case 'wave-period':      return currentD.wavePer;
+    case 'wave-direction':   return currentD.waveDir;
     case 'swell':            return currentD.swellH || 0;
     case 'wind-wave':        return currentD.windWaveH || 0;
     case 'terral': {
@@ -955,19 +988,26 @@ function openInfoSheet(key) {
   const data = INFO_COPY[key];
   if (!data) return;
 
-  const value    = getValueForKey(key);
+  const value     = getValueForKey(key);
   const activeIdx = (data.matchFn && value !== null) ? data.matchFn(value) : -1;
+  const state     = getStateForKey(key); // 'ok' | 'orange' | 'red'
 
   document.getElementById('info-sheet-title').textContent = data.title;
   document.getElementById('info-sheet-intro').textContent = data.intro;
   document.getElementById('info-sheet-rows').innerHTML = data.rows
-    .map((r, i) => `<div class="info-sheet__row${i === activeIdx ? ' info-sheet__row--active' : ''}">
-      <div class="info-sheet__row-top">
-        <span class="info-sheet__label">${r.label}</span>
-        <span class="info-sheet__range">${r.range}</span>
-      </div>
-      <p class="info-sheet__desc">${r.desc}</p>
-    </div>`)
+    .map((r, i) => {
+      const isActive  = i === activeIdx;
+      const cls = isActive
+        ? `info-sheet__row info-sheet__row--active${state !== 'ok' ? ` info-sheet__row--state-${state}` : ''}`
+        : 'info-sheet__row';
+      return `<div class="${cls}">
+        <div class="info-sheet__row-top">
+          <span class="info-sheet__label">${r.label}</span>
+          <span class="info-sheet__range">${r.range}</span>
+        </div>
+        <p class="info-sheet__desc">${r.desc}</p>
+      </div>`;
+    })
     .join('');
 
   _currentState = { view: history.state?.view, sheet: 'info' };
