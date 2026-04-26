@@ -707,7 +707,7 @@ const INFO_COPY = {
       { range: '0.5–1.0 m', label: 'Presente',  desc: 'Movimiento claro, pero cómodo. Ayuda a que el mar tenga ritmo.' },
       { range: '+1.0 m',    label: 'Predomina', desc: 'El mar se mueve de forma continua pero ordenada. Es más fácil anticipar las olas.' },
     ],
-    matchFn: v => v > 1.0 ? 3 : v > 0.5 ? 2 : v > 0 ? 1 : 0,
+    matchFn: v => v >= 1.0 ? 3 : v >= 0.5 ? 2 : v > 0 ? 1 : 0,
   },
   'wind-wave': {
     title: 'Mar de viento',
@@ -718,7 +718,7 @@ const INFO_COPY = {
       { range: '0.3–0.6 m', label: 'Presente',  desc: 'Movimiento incómodo. El mar pierde estabilidad y tendrás que corregir equilibrio.' },
       { range: '+0.6 m',    label: 'Predomina', desc: 'Mar muy desordenado. Te mueve constantemente y cuesta mantenerse estable.' },
     ],
-    matchFn: v => v > 0.6 ? 3 : v > 0.3 ? 2 : v > 0 ? 1 : 0,
+    matchFn: v => v >= 0.6 ? 3 : v >= 0.3 ? 2 : v > 0 ? 1 : 0,
   },
   'sea-type': {
     title: 'Tipo de mar',
