@@ -1619,14 +1619,14 @@ ul { list-style: none; }
   width: 100%;
   margin: 28px auto 0;
   padding: 12px 20px;
-  background: transparent;
-  color: rgba(10, 10, 10, 0.35);
+  background: #ffffff;
+  color: rgba(10, 10, 10, 0.45);
   font-family: var(--font);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  border: 1.5px solid rgba(10, 10, 10, 0.12);
+  border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: opacity 0.15s ease;
@@ -1754,7 +1754,7 @@ ul { list-style: none; }
 .error-report-sheet__success-msg {
   font-size: 18px;
   font-weight: 700;
-  color: #0a0a0a;
+  color: var(--blue);
   text-align: center;
   padding: 0 0 24px;
 }
