@@ -95,8 +95,9 @@ function initInstallButton() {
 // ── Estado ──
 let currentSpot   = null;
 let currentData   = null;
-let currentD      = null;
-let deleteMode    = null;
+let currentD        = null;
+let currentWarnings = [];
+let deleteMode      = null;
 let swiper        = null;   // unused — carrusel eliminado
 let currentDay    = 0;
 let currentFranja = 1;
@@ -521,6 +522,7 @@ function renderResults(sliderIdx) {
   // Diagnóstico
   currentD = d;
   const { estado, warnings } = diagnosticar(d, currentSpot, d.weathercode);
+  currentWarnings = warnings;
   const info = ESTADOS[estado];
 
   // Ciudad (actualizar por si acaso)
@@ -619,119 +621,122 @@ function buildCompassSVG(dir) {
 const INFO_COPY = {
   'wind-speed': {
     title: 'Velocidad media',
-    intro: 'La intensidad del viento constante. Marca el esfuerzo al remar y lo fácil que será moverte.',
+    intro: 'Indica la fuerza constante del viento. Es lo que vas a notar todo el rato mientras remas. Cuanto más alto es, más te cuesta avanzar y más te empuja la tabla.',
     rows: [
-      { range: '0 – 6 kn',   label: 'Calma / apenas perceptible' },
-      { range: '6 – 10 kn',  label: 'Brisa ligera' },
-      { range: '10 – 15 kn', label: 'Viento moderado' },
-      { range: '15 – 20 kn', label: 'Viento fuerte' },
-      { range: '+20 kn',     label: 'Muy fuerte / limitante' },
+      { range: '0–6 kn',   label: 'Calma / casi no se nota', desc: 'Apenas hay viento. Remas sin esfuerzo y la tabla va recta.' },
+      { range: '6–10 kn',  label: 'Brisa ligera',            desc: 'Se nota un poco, pero no molesta. Puedes remar cómodo.' },
+      { range: '10–15 kn', label: 'Viento moderado',         desc: 'Ya ofrece resistencia. Remar contra él cuesta y te cansas más.' },
+      { range: '15–20 kn', label: 'Viento fuerte',           desc: 'Te frena claramente y te empuja. Mantener rumbo exige esfuerzo.' },
+      { range: '+20 kn',   label: 'Muy fuerte',              desc: 'Remar se vuelve muy difícil. Avanzar o volver puede ser complicado.' },
     ],
     matchFn: v => v >= 20 ? 4 : v >= 15 ? 3 : v >= 10 ? 2 : v >= 6 ? 1 : 0,
   },
   'wind-gusts': {
     title: 'Rachas',
-    intro: 'Son los picos de viento que aparecen de golpe. Son los que te descolocan.',
+    intro: 'Son los momentos en los que el viento pega más fuerte de lo normal. No indica si cambia mucho, sino lo fuerte que golpea cuando lo hace. Una racha es un empujón puntual.',
     rows: [
-      { range: '0 – 8 kn',   label: 'Estable' },
-      { range: '8 – 12 kn',  label: 'Alguna racha' },
-      { range: '12 – 16 kn', label: 'Rachas notables' },
-      { range: '16 – 22 kn', label: 'Rachas fuertes' },
-      { range: '+22 kn',     label: 'Rachas muy fuertes' },
+      { range: '0–8 kn',   label: 'Sin rachas',         desc: 'El viento es uniforme. No hay golpes ni tirones.' },
+      { range: '8–12 kn',  label: 'Rachas suaves',      desc: 'Algún empujón puntual. Se nota, pero no afecta demasiado.' },
+      { range: '12–16 kn', label: 'Rachas notables',    desc: 'Empujones claros que pueden descolocarte. Tendrás que corregir equilibrio.' },
+      { range: '16–22 kn', label: 'Rachas fuertes',     desc: 'Golpes de viento que afectan de verdad. Pueden frenarte o hacerte perder estabilidad.' },
+      { range: '+22 kn',   label: 'Rachas muy fuertes', desc: 'Empujones bruscos y potentes. Pueden tirarte al agua o alejarte sin darte cuenta.' },
     ],
     matchFn: v => v >= 22 ? 4 : v >= 16 ? 3 : v >= 12 ? 2 : v >= 8 ? 1 : 0,
   },
   'wind-variability': {
     title: 'Variabilidad',
-    intro: 'Mide cuánto cambia el viento. Cuanto más alto, menos predecible.',
+    intro: 'Indica cuánto cambia el viento a lo largo del rato. No es lo fuerte que sopla, sino si se mantiene igual o va cambiando continuamente.',
     rows: [
-      { range: '0 – 3',  label: 'Viento estable' },
-      { range: '3 – 6',  label: 'Algo variable' },
-      { range: '6 – 10', label: 'Variable' },
-      { range: '+10',    label: 'Muy variable' },
+      { range: '0–3',  label: 'Viento estable', desc: 'Sopla siempre igual. Remas cómodo y sin sorpresas.' },
+      { range: '3–6',  label: 'Algo variable',  desc: 'Cambia un poco. Notarás pequeñas variaciones, pero no molestan.' },
+      { range: '6–10', label: 'Variable',       desc: 'El viento sube y baja constantemente. A ratos no lo notas y de repente aparece. Tendrás que estar atento.' },
+      { range: '+10',  label: 'Muy variable',   desc: 'Cambios continuos. El viento va y viene todo el tiempo. Cuesta encontrar estabilidad aunque no sea fuerte.' },
     ],
     matchFn: v => v >= 10 ? 3 : v >= 6 ? 2 : v >= 3 ? 1 : 0,
   },
   'wind-direction': {
     title: 'Dirección del viento',
-    intro: 'Indica de dónde viene el viento respecto a la playa. Cambia completamente la seguridad.',
+    intro: 'Indica desde dónde viene el viento respecto a la playa. No cambia lo fuerte que sopla, pero sí hacia dónde te empuja. Es clave porque puede acercarte a la orilla… o alejarte sin darte cuenta.',
     rows: [
-      { range: 'Offshore', label: 'Tierra → mar. Te empuja hacia fuera (peligroso)' },
-      { range: 'Onshore',  label: 'Mar → tierra. Te empuja hacia la orilla (más seguro)' },
-      { range: 'Lateral',  label: 'Te desplaza de lado' },
+      { range: 'Onshore',  label: 'De mar',    desc: 'Viene desde el mar hacia tierra. Te empuja hacia la orilla. Más seguro: si te paras, vuelves poco a poco.' },
+      { range: 'Offshore', label: 'De tierra', desc: 'Viene desde tierra hacia el mar. Te empuja hacia fuera. Parece tranquilo, pero te puede alejar sin que lo notes.' },
+      { range: 'Lateral',  label: 'Lateral',   desc: 'Sopla de lado. No te acerca ni te aleja directamente, pero te desplaza. Tendrás que corregir dirección constantemente.' },
     ],
   },
   'wave-height': {
     title: 'Altura de ola',
-    intro: 'El tamaño de las olas. Define cuánto se mueve el mar.',
+    intro: 'Indica el tamaño de las olas. Es lo que más determina cuánto se mueve el mar bajo la tabla. Cuanto más alta es la ola, más te balancea y más difícil es mantener el equilibrio.',
     rows: [
-      { range: '0 – 0.2 m',   label: 'Mar en calma' },
-      { range: '0.2 – 0.6 m', label: 'Movimiento leve' },
-      { range: '0.6 – 1.0 m', label: 'Movimiento real' },
-      { range: '1.0 – 1.5 m', label: 'Mar movido' },
-      { range: '+1.5 m',      label: 'Mar grande / complicado' },
+      { range: '0–0.2 m',   label: 'Mar en calma',   desc: 'Apenas hay movimiento. Sensación de piscina.' },
+      { range: '0.2–0.6 m', label: 'Olas pequeñas',  desc: 'Algo de balanceo, pero fácil de controlar.' },
+      { range: '0.6–1.0 m', label: 'Movimiento real', desc: 'El mar ya te mueve. Necesitas equilibrio y atención.' },
+      { range: '1.0–1.5 m', label: 'Mar movido',      desc: 'Mantenerse de pie cuesta. Cada ola te descoloca.' },
+      { range: '+1.5 m',    label: 'Mar grande',      desc: 'Mucho movimiento. Difícil de manejar y potencialmente peligroso.' },
     ],
     matchFn: v => v >= 1.5 ? 4 : v >= 1.0 ? 3 : v >= 0.6 ? 2 : v >= 0.2 ? 1 : 0,
   },
   'wave-period': {
     title: 'Período medio',
-    intro: 'El tiempo entre olas. Define si el mar es ordenado o caótico.',
+    intro: 'Indica el tiempo que pasa entre una ola y la siguiente. No es el tamaño, sino el ritmo al que llegan. Cuanto más largo, más ordenado y predecible es el mar.',
     rows: [
-      { range: '+7 s',    label: 'Olas largas y ordenadas (fácil)' },
-      { range: '5 – 7 s', label: 'Ritmo normal' },
-      { range: '4 – 5 s', label: 'Algo irregular' },
-      { range: '<4 s',    label: 'Caótico y difícil' },
+      { range: '+7 s',  label: 'Olas largas y ordenadas', desc: 'Llegan espaciadas. Te da tiempo a estabilizarte entre una y otra. Sensación cómoda.' },
+      { range: '5–7 s', label: 'Ritmo normal',            desc: 'Olas regulares. Se nota el movimiento, pero es fácil adaptarse.' },
+      { range: '4–5 s', label: 'Algo irregular',          desc: 'Llegan más seguidas. Menos tiempo para recolocarte.' },
+      { range: '<4 s',  label: 'Caótico',                 desc: 'Olas muy seguidas y desordenadas. El mar no da tregua y cuesta mantener el equilibrio.' },
     ],
     matchFn: v => v < 4 ? 3 : v < 5 ? 2 : v < 7 ? 1 : 0,
   },
   'wave-direction': {
     title: 'Dirección de ola',
-    intro: 'Indica desde dónde llegan las olas. Afecta a cómo rompen y al equilibrio.',
+    intro: 'Indica desde dónde llegan las olas. No cambia el tamaño, pero sí cómo te afectan al equilibrio. Según la dirección, las olas te empujan de frente, de lado o apenas las notas.',
     rows: [
-      { range: 'De mar',    label: 'Entran hacia la playa' },
-      { range: 'Cruzadas',  label: 'Llegan de lado' },
-      { range: 'De tierra', label: 'Apenas afectan' },
+      { range: 'Hacia playa', label: 'De mar',    desc: 'Las olas vienen hacia ti. Las enfrentas de frente: subes y bajas con ellas. Es lo más fácil de leer.' },
+      { range: 'Lateral',     label: 'Cruzadas',  desc: 'Llegan en diagonal o lateral. Te desestabilizan más porque te mueven de lado. Cuesta mantener el equilibrio.' },
+      { range: 'Hacia mar',   label: 'De tierra', desc: 'Apenas afectan en la orilla. El mar suele estar más plano o con menos impacto directo en la tabla.' },
     ],
   },
   'swell': {
     title: 'Mar de fondo',
-    intro: 'Olas limpias que vienen de lejos. Más fáciles de leer y predecir.',
+    intro: 'Son olas que vienen de lejos, generadas por viento en otras zonas. Más limpias, largas y fáciles de leer. El movimiento es suave y predecible: como subir y bajar poco a poco, sin sobresaltos.',
     rows: [
-      { range: '0 m',         label: 'No hay' },
-      { range: '0 – 0.5 m',   label: 'Débil' },
-      { range: '0.5 – 1.0 m', label: 'Presente' },
-      { range: '+1.0 m',      label: 'Predomina' },
+      { range: '0 m',       label: 'No hay',    desc: 'El mar no tiene ese movimiento largo. Todo depende del viento local.' },
+      { range: '0–0.5 m',   label: 'Débil',     desc: 'Apenas se nota. Ligero balanceo suave.' },
+      { range: '0.5–1.0 m', label: 'Presente',  desc: 'Movimiento claro, pero cómodo. Ayuda a que el mar tenga ritmo.' },
+      { range: '+1.0 m',    label: 'Predomina', desc: 'El mar se mueve de forma continua pero ordenada. Es más fácil anticipar las olas.' },
     ],
     matchFn: v => v > 1.0 ? 3 : v > 0.5 ? 2 : v > 0 ? 1 : 0,
   },
   'wind-wave': {
     title: 'Mar de viento',
-    intro: 'Olas generadas por el viento local. Más incómodas y desordenadas que el mar de fondo.',
+    intro: 'Son olas creadas por el viento local en ese momento. Cortas, irregulares y más incómodas que el mar de fondo. Es como si el agua estuviera "picada": te mueven sin avisar.',
     rows: [
-      { range: '0 m',         label: 'No hay' },
-      { range: '0 – 0.3 m',   label: 'Leve' },
-      { range: '0.3 – 0.6 m', label: 'Presente' },
-      { range: '+0.6 m',      label: 'Predomina' },
+      { range: '0 m',       label: 'No hay',    desc: 'El viento no está generando olas. El mar está más limpio.' },
+      { range: '0–0.3 m',   label: 'Leve',      desc: 'Ligero picado. Se nota un poco, pero no molesta demasiado.' },
+      { range: '0.3–0.6 m', label: 'Presente',  desc: 'Movimiento incómodo. El mar pierde estabilidad y tendrás que corregir equilibrio.' },
+      { range: '+0.6 m',    label: 'Predomina', desc: 'Mar muy desordenado. Te mueve constantemente y cuesta mantenerse estable.' },
     ],
     matchFn: v => v > 0.6 ? 3 : v > 0.3 ? 2 : v > 0 ? 1 : 0,
   },
   'sea-type': {
     title: 'Tipo de mar',
-    intro: 'Resume cómo es el mar en conjunto según el origen de las olas.',
+    intro: 'Resume cómo es el mar combinando el mar de fondo y el mar de viento. Te dice si el movimiento será limpio y predecible… o incómodo y caótico.',
     rows: [
-      { range: 'Solo fondo',  label: 'Limpio y ordenado' },
-      { range: 'Mar mixto',   label: 'Algo irregular' },
-      { range: 'Solo viento', label: 'Desordenado' },
+      { range: 'Solo fondo',  label: 'Solo fondo',  desc: 'Predominan olas largas y ordenadas. El mar tiene ritmo y es fácil de leer. Más cómodo para remar.' },
+      { range: 'Mixto',       label: 'Mar mixto',   desc: 'Se mezclan olas limpias con algo de mar de viento. A ratos cómodo, a ratos irregular. Puede sorprenderte.' },
+      { range: 'Solo viento', label: 'Solo viento', desc: "Predomina el mar generado por el viento local. Olas cortas y desordenadas. El mar está 'picado' y cuesta mantener estabilidad." },
     ],
+    matchFn: v => v === 1 ? 1 : v === 2 ? 2 : 0,
   },
   'terral': {
     title: 'Terral',
-    intro: 'El viento viene de tierra y te empuja hacia el mar. El riesgo es alejarte sin poder volver fácilmente.',
+    intro: 'Es cuando el viento viene de tierra hacia el mar. No siempre parece fuerte, pero tiene un riesgo importante: te empuja hacia fuera. Puede dar sensación de calma desde la orilla, pero si te alejas, volver puede costar mucho más de lo que parece.',
     rows: [
-      { range: 'Leve',      label: 'Suave. No te alejes demasiado de la orilla' },
-      { range: 'Relevante', label: 'Quédate cerca de la orilla en todo momento' },
-      { range: 'Fuerte',    label: 'Mejor no salir hoy' },
+      { range: 'Sin terral', label: 'Sin terral',       desc: 'El viento no te empuja mar adentro. Puedes moverte con normalidad.' },
+      { range: 'Leve',       label: 'Terral leve',      desc: 'Empuja suavemente hacia fuera. Sin problema si te mantienes cerca de la orilla.' },
+      { range: 'Relevante',  label: 'Terral relevante', desc: 'Te aleja poco a poco sin darte cuenta. Tendrás que estar pendiente de no irte demasiado lejos.' },
+      { range: 'Fuerte',     label: 'Terral fuerte',    desc: 'Empuja claramente hacia mar abierto. Volver puede ser difícil. No es buen día para salir.' },
     ],
+    matchFn: v => v >= 3 ? 3 : v >= 2 ? 2 : v >= 1 ? 1 : 0,
   },
 };
 
@@ -933,6 +938,15 @@ function getValueForKey(key) {
     case 'wave-period':      return currentD.wavePer;
     case 'swell':            return currentD.swellH || 0;
     case 'wind-wave':        return currentD.windWaveH || 0;
+    case 'terral': {
+      const w = currentWarnings.find(w => w.tipo === 'terral');
+      return w ? w.nivel : 0;
+    }
+    case 'sea-type': {
+      const diff = (currentD.swellH || 0) - (currentD.windWaveH || 0);
+      if (Math.abs(diff) < 0.1) return 1; // mixto
+      return diff > 0 ? 0 : 2;            // 0=fondo, 2=viento
+    }
     default:                 return null;
   }
 }
@@ -948,8 +962,11 @@ function openInfoSheet(key) {
   document.getElementById('info-sheet-intro').textContent = data.intro;
   document.getElementById('info-sheet-rows').innerHTML = data.rows
     .map((r, i) => `<div class="info-sheet__row${i === activeIdx ? ' info-sheet__row--active' : ''}">
-      <span class="info-sheet__range">${r.range}</span>
-      <span class="info-sheet__label">${r.label}</span>
+      <div class="info-sheet__row-top">
+        <span class="info-sheet__label">${r.label}</span>
+        <span class="info-sheet__range">${r.range}</span>
+      </div>
+      <p class="info-sheet__desc">${r.desc}</p>
     </div>`)
     .join('');
 
