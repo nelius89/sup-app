@@ -1745,10 +1745,10 @@ ul { list-style: none; }
 
 .error-report-sheet__success-illus {
   display: block;
-  width: 80px;
-  height: 80px;
+  width: 92px;
+  height: auto;
   margin: 24px auto 16px;
-  filter: invert(24%) sepia(98%) saturate(2000%) hue-rotate(220deg) brightness(90%) contrast(95%);
+  fill: var(--blue);
 }
 
 .error-report-sheet__success-msg {
