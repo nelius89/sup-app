@@ -703,6 +703,7 @@ ul { list-style: none; }
   align-items: center;
   text-align: center;
   gap: 0;
+  padding-top: 12px;
   padding-bottom: 8px;
 }
 
@@ -716,7 +717,7 @@ ul { list-style: none; }
 }
 
 .diagnosis__illus {
-  height: 116px;
+  height: 99px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
