@@ -309,8 +309,10 @@ function renderFranjas() {
     pill.className = 'results__franja-pill' + (i === currentFranja ? ' active' : '');
     pill.innerHTML = `
       <span class="results__franja-name">${f.label}</span>
-      <span class="results__franja-icon">${weatherIcon}</span>
-      <span class="results__franja-temp">${tempStr}</span>
+      <span class="results__franja-weather">
+        <span class="results__franja-icon">${weatherIcon}</span>
+        <span class="results__franja-temp">${tempStr}</span>
+      </span>
     `;
     pill.addEventListener('click', () => {
       if (showSevenDay) return;
