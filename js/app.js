@@ -356,6 +356,18 @@ function positionFranjaIndicator(index, animate) {
   indicator.style.transform = `translateX(${pill.offsetLeft}px)`;
 }
 
+// Fade out → render → fade in para refrescos de datos
+function refreshWithFade(el, renderFn, inClass, outMs) {
+  el.classList.remove('data-refresh-in--day', 'data-refresh-in--franja');
+  el.classList.add('data-refreshing');
+  setTimeout(() => {
+    renderFn();
+    el.classList.remove('data-refreshing');
+    el.classList.add(inClass);
+    el.addEventListener('animationend', () => el.classList.remove(inClass), { once: true });
+  }, outMs);
+}
+
 // Franjas — nombre + icono weather real + temperatura
 function renderFranjas() {
   const container = document.getElementById('results-franjas-pills');
@@ -391,7 +403,12 @@ function renderFranjas() {
       container.querySelectorAll('.results__franja-pill').forEach((p, idx) => {
         p.classList.toggle('active', idx === i);
       });
-      renderResults(sliderIndex(currentDay, currentFranja));
+      refreshWithFade(
+        document.getElementById('results-main-content'),
+        () => renderResults(sliderIndex(currentDay, currentFranja)),
+        'data-refresh-in--franja',
+        70
+      );
     });
     container.appendChild(pill);
   });
@@ -1281,17 +1298,32 @@ document.addEventListener('DOMContentLoaded', () => {
       if (day === 7) {
         showSevenDay = true;
         renderDayTabs(true);
-        renderFranjas();
+        refreshWithFade(
+          document.getElementById('results-franjas-pills'),
+          () => renderFranjas(),
+          'data-refresh-in--day',
+          100
+        );
         document.getElementById('results-main-content').classList.add('hidden');
         document.getElementById('results-seven-day').classList.remove('hidden');
       } else {
         showSevenDay = false;
         currentDay = day;
         renderDayTabs(true);
-        renderFranjas();
+        refreshWithFade(
+          document.getElementById('results-franjas-pills'),
+          () => renderFranjas(),
+          'data-refresh-in--day',
+          100
+        );
         document.getElementById('results-main-content').classList.remove('hidden');
         document.getElementById('results-seven-day').classList.add('hidden');
-        if (currentData) renderResults(sliderIndex(currentDay, currentFranja));
+        if (currentData) refreshWithFade(
+          document.getElementById('results-main-content'),
+          () => renderResults(sliderIndex(currentDay, currentFranja)),
+          'data-refresh-in--day',
+          100
+        );
       }
     });
   });

@@ -96,6 +96,35 @@ ul { list-style: none; }
     animation: resultFadeIn 0.20s ease both;
     animation-delay: 0s !important;
   }
+  .data-refreshing { animation: none; opacity: 0; }
+  .data-refresh-in--day,
+  .data-refresh-in--franja { animation: dataInFranja 0.12s ease forwards; }
+}
+
+/* ─────────────────────────────────────────
+   ANIMACIONES DE REFRESCO — cambio día/franja
+───────────────────────────────────────── */
+@keyframes dataOut {
+  to { opacity: 0; transform: translateY(4px); }
+}
+@keyframes dataInDay {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes dataInFranja {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.data-refreshing {
+  animation: dataOut 0.10s ease forwards;
+  pointer-events: none;
+}
+.data-refresh-in--day {
+  animation: dataInDay 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.data-refresh-in--franja {
+  animation: dataInFranja 0.16s ease forwards;
 }
 
 /* ─────────────────────────────────────────
