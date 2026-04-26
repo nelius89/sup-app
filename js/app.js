@@ -356,16 +356,34 @@ function positionFranjaIndicator(index, animate) {
   indicator.style.transform = `translateX(${pill.offsetLeft}px)`;
 }
 
-// Fade out → render → fade in para refrescos de datos
+// Fade out → render → fade in para refrescos de datos (cambio de día)
 function refreshWithFade(el, renderFn, inClass, outMs) {
-  el.classList.remove('data-refresh-in--day', 'data-refresh-in--franja');
+  el.classList.remove('data-refresh-in--day');
   el.classList.add('data-refreshing');
   setTimeout(() => {
     renderFn();
     el.classList.remove('data-refreshing');
     el.classList.add(inClass);
-    el.addEventListener('animationend', () => el.classList.remove(inClass), { once: true });
+    setTimeout(() => el.classList.remove(inClass), 300);
   }, outMs);
+}
+
+// Slide direccional → render → slide in con stagger (cambio de franja)
+function refreshFranjaContent(oldIndex, newIndex) {
+  const el = document.getElementById('results-main-content');
+  const dir = newIndex > oldIndex ? 'next' : 'prev';
+  const outClass = `data-refreshing--${dir}`;
+  const inClass  = `data-refresh-in--${dir}`;
+
+  el.classList.remove('data-refresh-in--next', 'data-refresh-in--prev');
+  el.classList.add(outClass);
+
+  setTimeout(() => {
+    renderResults(sliderIndex(currentDay, newIndex));
+    el.classList.remove(outClass);
+    el.classList.add(inClass);
+    setTimeout(() => el.classList.remove(inClass), 400);
+  }, 100);
 }
 
 // Franjas — nombre + icono weather real + temperatura
@@ -397,18 +415,13 @@ function renderFranjas() {
     `;
     pill.addEventListener('click', () => {
       if (showSevenDay) return;
+      const oldFranja = currentFranja;
       currentFranja = i;
-      // Animar indicator y transición de color
       positionFranjaIndicator(i, true);
       container.querySelectorAll('.results__franja-pill').forEach((p, idx) => {
         p.classList.toggle('active', idx === i);
       });
-      refreshWithFade(
-        document.getElementById('results-main-content'),
-        () => renderResults(sliderIndex(currentDay, currentFranja)),
-        'data-refresh-in--franja',
-        70
-      );
+      if (oldFranja !== currentFranja) refreshFranjaContent(oldFranja, currentFranja);
     });
     container.appendChild(pill);
   });
