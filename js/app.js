@@ -490,14 +490,10 @@ async function loadSpot(spot) {
 
   document.getElementById('results-spot-name').textContent = spot.name;
   document.getElementById('ctx-city').textContent         = spot.city || '—';
-  document.getElementById('diagnosis-title').textContent = 'Cargando...';
-  document.getElementById('diagnosis-illus').innerHTML   = '';
-  document.getElementById('nb-encounter-title').textContent = '—';
-  document.getElementById('nb-encounter-desc').textContent  = '—';
-  document.getElementById('nb-demand-title').textContent    = '—';
-  document.getElementById('nb-demand-desc').textContent     = '—';
-  document.getElementById('nb-fit-title').textContent       = '—';
-  document.getElementById('nb-fit-desc').textContent        = '—';
+  document.getElementById('diagnosis-title').textContent  = 'Cargando...';
+  document.getElementById('nb-encounter-desc').textContent = '—';
+  document.getElementById('nb-demand-desc').textContent    = '—';
+  document.getElementById('nb-fit-title').textContent      = '—';
   document.getElementById('tech-blocks').innerHTML          = '';
   document.getElementById('results-main-content').classList.remove('hidden');
   document.getElementById('results-seven-day').classList.add('hidden');
