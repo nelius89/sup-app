@@ -262,11 +262,11 @@ function diagnosticar(d, spot, weathercode) {
 // titulo: respuesta directa a "¿Está para salir?"
 // subtitulo: presubtítulo fijo en pantalla de resultados
 const ESTADOS = {
-  'piscina':         { titulo: 'Oh yeah, sin dudarlo',           subtitulo: '¿Está para salir?' },
-  'muy-agradable':   { titulo: 'Sí, está muy agradable',         subtitulo: '¿Está para salir?' },
-  'se-puede-salir':  { titulo: 'Está movido pero manejable', subtitulo: '¿Está para salir?' },
-  'exigente':        { titulo: 'Depende, está exigente',          subtitulo: '¿Está para salir?' },
-  'no-recomendable': { titulo: 'Mejor quedarse en tierra',        subtitulo: '¿Está para salir?' },
+  'piscina':         { titulo: 'Se está como en una piscina',    subtitulo: '¿Está para salir?' },
+  'muy-agradable':   { titulo: 'Está super agradable',           subtitulo: '¿Está para salir?' },
+  'se-puede-salir':  { titulo: 'Está movidito pero manejable',   subtitulo: '¿Está para salir?' },
+  'exigente':        { titulo: 'El mar está exigente',            subtitulo: '¿Está para salir?' },
+  'no-recomendable': { titulo: 'Hoy mejor en tierra',            subtitulo: '¿Está para salir?' },
 };
 
 // ── Bloques narrativos (pantalla principal) ──
@@ -366,37 +366,37 @@ function buildNarrativeBlocks(d, estado, warnings) {
   if (d.waveH > 1.5) {
     encounter = {
       title: 'El mar está muy revuelto',
-      desc:  'Olas grandes, cortas y desordenadas.',
+      desc:  'Olas grandes, cortas y sin orden.',
     };
   } else if (d.waveH > 1.0 || (d.waveH > 0.6 && d.wavePer < 4)) {
     encounter = {
-      title: 'Mar movido y poco ordenado',
-      desc:  'Olas que no siguen un ritmo claro y viento incómodo.',
+      title: 'El mar está movido y poco ordenado',
+      desc:  'Olas sin ritmo que no dan tregua. Hay que estar muy atento.',
     };
   } else if (d.waveH > 0.6) {
     encounter = {
       title: 'El mar está movido',
-      desc:  'Las olas se notan y no tienen un ritmo claro.',
+      desc:  'Las olas se notan. No siguen un ritmo claro.',
     };
   } else if (d.waveH > 0.3 && d.wavePer < 4) {
     encounter = {
       title: 'Olas pequeñas pero constantes',
-      desc:  'Que te mantienen todo el rato en movimiento.',
+      desc:  'Hay movimiento todo el rato. No para, pero tampoco es grave.',
     };
   } else if (d.waveH > 0.3) {
     encounter = {
       title: 'Algo de movimiento, pero suave',
-      desc:  'Pequeñas olas con ritmo constante. Nada preocupante.',
+      desc:  'Olas pequeñas con ritmo regular. Nada que sorprenda.',
     };
   } else if (d.wavePer < 7) {
     encounter = {
       title: 'El mar está casi plano',
-      desc:  'Olas pequeñas en la orilla pueden descolocar al empezar, pero fuera se siente estable.',
+      desc:  'Casi plano, pero hay movimiento en la orilla. Puede costar entrar.',
     };
   } else {
     encounter = {
-      title: 'El mar está como una piscina',
-      desc:  'Sin olas y sin apenas movimiento. Se siente estable.',
+      title: 'El mar está parado',
+      desc:  'Sin olas ni movimiento. Plano de verdad.',
     };
   }
 
@@ -404,44 +404,44 @@ function buildNarrativeBlocks(d, estado, warnings) {
   let demand;
   if (d.windKn > 20) {
     demand = {
-      title: 'Remar se vuelve muy difícil',
-      desc:  'El viento puede frenarte o arrastrarte. Mantener el equilibrio cuesta mucho.',
+      title: 'El viento puede arrastrarte',
+      desc:  'El viento puede arrastrarte. Muy difícil mantenerse.',
     };
   } else if (d.windKn > 15) {
     demand = {
-      title: 'Mantenerse de pie exige técnica',
-      desc:  'El viento empuja y el mar no ayuda. No se está mood relax.',
+      title: 'El viento empuja fuerte',
+      desc:  'El viento empuja fuerte. Mantener el equilibrio exige concentración.',
     };
   } else if (d.windKn > 10) {
     demand = {
-      title: 'Necesitarás mantener el equilibrio',
-      desc:  'Las rachas pueden descolocarte y remar ya exige esfuerzo.',
+      title: 'El viento ya condiciona',
+      desc:  'El viento no es constante y puede pillarte. Remar empieza a costar.',
     };
   } else if (d.windKn > 5) {
     demand = {
-      title: 'Se rema cómodo, algo de viento',
-      desc:  'Lo notas, pero no molesta ni condiciona.',
+      title: 'Viento suave, rema cómodo',
+      desc:  'Hay algo de viento, pero no molesta ni condiciona.',
     };
   } else {
     demand = {
-      title: 'Remar está fácil y fluido',
-      desc:  'No hay resistencia ni esfuerzo extra. Se avanza tranquilamente.',
+      title: 'Remar está fácil',
+      desc:  'Sin resistencia. Se avanza tranquilamente.',
     };
   }
 
   // Override: cuando el mar corto es lo que exige, no el viento
   if (d.wavePer < 4 && d.waveH > 0.3 && d.windKn <= 5) {
     demand = {
-      title: 'Remar no cuesta, pero no vas a estar estable',
-      desc:  'Aunque el viento sea suave, el mar te moverá constantemente.',
+      title: 'El mar no para quieto',
+      desc:  'El viento es suave, pero el mar te moverá todo el rato.',
     };
   }
 
   // Override: ola media con viento suave — el equilibrio exige más que el esfuerzo de remar
   if (d.waveH > 0.6 && d.windKn <= 5) {
     demand = {
-      title: 'Remar no cuesta, pero no vas a estar estable',
-      desc:  'Las olas te moverán constantemente y exigen equilibrio.',
+      title: 'Las olas mandan',
+      desc:  'El viento no molesta, pero las olas te moverán sin parar.',
     };
   }
 
@@ -451,7 +451,7 @@ function buildNarrativeBlocks(d, estado, warnings) {
   if (variabilidad > 6 && d.windKn <= 5 && d.waveH <= 0.6) {
     demand = {
       title: 'El viento engaña',
-      desc:  'Hay ratos de calma y otros en los que empuja de golpe.',
+      desc:  'El viento engaña: calma y de repente empuja fuerte.',
     };
   }
 
@@ -469,13 +469,13 @@ function buildNarrativeBlocks(d, estado, warnings) {
   if (terralWarningDemand && d.windKn <= 5 && d.waveH <= 0.6) {
     if (terralWarningDemand.nivel >= 2) {
       demand = {
-        title: 'Remar es fácil, pero el viento te aleja de la orilla',
-        desc:  'Viene de tierra y te empuja hacia el mar. Si se pone más fuerte, volver costará más.',
+        title: 'El viento te aleja de la orilla',
+        desc:  'Viento de tierra: te empuja hacia el mar. Si sube, volver costará.',
       };
     } else {
       demand = {
-        title: 'Leve viento que viene de tierra',
-        desc:  'Y te empuja levemente hacia el mar. 0 drama si no te alejas demasiado.',
+        title: 'Leve terral, sin drama',
+        desc:  'Leve viento de tierra. Te empuja un poco. Sin drama.',
       };
     }
   }
@@ -489,31 +489,31 @@ function buildNarrativeBlocks(d, estado, warnings) {
   switch (estado) {
     case 'piscina':
       fit = {
-        title: 'Es un día para cualquiera',
+        title: 'Fácil incluso si es tu primera vez.',
         desc:  'Da igual el nivel. Es perfecto incluso si es tu primera vez.',
       };
       break;
     case 'muy-agradable':
       fit = {
-        title: 'Apto para casi todos',
+        title: 'Apto para casi todos.',
         desc:  'Si has salido alguna vez, lo vas a disfrutar sin problema.',
       };
       break;
     case 'se-puede-salir':
       fit = hasCriticalWarnings
-        ? { title: 'Mejor si tienes experiencia', desc: 'Si no controlas mucho, te puede costar.' }
-        : { title: 'Mejor con algo de experiencia',   desc: 'Si ya controlas la tabla, es buen día. Si no, puede costar.' };
+        ? { title: 'Solo para gente con experiencia.', desc: 'Sin control real, lo vas a pasar mal.' }
+        : { title: 'Mejor si ya has salido alguna vez.', desc: 'Si ya controlas la tabla, es buen día. Si no, puede costar.' };
       break;
     case 'exigente':
       fit = {
-        title: 'Mejor si tienes experiencia',
-        desc:  'Si no controlas mucho, te puede costar.',
+        title: 'Solo para gente con experiencia.',
+        desc:  'Sin control real, lo vas a pasar mal.',
       };
       break;
     case 'no-recomendable':
     default:
       fit = {
-        title: 'No es un día para salir',
+        title: 'No es seguro para nadie hoy.',
         desc:  'Las condiciones no son seguras, independientemente del nivel.',
       };
   }
