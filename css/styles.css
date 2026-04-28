@@ -873,7 +873,7 @@ ul { list-style: none; }
   background: transparent;
   border: 2px solid var(--blue);
   border-radius: 18px;
-  padding: 22px 20px 20px;
+  padding: 28px 26px 20px;
   position: relative;
   margin-bottom: 24px;
 }
@@ -888,7 +888,7 @@ ul { list-style: none; }
   border-bottom: 2px solid var(--blue);
   transform: rotate(45deg);
   bottom: -12px;
-  left: 51px;
+  left: 71px;
 }
 
 .bocadillo::before {
