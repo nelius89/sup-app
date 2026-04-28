@@ -1375,6 +1375,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-home-feedback').addEventListener('click', openSuggestionsSheet);
   document.getElementById('about-overlay').addEventListener('click', closeAboutSheet);
   document.getElementById('suggestions-overlay').addEventListener('click', closeSuggestionsSheet);
+  document.getElementById('btn-tech-info').addEventListener('click', () => {
+    document.getElementById('tech-blocks').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
   document.getElementById('btn-report-error').addEventListener('click', openErrorReportSheet);
   document.getElementById('error-report-overlay').addEventListener('click', closeErrorReportSheet);
   initAboutSheet();
