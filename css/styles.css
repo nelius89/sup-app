@@ -875,7 +875,7 @@ ul { list-style: none; }
   border-radius: 18px;
   padding: 28px 26px 20px;
   position: relative;
-  margin-bottom: 24px;
+  margin: 20px 10px 24px;
 }
 
 .bocadillo::after {
