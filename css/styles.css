@@ -881,27 +881,18 @@ ul { list-style: none; }
 .bocadillo::after {
   content: '';
   position: absolute;
-  bottom: -18px;
-  left: 52px;
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 18px solid var(--blue);
-  z-index: 1;
+  width: 22px;
+  height: 22px;
+  background: var(--beige);
+  border-right: 2px solid var(--blue);
+  border-bottom: 2px solid var(--blue);
+  transform: rotate(45deg);
+  bottom: -12px;
+  left: 51px;
 }
 
 .bocadillo::before {
-  content: '';
-  position: absolute;
-  bottom: -16px;
-  left: 54px;
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 2px solid transparent;
-  border-top: 16px solid var(--beige);
-  z-index: 2;
+  display: none;
 }
 
 .bocadillo__title {
@@ -946,7 +937,7 @@ ul { list-style: none; }
 }
 
 .diagnosis__croc {
-  width: 260px;
+  width: 221px;
   display: block;
   margin: 0 auto 8px;
 }
