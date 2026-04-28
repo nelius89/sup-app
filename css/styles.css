@@ -888,6 +888,20 @@ ul { list-style: none; }
   border-left: 10px solid transparent;
   border-right: 4px solid transparent;
   border-top: 18px solid var(--blue);
+  z-index: 1;
+}
+
+.bocadillo::before {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 54px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 2px solid transparent;
+  border-top: 16px solid var(--beige);
+  z-index: 2;
 }
 
 .bocadillo__title {
