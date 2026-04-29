@@ -178,25 +178,28 @@ ul { list-style: none; }
   align-items: center;
 }
 
-/* ── Animación de portada — sprite sheet vertical (3 frames × 750×1100px) ── */
+/* ── Animación de portada — vídeo loop ── */
 .home-anim {
   position: relative;
   width: 100%;
   max-width: 260px;
   margin: 0 auto;
-  aspect-ratio: 750 / 1100;
   overflow: hidden;
+  isolation: isolate;
 }
 
-.home-anim__sprite {
+.home-anim__video {
   display: block;
   width: 100%;
-  animation: cocoFrames 0.45s steps(3, end) infinite;
+  height: auto;
 }
 
-@keyframes cocoFrames {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-100%); }
+.home-anim__overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--blue);
+  mix-blend-mode: color;
+  pointer-events: none;
 }
 
 .illus-placeholder--home {
