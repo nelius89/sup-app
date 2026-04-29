@@ -937,14 +937,14 @@ ul { list-style: none; }
 }
 
 .diagnosis__croc {
-  width: 210px;
+  width: 189px;
   display: block;
   margin: 0 auto 0;
 }
 
 .btn-tech-info {
   display: block;
-  margin: -38px auto 20px;
+  margin: 8px auto 20px;
   padding: 8px 20px;
   background: rgba(49, 79, 255, 0.10);
   color: var(--blue);
@@ -1085,7 +1085,13 @@ ul { list-style: none; }
   border-right: none;
   margin: 4px;
 }
-.tech-cell--red    { background: rgba(239, 68, 68, 0.06); }
+.tech-cell--red {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.45);
+  border-radius: 10px;
+  border-right: none;
+  margin: 4px;
+}
 
 .tech-cell__top {
   display: flex;

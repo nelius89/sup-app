@@ -31,13 +31,13 @@ const ICONS = {
   thermometer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>`,
 };
 
-// ── Ilustraciones por estado ──
+// ── Ilustraciones por estado (v2.1) ──
 const ESTADO_ILLUS = {
-  'piscina':         'assets/illustrations/Resolucion/Estados/Piscina.svg',
-  'muy-agradable':   'assets/illustrations/Resolucion/Estados/Muyagradable.svg',
-  'se-puede-salir':  'assets/illustrations/Resolucion/Estados/Sepuedesalir.svg',
-  'exigente':        'assets/illustrations/Resolucion/Estados/Exigente.svg',
-  'no-recomendable': 'assets/illustrations/Resolucion/Estados/Norecomendable.svg',
+  'piscina':         'assets/illustrations/Resolucion/Estados/V2.1/Ok-PNG.png',
+  'muy-agradable':   'assets/illustrations/Resolucion/Estados/V2.1/Ok-PNG.png',
+  'se-puede-salir':  'assets/illustrations/Resolucion/Estados/V2.1/Ok-PNG.png',
+  'exigente':        'assets/illustrations/Resolucion/Estados/V2.1/Maybe.png',
+  'no-recomendable': 'assets/illustrations/Resolucion/Estados/V2.1/No.png',
 };
 
 // ── Iconos SVG para cada franja horaria (v2.1: 4 franjas) ──
@@ -523,6 +523,10 @@ function renderResults(sliderIdx) {
 
   // Ciudad (actualizar por si acaso)
   document.getElementById('ctx-city').textContent = currentSpot.city || '—';
+
+  // Ilustración cocodrilo según estado
+  const crocEl = document.querySelector('.diagnosis__croc');
+  if (crocEl) crocEl.src = ESTADO_ILLUS[estado];
 
   // Título diagnóstico (bocadillo)
   document.getElementById('diagnosis-title').textContent = info.titulo;
