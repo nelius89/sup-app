@@ -47,18 +47,18 @@ async function searchSpots(query) {
   }
 
   try {
-    const fetches = [nominatim(query, { limit: 8 })];
-    if (!hasBeachWord && query.length >= 4) {
-      // Prefijos con countrycodes=es para evitar resultados de otros países
-      fetches.push(
-        nominatim(`playa ${query}`,  { limit: 4, countrycodes: 'es' }),
-        nominatim(`platja ${query}`, { limit: 4, countrycodes: 'es' }),
-        nominatim(`cala ${query}`,   { limit: 4, countrycodes: 'es' })
-      );
+    // Request 1: query principal
+    const mainResults = await nominatim(query, { limit: 8 });
+
+    // Request 2: solo si la query no incluye palabra de playa y el resultado principal no tiene playas
+    // Usa "platja" + countrycodes=es para encontrar playas españolas sin interferir con resultados globales
+    const mainHasBeach = mainResults.some(r => r.type === 'beach');
+    let beachResults = [];
+    if (!hasBeachWord && !mainHasBeach && query.length >= 4) {
+      beachResults = await nominatim(`platja ${query}`, { limit: 5, countrycodes: 'es' });
     }
 
-    const [mainResults, ...prefixResults] = await Promise.all(fetches);
-    const beachOnly = prefixResults.flat().filter(r => r.type === 'beach');
+    const beachOnly = beachResults.filter(r => r.type === 'beach');
     const seen = new Set();
 
     return [...mainResults, ...beachOnly]
@@ -79,13 +79,8 @@ async function searchSpots(query) {
         const name = addr.beach || addr.bay || r.display_name.split(',')[0].trim();
         const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
         const country = addr.country || '';
-        return {
-          name,
-          location: [city, country].filter(Boolean).join(', '),
-          city,
-          latitude:  parseFloat(r.lat),
-          longitude: parseFloat(r.lon),
-        };
+        return { name, location: [city, country].filter(Boolean).join(', '), city,
+                 latitude: parseFloat(r.lat), longitude: parseFloat(r.lon) };
       });
   } catch {
     return [];
