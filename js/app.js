@@ -1101,6 +1101,12 @@ function initContactAccordion() {
     const isOpen = !body.classList.contains('hidden');
     body.classList.toggle('hidden', isOpen);
     toggle.classList.toggle('open', !isOpen);
+    // Scroll down para mostrar el formulario completo al abrir
+    if (!isOpen) {
+      setTimeout(() => {
+        body.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 50);
+    }
   });
 
   // Character counter

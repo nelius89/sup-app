@@ -2023,12 +2023,18 @@ ul { list-style: none; }
 }
 
 /* ─────────────────────────────────────────
-   ABOUT — Contact accordion
+   ABOUT — Contact accordion (bloque azul)
 ───────────────────────────────────────── */
+
+/* El about-sheet no necesita padding-bottom propio — lo gestiona el bloque azul */
+.about-sheet { padding-bottom: 0; }
+
 .about-contact {
-  border-top: 1px solid rgba(10, 10, 10, 0.08);
-  padding-top: 16px;
-  padding-bottom: 8px;
+  margin: 8px -24px 0;
+  padding: 20px 24px calc(32px + var(--safe-bottom, 0px));
+  background: var(--blue);
+  border-radius: 0;
+  color: var(--beige);
 }
 
 .about-contact__toggle {
@@ -2039,12 +2045,15 @@ ul { list-style: none; }
   font-family: var(--font);
   font-size: 13px;
   font-weight: 600;
-  color: var(--blue);
+  color: var(--beige);
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
+  opacity: 0.85;
 }
+
+.about-contact__toggle:active { opacity: 0.55; }
 
 .about-contact__arrow {
   width: 16px;
@@ -2053,6 +2062,7 @@ ul { list-style: none; }
   transition: transform 0.2s ease;
 }
 
+.about-contact__toggle.open { opacity: 1; }
 .about-contact__toggle.open .about-contact__arrow {
   transform: rotate(180deg);
 }
@@ -2061,14 +2071,29 @@ ul { list-style: none; }
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-top: 16px;
+  padding-top: 20px;
 }
 
 .about-contact__desc {
   font-size: 13px;
   line-height: 1.65;
-  color: rgba(10, 10, 10, 0.6);
+  color: rgba(249, 246, 239, 0.7);
 }
+
+/* Textarea y controles sobre fondo azul */
+.about-contact .suggestions-textarea {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--beige);
+}
+.about-contact .suggestions-textarea:focus { border-color: rgba(255, 255, 255, 0.5); }
+.about-contact .suggestions-textarea::placeholder { color: rgba(249, 246, 239, 0.4); }
+.about-contact .suggestions-counter { color: rgba(249, 246, 239, 0.4); }
+.about-contact .suggestions-send {
+  background: var(--beige);
+  color: var(--blue);
+}
+.about-contact .suggestions-success__msg { color: var(--beige); }
 
 /* ─────────────────────────────────────────
    LIMIT POPUP — máximo de playas
