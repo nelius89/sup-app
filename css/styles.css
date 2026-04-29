@@ -178,11 +178,19 @@ ul { list-style: none; }
   align-items: center;
 }
 
+/* ── Logo de portada ── */
+.home__logo {
+  display: block;
+  width: 65%;
+  height: auto;
+  margin: 24px auto 0;
+}
+
 /* ── Animación de portada — vídeo loop con alpha ── */
 .home-anim {
   width: 100%;
   max-width: 260px;
-  margin: 0 auto;
+  margin: -5% auto 0;
 }
 
 .home-anim__video {
