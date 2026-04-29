@@ -178,28 +178,17 @@ ul { list-style: none; }
   align-items: center;
 }
 
-/* ── Animación de portada — vídeo loop ── */
+/* ── Animación de portada — vídeo loop con alpha ── */
 .home-anim {
-  position: relative;
   width: 100%;
   max-width: 260px;
   margin: 0 auto;
-  overflow: hidden;
-  isolation: isolate;
 }
 
 .home-anim__video {
   display: block;
   width: 100%;
   height: auto;
-}
-
-.home-anim__overlay {
-  position: absolute;
-  inset: 0;
-  background: var(--blue);
-  mix-blend-mode: color;
-  pointer-events: none;
 }
 
 .illus-placeholder--home {
