@@ -238,7 +238,7 @@ function renderSpotList() {
     const headline = document.createElement('p');
     headline.className = 'home-state-a__headline';
     headline.textContent = '¿ESTÁ EL MAR PARA SALIR A PRACTICAR SUP?';
-    container.insertBefore(headline, searchBtn);
+    container.appendChild(headline);
 
     container.appendChild(searchBtn);
 
