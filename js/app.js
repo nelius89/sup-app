@@ -1313,10 +1313,60 @@ async function handleSearch(query) {
     const li = document.createElement('li');
     li.className = 'search-result-item';
     li.style.setProperty('--idx', i);
-    li.innerHTML = `
+
+    // Comprobar si ya está guardada (por coordenadas)
+    const savedSpot = getAllSpots().find(s =>
+      Math.abs(s.lat - r.latitude) < 0.001 && Math.abs(s.lon - r.longitude) < 0.001
+    );
+
+    // Estrella
+    const star = document.createElement('button');
+    star.className = `search-result-item__star${savedSpot ? ' saved' : ''}`;
+    star.setAttribute('aria-label', savedSpot ? 'Quitar de favoritos' : 'Guardar playa');
+    star.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
+    star.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isNowSaved = star.classList.contains('saved');
+      if (isNowSaved) {
+        const existing = getAllSpots().find(s =>
+          Math.abs(s.lat - r.latitude) < 0.001 && Math.abs(s.lon - r.longitude) < 0.001
+        );
+        if (existing) removeUserSpot(existing.id);
+        star.classList.remove('saved');
+        star.setAttribute('aria-label', 'Guardar playa');
+        renderSpotList();
+      } else {
+        if (getAllSpots().length >= 4) {
+          openLimitPopup();
+          return;
+        }
+        const spot = {
+          id: `user-${Date.now()}`,
+          name: r.name,
+          city: r.city || '',
+          lat: r.latitude,
+          lon: r.longitude,
+          hardcoded: false,
+          offshore_range: [225, 315]
+        };
+        addUserSpot(spot);
+        star.classList.add('saved');
+        star.setAttribute('aria-label', 'Quitar de favoritos');
+        renderSpotList();
+      }
+    });
+
+    // Info (nombre + ubicación)
+    const info = document.createElement('div');
+    info.className = 'search-result-item__info';
+    info.innerHTML = `
       <span class="search-result-item__name">${r.name}</span>
       <span class="search-result-item__location">${r.location}</span>
     `;
+
+    li.appendChild(star);
+    li.appendChild(info);
     li.addEventListener('click', () => selectGeoResult(r));
     list.appendChild(li);
   });
