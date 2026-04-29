@@ -190,7 +190,7 @@ ul { list-style: none; }
 .home-anim {
   width: 100%;
   max-width: 260px;
-  margin: -20% auto 0;
+  margin: -14% auto 0;
 }
 
 .home-anim__video {
@@ -377,6 +377,17 @@ ul { list-style: none; }
   color: var(--beige);
 }
 .btn-search-main__icon svg { width: 18px; height: 18px; }
+
+.home-state-a__headline {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  font-family: var(--font);
+}
 
 .home-state-a__sub {
   font-size: 12px;

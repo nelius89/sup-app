@@ -234,6 +234,12 @@ function renderSpotList() {
       </span>
     `;
     searchBtn.addEventListener('click', () => openSearch(searchBtn));
+
+    const headline = document.createElement('p');
+    headline.className = 'home-state-a__headline';
+    headline.textContent = '¿ESTÁ EL MAR PARA SALIR A PRACTICAR SUP?';
+    container.insertBefore(headline, searchBtn);
+
     container.appendChild(searchBtn);
 
     const sub = document.createElement('p');
