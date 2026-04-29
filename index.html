@@ -24,14 +24,9 @@
 
     <!-- Header: iconos izquierda · botón instalar derecha -->
     <div class="home-header">
-      <div class="home-header__left">
-        <button class="home-header__btn" id="btn-home-about" aria-label="Acerca de">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>
-        </button>
-        <button class="home-header__btn" id="btn-home-feedback" aria-label="Sugerencias">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </button>
-      </div>
+      <button class="home-header__btn" id="btn-home-about" aria-label="Acerca de">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>
+      </button>
       <button class="btn-install hidden" id="btn-install" aria-label="Instalar app">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Instalar
@@ -157,6 +152,7 @@
   </div>
 
   <!-- About bottom sheet -->
+  <!-- About bottom sheet (unificado: info + contacto) -->
   <div class="about-overlay" id="about-overlay"></div>
   <div class="about-sheet" id="about-sheet">
     <div class="about-sheet__handle"></div>
@@ -166,7 +162,7 @@
         <p class="about-sheet__tagline">¿Salgo al agua hoy?</p>
         <span class="about-sheet__version">v2.1</span>
       </div>
-      <p class="about-sheet__desc">Cocodrift interpreta los datos del mar y te dice si puedes salir al agua. Sin tecnicismos ni tablas de datos — solo la respuesta que necesitas.</p>
+      <p class="about-sheet__desc">Cocodrift es una app para practicantes de SUP. Interpreta los datos del mar — oleaje, viento y corrientes — y te da una respuesta directa: si las condiciones son buenas para salir o si mejor te quedas en tierra. Sin tablas ni tecnicismos. Solo la respuesta que necesitas.</p>
       <div class="about-sheet__disclaimer">
         <p>⚠ Los datos son orientativos. Las condiciones reales pueden diferir de la previsión. Evalúa siempre in situ antes de entrar al agua. Cocodrift no se responsabiliza de accidentes o daños derivados del uso de esta app.</p>
       </div>
@@ -177,6 +173,23 @@
       <div class="about-sheet__links">
         <a href="/privacy" target="_blank">Política de privacidad</a>
         <a href="/terms" target="_blank">Términos de uso</a>
+      </div>
+      <div class="about-contact">
+        <button class="about-contact__toggle" id="about-contact-toggle">
+          Contacta con nosotros
+          <svg class="about-contact__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="about-contact__body hidden" id="about-contact-body">
+          <p class="about-contact__desc">Coco está en beta. Seguimos creciendo. Si tienes una queja, una idea o echas de menos alguna playa, mándanos un mensaje.</p>
+          <div id="suggestions-form">
+            <textarea class="suggestions-textarea" id="suggestions-textarea" placeholder="Una playa, un bug, una idea…" maxlength="1000" rows="4"></textarea>
+            <div class="suggestions-counter"><span id="suggestions-count">0</span>/1000</div>
+            <button class="suggestions-send" id="suggestions-send">Enviar</button>
+          </div>
+          <div class="suggestions-success hidden" id="suggestions-success">
+            <p class="suggestions-success__msg">Gracias. Lo hemos recibido.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -192,21 +205,14 @@
     </div>
   </div>
 
-  <!-- Suggestions bottom sheet -->
-  <div class="suggestions-overlay" id="suggestions-overlay"></div>
-  <div class="suggestions-sheet" id="suggestions-sheet">
-    <div class="suggestions-sheet__handle"></div>
-    <div class="suggestions-sheet__content">
-      <h2 class="suggestions-sheet__title">Sugerencias</h2>
-      <p class="suggestions-sheet__desc">Cocodrift está creciendo. ¿Qué echas de menos?</p>
-      <div class="suggestions-form" id="suggestions-form">
-        <textarea class="suggestions-textarea" id="suggestions-textarea" placeholder="Una playa, un bug, algo que mejorar…" maxlength="1000" rows="4"></textarea>
-        <div class="suggestions-counter"><span id="suggestions-count">0</span>/1000</div>
-        <button class="suggestions-send" id="suggestions-send">Enviar</button>
-      </div>
-      <div class="suggestions-success hidden" id="suggestions-success">
-        <p class="suggestions-success__msg">Gracias. Lo hemos recibido.</p>
-      </div>
+  <!-- Limit popup — máximo de playas guardadas -->
+  <div class="limit-overlay" id="limit-overlay"></div>
+  <div class="limit-popup" id="limit-popup">
+    <div class="limit-popup__handle"></div>
+    <div class="limit-popup__content">
+      <h3 class="limit-popup__title">Aquí ya no cabe ni una sardina</h3>
+      <p class="limit-popup__body">Tienes cuatro playas guardadas, que es el máximo. Elimina una de tus favoritas para poder añadir esta.</p>
+      <button class="limit-popup__btn" id="limit-popup-close">Entendido</button>
     </div>
   </div>
 

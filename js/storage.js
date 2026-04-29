@@ -23,7 +23,7 @@ function getAllSpots() {
 
 function addUserSpot(spot) {
   const data = getStorage();
-  if (data.spots.length >= 10) return false;
+  if (data.spots.length >= 4) return false;
   data.spots.push(spot);
   saveStorage(data);
   return true;

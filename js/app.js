@@ -562,7 +562,12 @@ function toggleFavorite() {
   if (isSpotSaved(currentSpot.id)) {
     removeUserSpot(currentSpot.id);
     updateFavoriteBtn();
+    renderSpotList();
   } else {
+    if (getAllSpots().length >= 4) {
+      openLimitPopup();
+      return;
+    }
     // Si es un spot temporal, asignar id permanente antes de guardar
     if (currentSpot.id.startsWith('view-')) {
       currentSpot = { ...currentSpot, id: `user-${Date.now()}` };
@@ -570,8 +575,8 @@ function toggleFavorite() {
     addUserSpot(currentSpot);
     setActiveSpot(currentSpot.id);
     updateFavoriteBtn();
+    renderSpotList();
   }
-  renderSpotList();
 }
 
 function shortDirLabel(degrees) {
@@ -1042,6 +1047,12 @@ function initInfoSheet() {
 function openAboutSheet() {
   _currentState = { view: history.state?.view, sheet: 'about' };
   history.pushState(_currentState, '');
+  // Reset contact form on open
+  document.getElementById('suggestions-form').classList.remove('hidden');
+  document.getElementById('suggestions-success').classList.add('hidden');
+  document.getElementById('suggestions-textarea').value = '';
+  document.getElementById('suggestions-count').textContent = '0';
+  document.getElementById('suggestions-send').disabled = false;
   document.getElementById('about-overlay').classList.add('active');
   document.getElementById('about-sheet').classList.add('active');
 }
@@ -1075,56 +1086,24 @@ function initAboutSheet() {
   });
 }
 
-// ── Suggestions sheet ──
-const SUGGESTIONS_WORKER      = 'https://coco-suggestions.manel89.workers.dev';
-const ERROR_REPORT_WORKER     = 'https://coco-error-reports.manel89.workers.dev';
+// ── Contact accordion + suggestions form ──
+const SUGGESTIONS_WORKER  = 'https://coco-suggestions.manel89.workers.dev';
+const ERROR_REPORT_WORKER = 'https://coco-error-reports.manel89.workers.dev';
 
-function openSuggestionsSheet() {
-  _currentState = { view: history.state?.view, sheet: 'suggestions' };
-  history.pushState(_currentState, '');
-  // Reset form state on open
-  document.getElementById('suggestions-form').classList.remove('hidden');
-  document.getElementById('suggestions-success').classList.add('hidden');
-  document.getElementById('suggestions-textarea').value = '';
-  document.getElementById('suggestions-count').textContent = '0';
-  document.getElementById('suggestions-send').disabled = false;
-  document.getElementById('suggestions-overlay').classList.add('active');
-  document.getElementById('suggestions-sheet').classList.add('active');
-}
+function initContactAccordion() {
+  const toggle   = document.getElementById('about-contact-toggle');
+  const body     = document.getElementById('about-contact-body');
+  const textarea = document.getElementById('suggestions-textarea');
+  const counter  = document.getElementById('suggestions-count');
 
-function closeSuggestionsSheet() {
-  if (!_historyNavigation) history.back();
-  const sheet = document.getElementById('suggestions-sheet');
-  sheet.style.transform = '';
-  sheet.style.transition = '';
-  document.getElementById('suggestions-overlay').classList.remove('active');
-  sheet.classList.remove('active');
-}
-
-function initSuggestionsSheet() {
-  const sheet = document.getElementById('suggestions-sheet');
-
-  // Swipe to close
-  let startY = 0, dragY = 0, dragging = false;
-  sheet.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].clientY; dragY = 0; dragging = true;
-    sheet.style.transition = 'none';
-  }, { passive: true });
-  sheet.addEventListener('touchmove', (e) => {
-    if (!dragging) return;
-    dragY = Math.max(0, e.touches[0].clientY - startY);
-    sheet.style.transform = `translateY(${dragY}px)`;
-  }, { passive: true });
-  sheet.addEventListener('touchend', () => {
-    if (!dragging) return;
-    dragging = false;
-    sheet.style.transition = '';
-    if (dragY > 80) closeSuggestionsSheet(); else sheet.style.transform = '';
+  // Accordion toggle
+  toggle.addEventListener('click', () => {
+    const isOpen = !body.classList.contains('hidden');
+    body.classList.toggle('hidden', isOpen);
+    toggle.classList.toggle('open', !isOpen);
   });
 
   // Character counter
-  const textarea = document.getElementById('suggestions-textarea');
-  const counter  = document.getElementById('suggestions-count');
   textarea.addEventListener('input', () => {
     counter.textContent = textarea.value.length;
   });
@@ -1158,6 +1137,17 @@ function initSuggestionsSheet() {
       alert('Sin conexión. Inténtalo de nuevo.');
     }
   });
+}
+
+// ── Limit popup ──
+function openLimitPopup() {
+  document.getElementById('limit-overlay').classList.add('active');
+  document.getElementById('limit-popup').classList.add('active');
+}
+
+function closeLimitPopup() {
+  document.getElementById('limit-overlay').classList.remove('active');
+  document.getElementById('limit-popup').classList.remove('active');
 }
 
 // ── Error report sheet ──
@@ -1359,8 +1349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     _historyNavigation = true;
     const leaving = _currentState;
     const arriving = e.state ?? { view: 'view-home' };
-    if (leaving?.sheet === 'about')            closeAboutSheet();
-    else if (leaving?.sheet === 'suggestions')   closeSuggestionsSheet();
+    if (leaving?.sheet === 'about')             closeAboutSheet();
     else if (leaving?.sheet === 'error-report') closeErrorReportSheet();
     else if (leaving?.sheet === 'info')          closeInfoSheet();
     else if (leaving?.sheet === 'search')      closeSearch();
@@ -1376,16 +1365,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Header home
   document.getElementById('btn-home-about').addEventListener('click', openAboutSheet);
-  document.getElementById('btn-home-feedback').addEventListener('click', openSuggestionsSheet);
   document.getElementById('about-overlay').addEventListener('click', closeAboutSheet);
-  document.getElementById('suggestions-overlay').addEventListener('click', closeSuggestionsSheet);
+  document.getElementById('limit-overlay').addEventListener('click', closeLimitPopup);
+  document.getElementById('limit-popup-close').addEventListener('click', closeLimitPopup);
   document.getElementById('btn-tech-info').addEventListener('click', () => {
     document.getElementById('tech-blocks').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   document.getElementById('btn-report-error').addEventListener('click', openErrorReportSheet);
   document.getElementById('error-report-overlay').addEventListener('click', closeErrorReportSheet);
   initAboutSheet();
-  initSuggestionsSheet();
+  initContactAccordion();
   initErrorReportSheet();
   initInfoSheet();
 
