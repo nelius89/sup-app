@@ -28,26 +28,63 @@ async function fetchSpotData(spot) {
 // Devuelve playas, bahías y cualquier lugar geográfico, no solo ciudades
 async function searchSpots(query) {
   if (!query || query.length < 2) return [];
+
+  const BEACH_WORDS = ['playa', 'platja', 'plage', 'beach', 'praia', 'cala'];
+  const BEACH_NATURAL_TYPES = new Set(['beach', 'coastline']);
+  const queryLower = query.toLowerCase();
+  const hasBeachWord = BEACH_WORDS.some(p => queryLower.includes(p));
+
+  async function nominatim(q, limit = 8) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=${limit}&addressdetails=1&accept-language=es`,
+        { headers: { 'User-Agent': 'Cocodrift App (sup-app.pages.dev)' } }
+      );
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  }
+
   try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=8&addressdetails=1&accept-language=es`,
-      { headers: { 'User-Agent': 'SUP App (sup-app.pages.dev)' } }
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.map(r => {
-      const addr = r.address || {};
-      const name = addr.beach || addr.bay || r.display_name.split(',')[0].trim();
-      const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
-      const country = addr.country || '';
-      return {
-        name,
-        location: [city, country].filter(Boolean).join(', '),
-        city,
-        latitude:  parseFloat(r.lat),
-        longitude: parseFloat(r.lon),
-      };
-    });
+    const [mainResults, ...prefixResults] = await Promise.all([
+      nominatim(query, 8),
+      ...(!hasBeachWord && query.length >= 4
+        ? [nominatim(`playa ${query}`, 4), nominatim(`platja ${query}`, 4), nominatim(`cala ${query}`, 4)]
+        : []),
+    ]);
+
+    // Las variantes con prefijo solo aportan resultados de tipo playa
+    const beachOnly = prefixResults.flat().filter(r => r.type === 'beach');
+    const seen = new Set();
+
+    return [...mainResults, ...beachOnly]
+      .sort((a, b) => {
+        const aIsBeach = a.type === 'beach';
+        const bIsBeach = b.type === 'beach';
+        if (aIsBeach !== bIsBeach) return (bIsBeach ? 1 : 0) - (aIsBeach ? 1 : 0);
+        return (b.importance || 0) - (a.importance || 0);
+      })
+      .filter(r => {
+        if (seen.has(r.osm_id)) return false;
+        seen.add(r.osm_id);
+        return true;
+      })
+      .slice(0, 8)
+      .map(r => {
+        const addr = r.address || {};
+        const name = addr.beach || addr.bay || r.display_name.split(',')[0].trim();
+        const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
+        const country = addr.country || '';
+        return {
+          name,
+          location: [city, country].filter(Boolean).join(', '),
+          city,
+          latitude:  parseFloat(r.lat),
+          longitude: parseFloat(r.lon),
+        };
+      });
   } catch {
     return [];
   }
