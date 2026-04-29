@@ -228,7 +228,7 @@ function renderSpotList() {
     searchBtn.className = 'btn-search-main';
     searchBtn.id = 'btn-search-main';
     searchBtn.innerHTML = `
-      <span class="btn-search-main__label">Busca tu playa favorita</span>
+      <span class="btn-search-main__label">Busca una playa y te cuento</span>
       <span class="btn-search-main__icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </span>
@@ -242,10 +242,6 @@ function renderSpotList() {
 
     container.appendChild(searchBtn);
 
-    const sub = document.createElement('p');
-    sub.className = 'home-state-a__sub';
-    sub.textContent = 'Y te cuento si está para salir con la tabla';
-    container.appendChild(sub);
     return;
   }
 
