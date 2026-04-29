@@ -937,9 +937,9 @@ ul { list-style: none; }
 }
 
 .diagnosis__croc {
-  width: 189px;
+  width: 160px;
   display: block;
-  margin: 0 auto 0;
+  margin: 0 auto;
 }
 
 .btn-tech-info {

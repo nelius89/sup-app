@@ -33,9 +33,9 @@ const ICONS = {
 
 // ── Ilustraciones por estado (v2.1) ──
 const ESTADO_ILLUS = {
-  'piscina':         'assets/illustrations/Resolucion/Estados/V2.1/Ok-PNG.png',
-  'muy-agradable':   'assets/illustrations/Resolucion/Estados/V2.1/Ok-PNG.png',
-  'se-puede-salir':  'assets/illustrations/Resolucion/Estados/V2.1/Ok-PNG.png',
+  'piscina':         'assets/illustrations/Resolucion/Estados/V2.1/Ok.png',
+  'muy-agradable':   'assets/illustrations/Resolucion/Estados/V2.1/Ok.png',
+  'se-puede-salir':  'assets/illustrations/Resolucion/Estados/V2.1/Ok.png',
   'exigente':        'assets/illustrations/Resolucion/Estados/V2.1/Maybe.png',
   'no-recomendable': 'assets/illustrations/Resolucion/Estados/V2.1/No.png',
 };
