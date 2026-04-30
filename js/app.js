@@ -336,6 +336,7 @@ function renderTimeline() {
     _timelineLabelDay = getDayForSlot(currentSlotIndex);
     updateTimelineLabel(false);
     positionTimelineIndicator(false);
+    scrollToActiveSlot(false);
   });
 
   scrollEl.addEventListener('scroll', onTimelineScroll, { passive: true });
@@ -394,13 +395,8 @@ function scrollToActiveSlot(smooth) {
   if (!scrollEl) return;
   const activeEl = scrollEl.querySelector('.timeline__slot.active');
   if (!activeEl) return;
-  const containerW  = scrollEl.offsetWidth;
-  const currentLeft = scrollEl.scrollLeft;
-  const slotLeft    = activeEl.offsetLeft;
-  const slotRight   = slotLeft + activeEl.offsetWidth;
-  // Solo scroll si el slot no es visible
-  if (slotLeft >= currentLeft && slotRight <= currentLeft + containerW) return;
-  const target = Math.max(0, slotLeft - 16);
+  // Alinear el slot activo al borde izquierdo (junto al día label)
+  const target = Math.max(0, activeEl.offsetLeft - 16);
   scrollEl.scrollTo({ left: target, behavior: smooth ? 'smooth' : 'instant' });
 }
 
