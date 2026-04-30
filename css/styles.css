@@ -1088,10 +1088,10 @@ ul { list-style: none; }
 .tech-card--red    .tech-state-icon { color: rgba(239, 68, 68, 0.90); }
 
 .tech-cell__value {
-  font-size: 30px;
-  font-weight: 400;
+  font-size: 24px;
+  font-weight: 600;
   color: var(--blue);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 .tech-cell__value em {
@@ -1106,10 +1106,10 @@ ul { list-style: none; }
 
 /* Valor viento — número sin unidad (nudos va debajo) */
 .tech-cell__value--wind {
-  font-size: 36px;
-  font-weight: 400;
+  font-size: 28px;
+  font-weight: 600;
   color: var(--blue);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
   margin-top: 4px;
 }
@@ -1150,10 +1150,10 @@ ul { list-style: none; }
   gap: 4px;
 }
 .tech-cell__value--dir {
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--blue) !important;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 .tech-cell__degrees {
@@ -1200,6 +1200,7 @@ ul { list-style: none; }
   align-items: flex-start;
   gap: 5px;
   padding: 2px 4px 0;
+  margin-top: -12px;
   line-height: 1.5;
 }
 .tech-nota svg { width: 11px; height: 11px; flex-shrink: 0; margin-top: 1px; color: rgba(10, 10, 10, 0.22); }
@@ -1805,8 +1806,8 @@ ul { list-style: none; }
   width: 100%;
   margin: 28px auto 0;
   padding: 12px 20px;
-  background: #ffffff;
-  color: rgba(10, 10, 10, 0.45);
+  background: #0a0a0a;
+  color: #ffffff;
   font-family: var(--font);
   font-size: 11px;
   font-weight: 600;
