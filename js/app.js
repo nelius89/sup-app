@@ -778,6 +778,9 @@ function renderTechBlocks(d, warnings) {
   const sWaveH  = waveHState(d.waveH);
   const sWavePer = wavePeriodState(d.wavePer, d.waveH);
 
+  const windDirCat = currentSpot?.offshore_range ? windDirCategory(d.windDir, currentSpot) : -1;
+  const windDirLabel = windDirCat === 0 ? 'Onshore' : windDirCat === 1 ? 'Offshore' : windDirCat === 2 ? 'Lateral' : null;
+
   const terralLabels = ['', 'Leve', 'Relevante', 'Fuerte'];
   const terralMetaIcon = sTerral === 'red'
     ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.4"/></svg>`
@@ -846,6 +849,7 @@ function renderTechBlocks(d, warnings) {
             <div>
               <div class="tech-cell__value--dir">${windCard}</div>
               <div class="tech-cell__degrees">${Math.round(d.windDir)}°</div>
+              ${windDirLabel ? `<div class="tech-cell__sub">${windDirLabel}</div>` : ''}
             </div>
             ${buildCompassSVG(d.windDir)}
           </div>

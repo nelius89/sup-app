@@ -1051,11 +1051,13 @@ ul { list-style: none; }
 }
 
 .tech-card--orange {
-  box-shadow: inset 0 0 0 1.5px rgba(249, 115, 22, 0.45);
+  background: rgba(249, 115, 22, 0.08);
+  box-shadow: inset 0 0 0 1.5px rgba(249, 115, 22, 0.35);
 }
 
 .tech-card--red {
-  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.50);
+  background: rgba(239, 68, 68, 0.08);
+  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.40);
 }
 
 .tech-cell__top {
