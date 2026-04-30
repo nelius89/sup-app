@@ -1019,14 +1019,14 @@ ul { list-style: none; }
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--blue);
-  padding: 0 2px 2px;
+  color: rgba(49, 79, 255, 0.50);
+  padding: 0 2px 4px;
 }
-.tech-section__label svg { width: 14px; height: 14px; }
+.tech-section__label svg { width: 16px; height: 16px; }
 
 .tech-cards-grid {
   display: grid;
