@@ -1087,7 +1087,7 @@ ul { list-style: none; }
 
 .tech-cell__value {
   font-size: 30px;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--blue);
   letter-spacing: -0.03em;
   line-height: 1;
@@ -1105,7 +1105,7 @@ ul { list-style: none; }
 /* Valor viento — número sin unidad (nudos va debajo) */
 .tech-cell__value--wind {
   font-size: 36px;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--blue);
   letter-spacing: -0.03em;
   line-height: 1;
