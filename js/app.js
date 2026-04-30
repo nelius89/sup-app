@@ -40,17 +40,6 @@ const ESTADO_ILLUS = {
   'no-recomendable': 'assets/illustrations/Resolucion/Estados/V2.1/No.png',
 };
 
-// ── Iconos SVG para cada franja horaria (v2.2: 4 franjas) ──
-const FRANJA_ICONS = [
-  // 0 Amanecer — sol saliendo
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>`,
-  // 1 Día — sol completo
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
-  // 2 Tarde — sol bajando
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="16 6 12 10 8 6"/></svg>`,
-  // 3 Noche — luna
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
-];
 
 // ── PWA Install ──
 let installPrompt = null;
@@ -99,9 +88,8 @@ let currentD        = null;
 let currentWarnings = [];
 let deleteMode      = null;
 let swiper        = null;   // unused — carrusel eliminado
-let currentDay    = 0;
-let currentFranja = 1;
-let showSevenDay  = false;
+let currentSlotIndex  = 0;
+let _timelineLabelDay = 0;
 let _historyNavigation = false;
 let _currentState = null;
 
@@ -310,212 +298,186 @@ function renderSpotList() {
   });
 }
 
-// ── Navegación temporal v2.0 ──
+// ── Timeline horaria (v2.2) ──
 
-// Day tabs: Hoy | Mañana | 7 días
-function positionDayIndicator(animate) {
-  const container = document.querySelector('.results__day-tabs');
-  if (!container) return;
-  const indicator = container.querySelector('.results__day-indicator');
-  const activeTab = container.querySelector('.results__day-tab--active');
-  if (!indicator || !activeTab) return;
+function renderTimeline() {
+  const scrollEl = document.getElementById('timeline-scroll');
+  if (!scrollEl) return;
 
-  if (!animate) {
-    indicator.classList.add('no-transition');
-    // forzar reflow antes de mover sin transición
-    indicator.getBoundingClientRect();
-  } else {
-    indicator.classList.remove('no-transition');
+  // Limpiar listener previo antes de vaciar el DOM
+  scrollEl.removeEventListener('scroll', onTimelineScroll);
+  scrollEl.innerHTML = '';
+
+  for (let day = 0; day < FORECAST_DAYS; day++) {
+    // Separador de día (a partir del segundo día)
+    if (day > 0) {
+      const sep = document.createElement('div');
+      sep.className   = 'timeline__day-sep';
+      sep.dataset.day = day;
+      sep.textContent = dayLabelFromOffset(day);
+      scrollEl.appendChild(sep);
+    }
+
+    TIMELINE_HOURS.forEach((hour, h) => {
+      const slotIdx = day * SLOTS_PER_DAY + h;
+      const btn = document.createElement('button');
+      btn.className    = 'timeline__slot' + (slotIdx === currentSlotIndex ? ' active' : '');
+      btn.dataset.slot = slotIdx;
+      btn.textContent  = String(hour).padStart(2, '0');
+      btn.addEventListener('click', () => selectSlot(slotIdx));
+      scrollEl.appendChild(btn);
+    });
   }
 
-  indicator.style.width     = activeTab.offsetWidth + 'px';
-  indicator.style.transform = `translateX(${activeTab.offsetLeft}px)`;
-}
-
-function renderDayTabs(animate = false) {
-  document.querySelectorAll('.results__day-tab').forEach(tab => {
-    const day = tab.dataset.day;
-    const isActive = showSevenDay ? day === '7' : day === String(currentDay);
-    tab.classList.toggle('results__day-tab--active', isActive);
+  requestAnimationFrame(() => {
+    _timelineLabelDay = getDayForSlot(currentSlotIndex);
+    updateTimelineLabel(false);
+    scrollToActiveSlot(false);
   });
-  if (animate) {
-    positionDayIndicator(true);
-  } else {
-    requestAnimationFrame(() => positionDayIndicator(false));
+
+  scrollEl.addEventListener('scroll', onTimelineScroll, { passive: true });
+}
+
+function selectSlot(slotIdx) {
+  if (slotIdx === currentSlotIndex) return;
+  const dir = slotIdx > currentSlotIndex ? 1 : -1;
+  currentSlotIndex = slotIdx;
+
+  const scrollEl = document.getElementById('timeline-scroll');
+  scrollEl.querySelectorAll('.timeline__slot').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.slot) === currentSlotIndex);
+  });
+
+  scrollToActiveSlot(true);
+  refreshSlotContent(dir);
+
+  const newDay = getDayForSlot(currentSlotIndex);
+  if (newDay !== _timelineLabelDay) {
+    _timelineLabelDay = newDay;
+    updateTimelineLabel(true);
   }
 }
 
-// Mueve el indicator al pill indicado (con o sin animación)
-function positionFranjaIndicator(index, animate) {
-  const container = document.getElementById('results-franjas-pills');
-  if (!container) return;
-  const indicator = container.querySelector('.results__franja-indicator');
-  const pills     = container.querySelectorAll('.results__franja-pill');
-  if (!indicator || !pills[index]) return;
-  const pill = pills[index];
-  if (!animate) indicator.classList.add('no-transition');
-  else          indicator.classList.remove('no-transition');
-  indicator.style.width     = pill.offsetWidth + 'px';
-  indicator.style.transform = `translateX(${pill.offsetLeft}px)`;
+function scrollToActiveSlot(smooth) {
+  const scrollEl = document.getElementById('timeline-scroll');
+  if (!scrollEl) return;
+  const activeEl = scrollEl.querySelector('.timeline__slot.active');
+  if (!activeEl) return;
+  const containerW = scrollEl.offsetWidth;
+  const targetLeft = activeEl.offsetLeft - (containerW / 2) + (activeEl.offsetWidth / 2);
+  scrollEl.scrollTo({ left: targetLeft, behavior: smooth ? 'smooth' : 'instant' });
 }
 
-// Fade out → render → fade in para refrescos de datos (cambio de día)
-function refreshWithFade(el, renderFn, inClass, outMs) {
-  el.classList.remove('data-refresh-in--day');
-  el.classList.add('data-refreshing');
-  setTimeout(() => {
-    renderFn();
-    el.classList.remove('data-refreshing');
-    el.classList.add(inClass);
-    setTimeout(() => el.classList.remove(inClass), 300);
-  }, outMs);
+let _scrollRaf = null;
+function onTimelineScroll() {
+  if (_scrollRaf) return;
+  _scrollRaf = requestAnimationFrame(() => {
+    _scrollRaf = null;
+    const scrollEl = document.getElementById('timeline-scroll');
+    if (!scrollEl) return;
+    const centerX = scrollEl.scrollLeft + scrollEl.offsetWidth / 2;
+    let day = 0;
+    scrollEl.querySelectorAll('.timeline__day-sep').forEach(sep => {
+      if (sep.offsetLeft <= centerX) day = parseInt(sep.dataset.day);
+    });
+    if (day !== _timelineLabelDay) {
+      _timelineLabelDay = day;
+      updateTimelineLabel(true);
+    }
+  });
 }
 
-// Slide direccional → render → spring in + stagger opacity (cambio de franja)
-function refreshFranjaContent(oldIndex, newIndex) {
-  const el  = document.getElementById('results-main-content');
-  const dir = newIndex > oldIndex ? 1 : -1; // 1 = siguiente, -1 = anterior
+function updateTimelineLabel(animate) {
+  const labelEl = document.getElementById('timeline-day-label');
+  if (!labelEl) return;
+  const text = dayLabelFromOffset(_timelineLabelDay);
+  if (animate) {
+    labelEl.classList.add('timeline__day-label--exit');
+    setTimeout(() => {
+      labelEl.textContent = text;
+      labelEl.classList.remove('timeline__day-label--exit');
+      labelEl.classList.add('timeline__day-label--enter');
+      setTimeout(() => labelEl.classList.remove('timeline__day-label--enter'), 280);
+    }, 150);
+  } else {
+    labelEl.textContent = text;
+  }
+}
 
-  // Reducir movimiento si el usuario lo prefiere
+// Slide direccional al cambiar de slot
+function refreshSlotContent(dir) {
+  const el = document.getElementById('results-main-content');
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    renderResults(sliderIndex(currentDay, newIndex));
+    renderResults(currentSlotIndex);
     return;
   }
 
-  // ── Fase 1: salida (exit) ──────────────────────────────────────────────
-  el.style.transition = 'transform 0.14s cubic-bezier(0.4, 0, 1, 1), opacity 0.10s ease';
-  el.style.transform  = `translateX(${dir * -50}px)`;
-  el.style.opacity    = '0';
+  el.style.transition    = 'transform 0.14s cubic-bezier(0.4, 0, 1, 1), opacity 0.10s ease';
+  el.style.transform     = `translateX(${dir * -50}px)`;
+  el.style.opacity       = '0';
   el.style.pointerEvents = 'none';
 
   setTimeout(() => {
-    // ── Fase 2: snap al lado contrario + render ────────────────────────
     el.style.transition = 'none';
     el.style.transform  = `translateX(${dir * 70}px)`;
     el.style.opacity    = '1';
 
-    renderResults(sliderIndex(currentDay, newIndex));
+    renderResults(currentSlotIndex);
 
-    // Pre-ocultar elementos para el stagger
-    const items = [
-      el.querySelector('.bocadillo'),
-      el.querySelector('.diagnosis__croc'),
-    ].filter(Boolean);
-    items.forEach(item => {
-      item.style.transition = 'none';
-      item.style.opacity    = '0';
-    });
+    const items = [el.querySelector('.bocadillo'), el.querySelector('.diagnosis__croc')].filter(Boolean);
+    items.forEach(item => { item.style.transition = 'none'; item.style.opacity = '0'; });
 
-    // Forzar reflow — garantiza que el browser aplica el estado inicial
     el.getBoundingClientRect();
 
-    // ── Fase 3a: spring del contenedor ────────────────────────────────
     el.style.transition    = 'transform 0.42s cubic-bezier(0.34, 1.12, 0.64, 1)';
     el.style.transform     = 'translateX(0)';
     el.style.pointerEvents = 'auto';
 
-    // ── Fase 3b: stagger de elementos (solo opacity) ───────────────────
     items.forEach((item, i) => {
       setTimeout(() => {
         item.style.transition = 'opacity 0.22s ease';
         item.style.opacity    = '1';
-        setTimeout(() => {
-          item.style.transition = '';
-          item.style.opacity    = '';
-        }, 240);
-      }, i * 40); // diagnosis 0ms · bloque1 40ms · bloque2 80ms · bloque3 120ms
+        setTimeout(() => { item.style.transition = ''; item.style.opacity = ''; }, 240);
+      }, i * 40);
     });
 
-    // Limpiar contenedor tras el spring
     setTimeout(() => {
-      el.style.transition    = '';
-      el.style.transform     = '';
-      el.style.opacity       = '';
-      el.style.pointerEvents = '';
+      el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; el.style.pointerEvents = '';
     }, 460);
-
-  }, 110); // overlap: exit 140ms, entrance arranca a 110ms
-}
-
-// Franjas — nombre + icono weather real + temperatura
-function renderFranjas() {
-  const container = document.getElementById('results-franjas-pills');
-  container.innerHTML = '';
-
-  // Indicator — se renderiza primero para quedar detrás de los pills (z-index)
-  const indicator = document.createElement('div');
-  indicator.className = 'results__franja-indicator no-transition';
-  container.appendChild(indicator);
-
-  FRANJAS.forEach((f, i) => {
-    let weatherIcon = '';
-    let tempStr = '';
-    if (currentData) {
-      const d = getDataForSlider(sliderIndex(currentDay, i), currentData.marine, currentData.forecast);
-      weatherIcon = getWeatherIcon(d.weathercode);
-      tempStr = `${Math.round(d.tempC)}°`;
-    }
-    const pill = document.createElement('button');
-    pill.className = 'results__franja-pill' + (i === currentFranja ? ' active' : '');
-    pill.innerHTML = `
-      <span class="results__franja-name">${f.label}</span>
-      <span class="results__franja-weather">
-        <span class="results__franja-icon">${weatherIcon}</span>
-        <span class="results__franja-temp">${tempStr}</span>
-      </span>
-    `;
-    pill.addEventListener('click', () => {
-      if (showSevenDay) return;
-      const oldFranja = currentFranja;
-      currentFranja = i;
-      positionFranjaIndicator(i, true);
-      container.querySelectorAll('.results__franja-pill').forEach((p, idx) => {
-        p.classList.toggle('active', idx === i);
-      });
-      if (oldFranja !== currentFranja) refreshFranjaContent(oldFranja, currentFranja);
-    });
-    container.appendChild(pill);
-  });
-
-  // Posicionar indicator tras pintar el DOM (sin animación)
-  requestAnimationFrame(() => positionFranjaIndicator(currentFranja, false));
+  }, 110);
 }
 
 // ── Cargar datos y mostrar resultados ──
 async function loadSpot(spot) {
-  currentSpot   = spot;
-  currentDay    = 0;
-  currentFranja = getCurrentFranjaIndex();
-  showSevenDay  = false;
+  currentSpot      = spot;
+  currentSlotIndex = getCurrentSlotIndex();
   setActiveSpot(spot.id);
   showView('view-results');
 
   document.getElementById('results-spot-name').textContent = spot.name;
-  document.getElementById('ctx-city').textContent         = spot.city || '—';
-  document.getElementById('diagnosis-title').textContent  = 'Cargando...';
+  document.getElementById('ctx-city').textContent          = spot.city || '—';
+  document.getElementById('diagnosis-title').textContent   = 'Cargando...';
   document.getElementById('nb-encounter-desc').textContent = '—';
   document.getElementById('nb-demand-desc').textContent    = '—';
   document.getElementById('nb-fit-title').textContent      = '—';
-  document.getElementById('tech-blocks').innerHTML          = '';
+  document.getElementById('tech-blocks').innerHTML         = '';
   document.getElementById('results-main-content').classList.remove('hidden');
-  document.getElementById('results-seven-day').classList.add('hidden');
 
-  renderDayTabs();
-  renderFranjas();
+  renderTimeline();
   updateFavoriteBtn();
 
   try {
     currentData = await fetchSpotData(spot);
-    renderResults(sliderIndex(currentDay, currentFranja));
+    renderResults(currentSlotIndex);
   } catch (err) {
     document.getElementById('diagnosis-title').textContent = 'Sin conexión';
   }
 }
 
-function renderResults(sliderIdx) {
+function renderResults(slotIdx) {
   if (!currentData) return;
   const { marine, forecast } = currentData;
-  const d = getDataForSlider(sliderIdx, marine, forecast);
+  const d = getDataForHour(slotIdx, marine, forecast);
 
   // Diagnóstico
   currentD = d;
@@ -541,9 +503,6 @@ function renderResults(sliderIdx) {
 
   // Bloques técnicos
   renderTechBlocks(d, warnings);
-
-  // Actualizar franjas con datos reales (weather icon + temp)
-  renderFranjas();
 }
 
 // ── Favoritos ──
@@ -1160,11 +1119,11 @@ function closeLimitPopup() {
 
 // ── Error report sheet ──
 function buildReportPayload() {
-  const dayLabel = currentDay === 0 ? 'Hoy' : currentDay === 1 ? 'Mañana' : `Día ${currentDay}`;
-  const franja   = FRANJAS[currentFranja]?.label || '—';
-  const getText  = (id) => document.getElementById(id)?.textContent?.trim() || '—';
+  const day    = getDayForSlot(currentSlotIndex);
+  const hour   = getHourForSlot(currentSlotIndex);
+  const getText = (id) => document.getElementById(id)?.textContent?.trim() || '—';
 
-  let condiciones = `Diagnóstico: ${getText('diagnosis-title')}\nDía: ${dayLabel} · Franja: ${franja}`;
+  let condiciones = `Diagnóstico: ${getText('diagnosis-title')}\nFecha: ${dayLabelFromOffset(day)} · ${String(hour).padStart(2, '0')}:00h`;
   if (currentD) {
     const wH   = currentD.waveH   != null ? currentD.waveH.toFixed(1)   + 'm'  : '—';
     const wPer = currentD.wavePer != null ? currentD.wavePer.toFixed(0)  + 's'  : '—';
@@ -1261,13 +1220,6 @@ function initErrorReportSheet() {
       alert('Sin conexión. Inténtalo de nuevo.');
     }
   });
-}
-
-// ── Franja label con horas ──
-function franjaLabel(franjaIndex) {
-  const f = FRANJAS[franjaIndex];
-  const h = f.hours;
-  return `${f.label} · ${h[0]}h–${h[h.length - 1]}h`;
 }
 
 // ── Search screen ──
@@ -1390,14 +1342,6 @@ function selectGeoResult(result) {
 
 // ── Event listeners ──
 document.addEventListener('DOMContentLoaded', () => {
-  // Inyectar indicator deslizante en day tabs
-  const dayTabsContainer = document.querySelector('.results__day-tabs');
-  if (dayTabsContainer) {
-    const dayIndicator = document.createElement('div');
-    dayIndicator.className = 'results__day-indicator no-transition';
-    dayTabsContainer.prepend(dayIndicator);
-  }
-
   renderSpotList();
   showView('view-home');
   initInstallButton();
@@ -1451,43 +1395,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Favorito
   document.getElementById('btn-favorite').addEventListener('click', toggleFavorite);
-
-  // Day tabs: Hoy | Mañana | 7 días
-  document.querySelectorAll('.results__day-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const day = parseInt(tab.dataset.day);
-      if (day === 7) {
-        showSevenDay = true;
-        renderDayTabs(true);
-        refreshWithFade(
-          document.getElementById('results-franjas-pills'),
-          () => renderFranjas(),
-          'data-refresh-in--day',
-          100
-        );
-        document.getElementById('results-main-content').classList.add('hidden');
-        document.getElementById('results-seven-day').classList.remove('hidden');
-      } else {
-        showSevenDay = false;
-        currentDay = day;
-        renderDayTabs(true);
-        refreshWithFade(
-          document.getElementById('results-franjas-pills'),
-          () => renderFranjas(),
-          'data-refresh-in--day',
-          100
-        );
-        document.getElementById('results-main-content').classList.remove('hidden');
-        document.getElementById('results-seven-day').classList.add('hidden');
-        if (currentData) refreshWithFade(
-          document.getElementById('results-main-content'),
-          () => renderResults(sliderIndex(currentDay, currentFranja)),
-          'data-refresh-in--day',
-          100
-        );
-      }
-    });
-  });
 
   // Search screen — cerrar
   document.getElementById('search-back').addEventListener('click', closeSearch);

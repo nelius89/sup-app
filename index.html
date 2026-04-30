@@ -77,18 +77,13 @@
         </div>
       </div>
 
-      <!-- Day tabs: Hoy | Mañana | 7 días -->
-      <div class="results__day-tabs">
-        <button class="results__day-tab" data-day="0">Hoy</button>
-        <button class="results__day-tab" data-day="1">Mañana</button>
-        <button class="results__day-tab" data-day="7">7 días</button>
+      <!-- Timeline: día fijo + horas deslizables -->
+      <div class="results__timeline">
+        <div class="timeline__header">
+          <span class="timeline__day-label" id="timeline-day-label">—</span>
+        </div>
+        <div class="timeline__scroll" id="timeline-scroll"></div>
       </div>
-
-      <!-- Separador -->
-      <div class="results__sep"></div>
-
-      <!-- Franjas horarias -->
-      <div class="results__franjas-pills" id="results-franjas-pills"></div>
 
     </div><!-- /results__blue -->
 
@@ -115,9 +110,6 @@
         <button class="btn-report-error" id="btn-report-error">Informar error</button>
       </div><!-- /results-main-content -->
 
-      <div id="results-seven-day" class="hidden results__seven-day-empty">
-        <p>Vista de 7 días en camino.</p>
-      </div>
 
     </div><!-- /results__body -->
 
