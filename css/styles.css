@@ -1051,13 +1051,13 @@ ul { list-style: none; }
 }
 
 .tech-card--orange {
-  background: rgba(249, 115, 22, 0.08);
-  box-shadow: inset 0 0 0 1.5px rgba(249, 115, 22, 0.35);
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1.5px rgba(245, 158, 11, 0.50);
 }
 
 .tech-card--red {
-  background: rgba(239, 68, 68, 0.08);
-  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.40);
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.50);
 }
 
 .tech-cell__top {
@@ -1077,7 +1077,7 @@ ul { list-style: none; }
   flex: 1;
   min-width: 0;
 }
-.tech-card--orange .tech-cell__label { color: rgba(249, 115, 22, 0.75); }
+.tech-card--orange .tech-cell__label { color: rgba(245, 158, 11, 0.85); }
 .tech-card--red    .tech-cell__label { color: rgba(239, 68, 68, 0.80); }
 
 .tech-state-icon {
@@ -1086,7 +1086,7 @@ ul { list-style: none; }
   flex-shrink: 0;
   color: rgba(49, 79, 255, 0.35);
 }
-.tech-card--orange .tech-state-icon { color: rgba(249, 115, 22, 0.75); }
+.tech-card--orange .tech-state-icon { color: rgba(245, 158, 11, 0.85); }
 .tech-card--red    .tech-state-icon { color: rgba(239, 68, 68, 0.90); }
 
 .tech-cell__value {
@@ -1103,7 +1103,7 @@ ul { list-style: none; }
   color: rgba(10, 10, 10, 0.45);
   margin-left: 2px;
 }
-.tech-card--orange .tech-cell__value { color: #F97316; }
+.tech-card--orange .tech-cell__value { color: #D97706; }
 .tech-card--red    .tech-cell__value { color: #EF4444; }
 
 /* Valor viento — número sin unidad (nudos va debajo) */
@@ -1115,7 +1115,7 @@ ul { list-style: none; }
   line-height: 1;
   margin-top: 4px;
 }
-.tech-card--orange .tech-cell__value--wind { color: #F97316; }
+.tech-card--orange .tech-cell__value--wind { color: #D97706; }
 .tech-card--red    .tech-cell__value--wind { color: #EF4444; }
 
 /* "nudos" en línea propia */
