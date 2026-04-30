@@ -784,13 +784,60 @@ function renderTechBlocks(d, warnings) {
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2.4"/></svg>`;
 
   container.innerHTML = `
-    <div class="tech-block">
-      <div class="tech-block__header">
-        <span class="tech-block__header-icon">${ICONS.wind}</span>
-        <span class="tech-block__title">Viento</span>
+    <div class="tech-section">
+      <div class="tech-section__label">
+        <span>${ICONS.wind}</span>
+        Viento
       </div>
-      <div class="tech-grid-row tech-grid-row--dir">
-        <div class="tech-cell" data-info="wind-direction">
+      <div class="tech-cards-grid">
+
+        <div class="tech-card tech-card--${sWind}" data-info="wind-speed">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Media</span>
+            ${stateIcon(sWind, 'wind-speed')}
+          </div>
+          <div class="tech-cell__value tech-cell__value--wind">${d.windKn.toFixed(1)}</div>
+          <div class="tech-cell__unit">nudos</div>
+          <div class="tech-cell__sub">${d.windKmh} km/h</div>
+        </div>
+
+        <div class="tech-card tech-card--${sGust}" data-info="wind-gusts">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Rachas</span>
+            ${stateIcon(sGust, 'wind-gusts')}
+          </div>
+          <div class="tech-cell__value tech-cell__value--wind">${d.gustKn.toFixed(1)}</div>
+          <div class="tech-cell__unit">nudos</div>
+          <div class="tech-cell__sub">${d.gustKmh} km/h</div>
+        </div>
+
+        ${terralLevel > 0
+          ? `<div class="tech-card tech-card--${sVar}" data-info="wind-variability">
+              <div class="tech-cell__top">
+                <span class="tech-cell__label">Variabilidad</span>
+                ${stateIcon(sVar, 'wind-variability')}
+              </div>
+              <div class="tech-cell__value tech-cell__value--wind">${variabilidad.toFixed(1)} <em class="tech-cell__unit-inline">kn</em></div>
+              <div class="tech-cell__sub">rachas − media</div>
+            </div>
+            <div class="tech-card tech-card--${sTerral}" data-info="terral">
+              <div class="tech-cell__top">
+                <span class="tech-cell__label">Terral</span>
+                ${infoSvg('terral')}
+              </div>
+              <div class="tech-cell__value">${terralLabels[terralLevel]}</div>
+              <div class="tech-cell__sub">Viento de tierra</div>
+            </div>`
+          : `<div class="tech-card tech-card--full tech-card--${sVar}" data-info="wind-variability">
+              <div class="tech-cell__top">
+                <span class="tech-cell__label">Variabilidad</span>
+                ${stateIcon(sVar, 'wind-variability')}
+              </div>
+              <div class="tech-cell__value tech-cell__value--wind">${variabilidad.toFixed(1)} <em class="tech-cell__unit-inline">nudos</em></div>
+              <div class="tech-cell__sub">rachas − media</div>
+            </div>`}
+
+        <div class="tech-card tech-card--full" data-info="wind-direction">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Dirección</span>
             ${infoSvg('wind-direction')}
@@ -803,104 +850,50 @@ function renderTechBlocks(d, warnings) {
             ${buildCompassSVG(d.windDir)}
           </div>
         </div>
-        <div class="tech-cell tech-cell--${sWind}" data-info="wind-speed">
-          <div class="tech-cell__top">
-            <span class="tech-cell__label">Media</span>
-            ${stateIcon(sWind, 'wind-speed')}
-          </div>
-          <div class="tech-cell__value tech-cell__value--wind">${d.windKn.toFixed(1)}</div>
-          <div class="tech-cell__unit">nudos</div>
-          <div class="tech-cell__sub">${d.windKmh} km/h</div>
-        </div>
-        <div class="tech-cell tech-cell--${sGust}" data-info="wind-gusts">
-          <div class="tech-cell__top">
-            <span class="tech-cell__label">Rachas</span>
-            ${stateIcon(sGust, 'wind-gusts')}
-          </div>
-          <div class="tech-cell__value tech-cell__value--wind">${d.gustKn.toFixed(1)}</div>
-          <div class="tech-cell__unit">nudos</div>
-          <div class="tech-cell__sub">${d.gustKmh} km/h</div>
-        </div>
-      </div>
-      <div class="tech-grid-row tech-grid-row--dir-2">
-        ${terralLevel === 0
-          ? `<div class="tech-cell tech-cell--ok" data-info="terral">
-              <div class="tech-cell__top">
-                <span class="tech-cell__label">Terral</span>
-                ${infoSvg('terral')}
-              </div>
-              <div class="tech-cell__value--muted">Sin terral</div>
-            </div>`
-          : `<div class="tech-terral-alert tech-terral-alert--${sTerral}" data-info="terral">
-              <div class="tech-terral-body">
-                <span class="tech-terral-icon">${ICONS.wind}</span>
-                <div>
-                  <div class="tech-terral-label">Terral</div>
-                  <div class="tech-terral-sub">Viento de tierra</div>
-                </div>
-              </div>
-              <div class="tech-terral-meta">
-                <button class="tech-terral-warn tech-info-btn" data-info="terral" aria-label="Más info">
-                  ${terralMetaIcon}
-                </button>
-              </div>
-            </div>`}
-        <div class="tech-cell tech-cell--${sVar}" data-info="wind-variability">
-          <div class="tech-cell__top">
-            <span class="tech-cell__label">Variabilidad</span>
-            ${stateIcon(sVar, 'wind-variability')}
-          </div>
-          <div class="tech-cell__value tech-cell__value--wind">${variabilidad.toFixed(1)} <em class="tech-cell__unit-inline">nudos</em></div>
-          <div class="tech-cell__sub">(rachas − media)</div>
-        </div>
+
       </div>
     </div>
 
-    <div class="tech-block">
-      <div class="tech-block__header">
-        <span class="tech-block__header-icon">${ICONS.wave}</span>
-        <span class="tech-block__title">Oleaje</span>
+    <div class="tech-section">
+      <div class="tech-section__label">
+        <span>${ICONS.wave}</span>
+        Oleaje
       </div>
-      <div class="tech-grid-row tech-grid-row--3">
-        <div class="tech-cell tech-cell--${sWaveH}" data-info="wave-height">
+      <div class="tech-cards-grid">
+
+        <div class="tech-card tech-card--${sWaveH}" data-info="wave-height">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Altura de ola</span>
             ${stateIcon(sWaveH, 'wave-height')}
           </div>
           <div class="tech-cell__value">${d.waveH.toFixed(1)} <em>m</em></div>
         </div>
-        <div class="tech-cell tech-cell--${sWavePer}" data-info="wave-period">
+
+        <div class="tech-card tech-card--${sWavePer}" data-info="wave-period">
           <div class="tech-cell__top">
-            <span class="tech-cell__label">Período medio</span>
+            <span class="tech-cell__label">Período</span>
             ${stateIcon(sWavePer, 'wave-period')}
           </div>
           <div class="tech-cell__value">${Math.round(d.wavePer)} <em>s</em></div>
         </div>
-        <div class="tech-cell" data-info="wave-direction">
-          <div class="tech-cell__top">
-            <span class="tech-cell__label">Dirección de ola</span>
-            ${infoSvg('wave-direction')}
-          </div>
-          <div class="tech-cell__value--dir">${waveCard}</div>
-          <div class="tech-cell__degrees">${waveDeg}</div>
-        </div>
-      </div>
-      <div class="tech-grid-row tech-grid-row--3">
-        <div class="tech-cell" data-info="swell">
+
+        <div class="tech-card" data-info="swell">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Mar de fondo</span>
             ${infoSvg('swell')}
           </div>
           <div class="tech-cell__value">${(d.swellH || 0).toFixed(1)} <em>m</em></div>
         </div>
-        <div class="tech-cell" data-info="wind-wave">
+
+        <div class="tech-card" data-info="wind-wave">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Mar de viento</span>
             ${infoSvg('wind-wave')}
           </div>
           <div class="tech-cell__value">${(d.windWaveH || 0).toFixed(1)} <em>m</em></div>
         </div>
-        <div class="tech-cell" data-info="sea-type">
+
+        <div class="tech-card tech-card--full" data-info="sea-type">
           <div class="tech-cell__top">
             <span class="tech-cell__label">Tipo de mar</span>
             ${infoSvg('sea-type')}
@@ -910,6 +903,20 @@ function renderTechBlocks(d, warnings) {
             <span class="tech-cell__tipo-text">${tipoMar(d.swellH || 0, d.windWaveH || 0)}</span>
           </div>
         </div>
+
+        <div class="tech-card tech-card--full" data-info="wave-direction">
+          <div class="tech-cell__top">
+            <span class="tech-cell__label">Dirección de ola</span>
+            ${infoSvg('wave-direction')}
+          </div>
+          <div class="tech-cell__dir-body">
+            <div>
+              <div class="tech-cell__value--dir">${waveCard}</div>
+              <div class="tech-cell__degrees">${waveDeg}</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 

@@ -1001,77 +1001,59 @@ ul { list-style: none; }
 /* ─────────────────────────────────────────
    TECH BLOCKS — datos técnicos inline
 ───────────────────────────────────────── */
+/* ─── Tech blocks — tarjetas independientes ─── */
 .tech-blocks {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
   margin-top: 38px;
 }
 
-.tech-block {
-  background: transparent;
-  border-radius: 16px;
-  border: 1px solid rgba(10, 10, 10, 0.10);
-  overflow: hidden;
-}
-
-.tech-block__header {
+.tech-section {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  padding: 12px 14px 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.tech-block__header-icon {
+.tech-section__label {
   display: flex;
   align-items: center;
-  color: var(--blue);
-}
-.tech-block__header-icon svg { width: 18px; height: 18px; }
-
-.tech-block__title {
+  gap: 6px;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--blue);
+  padding: 0 2px 2px;
 }
+.tech-section__label svg { width: 14px; height: 14px; }
 
-.tech-grid-row {
+.tech-cards-grid {
   display: grid;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
-.tech-grid-row:last-of-type { border-bottom: none; }
-.tech-grid-row--3   { grid-template-columns: repeat(3, 1fr); }
-.tech-grid-row--2   { grid-template-columns: 1fr 1fr; }
-.tech-grid-row--dir { grid-template-columns: 1.7fr 1fr 1fr; }
-.tech-grid-row--dir-2 { grid-template-columns: 1.7fr 2fr; }
 
-.tech-cell {
-  padding: 10px 12px 10px;
-  border-right: 1px solid rgba(0, 0, 0, 0.06);
-  background: transparent;
+.tech-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 3px;
   min-width: 0;
 }
-.tech-cell:last-child { border-right: none; }
 
-.tech-cell--orange {
-  background: transparent;
-  box-shadow: inset 0 0 0 1.5px rgba(249, 115, 22, 0.45);
-  border-radius: 10px;
-  border-right: none;
-  margin: 4px;
+.tech-card--full {
+  grid-column: 1 / -1;
 }
-.tech-cell--red {
-  background: transparent;
-  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.45);
-  border-radius: 10px;
-  border-right: none;
-  margin: 4px;
+
+.tech-card--orange {
+  box-shadow: inset 0 0 0 1.5px rgba(249, 115, 22, 0.45);
+}
+
+.tech-card--red {
+  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.50);
 }
 
 .tech-cell__top {
@@ -1091,8 +1073,8 @@ ul { list-style: none; }
   flex: 1;
   min-width: 0;
 }
-.tech-cell--orange .tech-cell__label { color: rgba(249, 115, 22, 0.75); }
-.tech-cell--red    .tech-cell__label { color: rgba(239, 68, 68, 0.80); }
+.tech-card--orange .tech-cell__label { color: rgba(249, 115, 22, 0.75); }
+.tech-card--red    .tech-cell__label { color: rgba(239, 68, 68, 0.80); }
 
 .tech-state-icon {
   width: 12px;
@@ -1100,8 +1082,8 @@ ul { list-style: none; }
   flex-shrink: 0;
   color: rgba(49, 79, 255, 0.35);
 }
-.tech-cell--orange .tech-state-icon { color: rgba(249, 115, 22, 0.75); }
-.tech-cell--red    .tech-state-icon { color: rgba(239, 68, 68, 0.90); }
+.tech-card--orange .tech-state-icon { color: rgba(249, 115, 22, 0.75); }
+.tech-card--red    .tech-state-icon { color: rgba(239, 68, 68, 0.90); }
 
 .tech-cell__value {
   font-size: 20px;
@@ -1117,8 +1099,8 @@ ul { list-style: none; }
   color: rgba(10, 10, 10, 0.50);
   margin-left: 1px;
 }
-.tech-cell--orange .tech-cell__value { color: #F97316; }
-.tech-cell--red    .tech-cell__value { color: #EF4444; }
+.tech-card--orange .tech-cell__value { color: #F97316; }
+.tech-card--red    .tech-cell__value { color: #EF4444; }
 
 /* Valor viento — número sin unidad (nudos va debajo) */
 .tech-cell__value--wind {
@@ -1128,8 +1110,8 @@ ul { list-style: none; }
   line-height: 1;
   margin-top: 2px;
 }
-.tech-cell--orange .tech-cell__value--wind { color: #F97316; }
-.tech-cell--red    .tech-cell__value--wind { color: #EF4444; }
+.tech-card--orange .tech-cell__value--wind { color: #F97316; }
+.tech-card--red    .tech-cell__value--wind { color: #EF4444; }
 
 /* "nudos" en línea propia */
 .tech-cell__unit {
@@ -1147,75 +1129,6 @@ ul { list-style: none; }
   font-style: normal;
   color: rgba(10, 10, 10, 0.50);
   margin-left: 2px;
-}
-
-/* Terral — caja de alerta */
-.tech-terral-alert {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(239, 68, 68, 0.40);
-  background: rgba(239, 68, 68, 0.04);
-  margin: 4px 6px 4px 0;
-}
-.tech-terral-body {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.tech-terral-icon { display: flex; color: #EF4444; }
-.tech-terral-icon svg { width: 18px; height: 18px; }
-.tech-terral-label {
-  font-size: 13px;
-  font-weight: 800;
-  color: #EF4444;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
-}
-.tech-terral-sub {
-  font-size: 10px;
-  color: rgba(10, 10, 10, 0.50);
-  margin-top: 1px;
-}
-.tech-terral-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-.tech-terral-warn {
-  width: 34px;
-  height: 34px;
-  border: 1.5px solid rgba(239, 68, 68, 0.45);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #EF4444;
-}
-.tech-terral-warn svg { width: 16px; height: 16px; }
-.tech-terral-alert .tech-state-icon { color: rgba(10, 10, 10, 0.25); }
-
-.tech-terral-alert--orange {
-  border-color: rgba(249, 115, 22, 0.50);
-  background: transparent;
-}
-.tech-terral-alert--orange .tech-terral-label { color: #F97316; }
-.tech-terral-alert--orange .tech-terral-icon  { color: #F97316; }
-.tech-terral-alert--orange .tech-terral-warn  {
-  border-color: rgba(249, 115, 22, 0.45);
-  color: #F97316;
-}
-.tech-terral-alert--orange .tech-terral-warn svg { width: 20px; height: 20px; }
-
-.tech-cell__value--muted {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(10, 10, 10, 0.3) !important;
 }
 
 .tech-cell__sub {
