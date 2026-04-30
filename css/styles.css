@@ -1761,7 +1761,7 @@ ul { list-style: none; }
 .info-sheet__row--active + .info-sheet__row { border-top: none; }
 
 /* Estado naranja */
-.info-sheet__row--state-orange { background: rgba(249, 115, 22, 0.07); }
+.info-sheet__row--state-orange { background: rgba(245, 158, 11, 0.07); }
 /* Estado rojo */
 .info-sheet__row--state-red    { background: rgba(239, 68, 68, 0.07); }
 
@@ -1779,7 +1779,7 @@ ul { list-style: none; }
   line-height: 1.3;
 }
 .info-sheet__row--active                    .info-sheet__label { color: var(--blue); }
-.info-sheet__row--state-orange              .info-sheet__label { color: #F97316; }
+.info-sheet__row--state-orange              .info-sheet__label { color: #D97706; }
 .info-sheet__row--state-red                 .info-sheet__label { color: #EF4444; }
 
 .info-sheet__range {
@@ -1790,7 +1790,7 @@ ul { list-style: none; }
   letter-spacing: 0.01em;
 }
 .info-sheet__row--active                    .info-sheet__range { color: rgba(49, 79, 255, 0.50); }
-.info-sheet__row--state-orange              .info-sheet__range { color: rgba(249, 115, 22, 0.55); }
+.info-sheet__row--state-orange              .info-sheet__range { color: rgba(245, 158, 11, 0.55); }
 .info-sheet__row--state-red                 .info-sheet__range { color: rgba(239, 68, 68, 0.55); }
 
 .info-sheet__desc {
