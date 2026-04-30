@@ -622,15 +622,37 @@ ul { list-style: none; }
   display: flex;
   align-items: center;
   overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 16px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding-left: 16px;
   padding-right: 8px;
+  position: relative;
   gap: 0;
 }
 
 .timeline__scroll::-webkit-scrollbar {
   display: none;
+}
+
+/* Indicador deslizante — se mueve bajo el slot activo */
+.timeline__indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 42px;
+  height: 40px;
+  background: var(--white);
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+  transition: transform 0.32s cubic-bezier(0.34, 1.12, 0.64, 1);
+}
+
+.timeline__indicator.no-transition {
+  transition: none;
 }
 
 .timeline__slot {
@@ -648,13 +670,15 @@ ul { list-style: none; }
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease;
+  scroll-snap-align: start;
+  position: relative;
+  z-index: 1;
+  transition: color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   letter-spacing: -0.01em;
 }
 
 .timeline__slot.active {
-  background: var(--white);
   color: var(--blue);
   font-weight: 700;
 }
@@ -679,6 +703,8 @@ ul { list-style: none; }
   border-left: 1px solid rgba(255, 255, 255, 0.15);
   margin-inline: 4px;
   scroll-snap-align: none;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Selector de fecha (legacy — no renderizado) ── */
@@ -828,8 +854,7 @@ ul { list-style: none; }
 
 /* ── Bocadillo ── */
 .bocadillo {
-  background: transparent;
-  border: 2px solid var(--blue);
+  background: var(--white);
   border-radius: 18px;
   padding: 22px 22px;
   position: relative;
@@ -841,9 +866,7 @@ ul { list-style: none; }
   position: absolute;
   width: 22px;
   height: 22px;
-  background: var(--beige);
-  border-right: 2px solid var(--blue);
-  border-bottom: 2px solid var(--blue);
+  background: var(--white);
   transform: rotate(45deg);
   bottom: -12px;
   left: 71px;

@@ -304,12 +304,15 @@ function renderTimeline() {
   const scrollEl = document.getElementById('timeline-scroll');
   if (!scrollEl) return;
 
-  // Limpiar listener previo antes de vaciar el DOM
   scrollEl.removeEventListener('scroll', onTimelineScroll);
   scrollEl.innerHTML = '';
 
+  // Indicador deslizante (se renderiza primero para quedar bajo los slots)
+  const indicator = document.createElement('div');
+  indicator.className = 'timeline__indicator no-transition';
+  scrollEl.appendChild(indicator);
+
   for (let day = 0; day < FORECAST_DAYS; day++) {
-    // Separador de día (a partir del segundo día)
     if (day > 0) {
       const sep = document.createElement('div');
       sep.className   = 'timeline__day-sep';
@@ -332,13 +335,41 @@ function renderTimeline() {
   requestAnimationFrame(() => {
     _timelineLabelDay = getDayForSlot(currentSlotIndex);
     updateTimelineLabel(false);
+    positionTimelineIndicator(false);
   });
 
   scrollEl.addEventListener('scroll', onTimelineScroll, { passive: true });
 }
 
+function positionTimelineIndicator(animate, fromSlotIdx) {
+  const scrollEl  = document.getElementById('timeline-scroll');
+  const indicator = scrollEl?.querySelector('.timeline__indicator');
+  const activeEl  = scrollEl?.querySelector('.timeline__slot.active');
+  if (!indicator || !activeEl) return;
+
+  // Si la distancia es mayor de 3 slots, no animar (evita el slide largo cross-day)
+  if (animate && fromSlotIdx !== undefined) {
+    const dist = Math.abs(currentSlotIndex - fromSlotIdx) * 42;
+    if (dist > 3 * 42) animate = false;
+  }
+
+  if (!animate) {
+    indicator.classList.add('no-transition');
+    indicator.getBoundingClientRect(); // forzar reflow
+  } else {
+    indicator.classList.remove('no-transition');
+  }
+
+  indicator.style.transform = `translateX(${activeEl.offsetLeft}px)`;
+
+  if (!animate) {
+    requestAnimationFrame(() => indicator.classList.remove('no-transition'));
+  }
+}
+
 function selectSlot(slotIdx) {
   if (slotIdx === currentSlotIndex) return;
+  const prevSlotIdx = currentSlotIndex;
   const dir = slotIdx > currentSlotIndex ? 1 : -1;
   currentSlotIndex = slotIdx;
 
@@ -347,6 +378,7 @@ function selectSlot(slotIdx) {
     el.classList.toggle('active', parseInt(el.dataset.slot) === currentSlotIndex);
   });
 
+  positionTimelineIndicator(true, prevSlotIdx);
   scrollToActiveSlot(true);
   refreshSlotContent(dir);
 
