@@ -332,7 +332,6 @@ function renderTimeline() {
   requestAnimationFrame(() => {
     _timelineLabelDay = getDayForSlot(currentSlotIndex);
     updateTimelineLabel(false);
-    scrollToActiveSlot(false);
   });
 
   scrollEl.addEventListener('scroll', onTimelineScroll, { passive: true });
@@ -363,9 +362,14 @@ function scrollToActiveSlot(smooth) {
   if (!scrollEl) return;
   const activeEl = scrollEl.querySelector('.timeline__slot.active');
   if (!activeEl) return;
-  const containerW = scrollEl.offsetWidth;
-  const targetLeft = activeEl.offsetLeft - (containerW / 2) + (activeEl.offsetWidth / 2);
-  scrollEl.scrollTo({ left: targetLeft, behavior: smooth ? 'smooth' : 'instant' });
+  const containerW  = scrollEl.offsetWidth;
+  const currentLeft = scrollEl.scrollLeft;
+  const slotLeft    = activeEl.offsetLeft;
+  const slotRight   = slotLeft + activeEl.offsetWidth;
+  // Solo scroll si el slot no es visible
+  if (slotLeft >= currentLeft && slotRight <= currentLeft + containerW) return;
+  const target = Math.max(0, slotLeft - 16);
+  scrollEl.scrollTo({ left: target, behavior: smooth ? 'smooth' : 'instant' });
 }
 
 let _scrollRaf = null;
