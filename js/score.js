@@ -28,8 +28,9 @@ function calcularRiesgoTerral(windKn, gustKn, windDir, waveH, spot) {
     level = 2;
   }
 
-  // Modificador de ola: +1 si ola > 0.6 m y spot no protegido
-  if (waveH > 0.6 && !spot.protected) {
+  // Modificador de ola: +1 si ola > 0.6 m, spot no protegido Y viento con peso real.
+  // Sin viento mínimo (>= 5 kn), el offshore es tan débil que la ola no agrava el riesgo.
+  if (waveH > 0.6 && !spot.protected && windKn >= 5) {
     level = Math.min(level + 1, 3);
   }
 
@@ -190,7 +191,7 @@ function calcEstadoBase(d, weathercode, terralLevel) {
   if (variabilidad > 6)                         return 'se-puede-salir';
   if (d.waveH > 0.6)                            return 'se-puede-salir';
   if (d.wavePer < 5)                            return 'se-puede-salir';
-  if (terralLevel === 2)                        return 'se-puede-salir';
+  if (terralLevel === 2 && windKn > 5)           return 'se-puede-salir';
 
   // Piscina — TODAS las condiciones deben cumplirse
   if (
@@ -258,15 +259,15 @@ function diagnosticar(d, spot, weathercode) {
   return { estado, warnings, alertaConsolidada };
 }
 
-// ── Textos de estado ──
-// Subtítulos responden directamente "¿es para mí?" — sin referencias temporales.
-// [PENDIENTE: token temporal para título/subtítulo cuando se consulta otro día/franja]
+// ── Textos de estado (v2) ──
+// titulo: respuesta directa a "¿Está para salir?"
+// subtitulo: presubtítulo fijo en pantalla de resultados
 const ESTADOS = {
-  'piscina':         { titulo: 'El mar está de piscina',   subtitulo: 'Para cualquiera. No hay excusa para no salir.' },
-  'muy-agradable':   { titulo: 'Va a estar muy bien',      subtitulo: 'Cualquiera puede salir a gusto.' },
-  'se-puede-salir':  { titulo: 'Se puede salir',           subtitulo: 'Si has salido alguna vez, no vas a tener problema.' },
-  'exigente':        { titulo: 'Condiciones exigentes',    subtitulo: 'Es para quienes ya saben lo que hacen.' },
-  'no-recomendable': { titulo: 'Mejor esperar',            subtitulo: 'No es para nadie, independientemente del nivel.' },
+  'piscina':         { titulo: 'Se está como en una piscina',    subtitulo: '¿Está para salir?' },
+  'muy-agradable':   { titulo: 'Está super agradable',           subtitulo: '¿Está para salir?' },
+  'se-puede-salir':  { titulo: 'Está movidito pero manejable',   subtitulo: '¿Está para salir?' },
+  'exigente':        { titulo: 'El mar está exigente',            subtitulo: '¿Está para salir?' },
+  'no-recomendable': { titulo: 'Hoy mejor en tierra',            subtitulo: '¿Está para salir?' },
 };
 
 // ── Bloques narrativos (pantalla principal) ──
@@ -324,7 +325,7 @@ function buildBlocks(d, estado) {
     seaDesc  = 'Puede haber algún movimiento inesperado de vez en cuando.';
   } else if (d.waveH <= 1.0 && d.wavePer >= 5) {
     seaTitle = 'Hay movimiento real. Olas medias con ritmo regular.';
-    seaDesc  = 'Necesitarás equilibrio. El mar está vivo pero es predecible.';
+    seaDesc  = 'Necesitarás equilibrio. El mar está activo pero con ritmo.';
   } else if (d.waveH <= 1.0) {
     seaTitle = 'Mar movido y algo agitado. Las olas no siguen un ritmo claro.';
     seaDesc  = 'Mantenerse de pie exige concentración. Espera sorpresas.';
@@ -349,6 +350,174 @@ function buildBlocks(d, estado) {
   };
 
   return { windTitle, windDesc, seaTitle, seaDesc, closing: cierres[estado] };
+}
+
+// ── Bloques narrativos v2 (pantalla principal) ──
+// Reemplaza buildBlocks() en la Results screen v2.
+// Docs: docs/sistema-mensajes.md
+//
+// Bloque 1 (encounter): depende de waveH + wavePer
+// Bloque 2 (demand):    depende de windKn
+// Bloque 3 (fit):       depende de estado + warnings críticos (alerta/cuidado)
+function buildNarrativeBlocks(d, estado, warnings) {
+  const variabilidad = calcularVariabilidad(d.windKn, d.gustKn);
+
+  // ── Encounter — qué te vas a encontrar ──
+  let encounter;
+  if (d.waveH > 1.5) {
+    encounter = {
+      title: 'El mar está muy revuelto',
+      desc:  'Olas grandes, cortas y sin orden.',
+    };
+  } else if (d.waveH > 1.0 || (d.waveH > 0.6 && d.wavePer < 4)) {
+    encounter = {
+      title: 'El mar está movido y poco ordenado',
+      desc:  'Olas sin ritmo que no dan tregua. Hay que estar muy atento.',
+    };
+  } else if (d.waveH > 0.6) {
+    encounter = {
+      title: 'El mar está movido',
+      desc:  'Las olas se notan. No siguen un ritmo claro.',
+    };
+  } else if (d.waveH > 0.3 && d.wavePer < 4) {
+    encounter = {
+      title: 'Olas pequeñas pero constantes',
+      desc:  'Hay movimiento todo el rato. No para, pero tampoco es grave.',
+    };
+  } else if (d.waveH > 0.3) {
+    encounter = {
+      title: 'Algo de movimiento, pero suave',
+      desc:  'Olas pequeñas con ritmo regular. Nada que sorprenda.',
+    };
+  } else if (d.wavePer < 7) {
+    encounter = {
+      title: 'El mar está casi plano',
+      desc:  'Casi plano, pero hay movimiento en la orilla. Puede costar entrar.',
+    };
+  } else {
+    encounter = {
+      title: 'El mar está parado',
+      desc:  'Sin olas ni movimiento. Plano de verdad.',
+    };
+  }
+
+  // ── Demand — qué te va a pedir ──
+  let demand;
+  if (d.windKn > 20) {
+    demand = {
+      title: 'El viento puede arrastrarte',
+      desc:  'El viento puede arrastrarte. Muy difícil mantenerse.',
+    };
+  } else if (d.windKn > 15) {
+    demand = {
+      title: 'El viento empuja fuerte',
+      desc:  'El viento empuja fuerte. Mantener el equilibrio exige concentración.',
+    };
+  } else if (d.windKn > 10) {
+    demand = {
+      title: 'El viento ya condiciona',
+      desc:  'El viento no es constante y puede pillarte. Remar empieza a costar.',
+    };
+  } else if (d.windKn > 5) {
+    demand = {
+      title: 'Viento suave, rema cómodo',
+      desc:  'Hay algo de viento, pero no molesta ni condiciona.',
+    };
+  } else {
+    demand = {
+      title: 'Remar está fácil',
+      desc:  'Sin resistencia. Se avanza tranquilamente.',
+    };
+  }
+
+  // Override: cuando el mar corto es lo que exige, no el viento
+  if (d.wavePer < 4 && d.waveH > 0.3 && d.windKn <= 5) {
+    demand = {
+      title: 'El mar no para quieto',
+      desc:  'El viento es suave, pero el mar te moverá todo el rato.',
+    };
+  }
+
+  // Override: ola media con viento suave — el equilibrio exige más que el esfuerzo de remar
+  if (d.waveH > 0.6 && d.windKn <= 5) {
+    demand = {
+      title: 'Las olas mandan',
+      desc:  'El viento no molesta, pero las olas te moverán sin parar.',
+    };
+  }
+
+  // Override: variabilidad alta con viento base suave — la media no refleja la experiencia real.
+  // Solo aplica si la ola no es ya el factor dominante (waveH <= 0.6).
+  // Si no, el override de ola anterior ya ha puesto el mensaje correcto.
+  if (variabilidad > 6 && d.windKn <= 10 && d.waveH <= 1.0) {
+    demand = {
+      title: 'El viento engaña',
+      desc:  'El viento engaña: calma y de repente empuja fuerte.',
+    };
+  }
+
+  // Override: terral activo con viento base suave — el riesgo no viene del esfuerzo de remar.
+  // Solo aplica si la ola NO es ya el factor dominante (waveH <= 0.6).
+  // Si waveH > 0.6, el override de ola anterior ya ha puesto el mensaje correcto
+  // y el terral no debe pisarlo — aparecerá como aviso independiente en la UI.
+  //
+  // DEUDA TÉCNICA: este mecanismo de overrides secuenciales es frágil.
+  // Cuando añadan nuevos casos (rachas vs periodo, mar de viento vs fondo, etc.)
+  // puede volver a romperse. La solución estructural es calcular una variable
+  // dominantFactor = 'sea' | 'wind' | 'offshore' | 'gusts' | 'balanced'
+  // antes de buildNarrativeBlocks() y elegir mensajes por dominancia, no por orden.
+  const terralWarningDemand = warnings.find(w => w.tipo === 'terral');
+  if (terralWarningDemand && d.windKn <= 5 && d.waveH <= 0.6) {
+    if (terralWarningDemand.nivel >= 2) {
+      demand = {
+        title: 'El viento te aleja de la orilla',
+        desc:  'Viento de tierra: te empuja hacia el mar. Si sube, volver costará.',
+      };
+    } else {
+      demand = {
+        title: 'Leve terral, sin drama',
+        desc:  'Leve viento de tierra. Te empuja un poco. Sin drama.',
+      };
+    }
+  }
+
+  // ── Fit — para quién encaja ──
+  const hasCriticalWarnings = warnings.some(
+    w => w.categoria === 'alerta' || w.categoria === 'cuidado'
+  );
+
+  let fit;
+  switch (estado) {
+    case 'piscina':
+      fit = {
+        title: 'Fácil incluso si es tu primera vez.',
+        desc:  'Da igual el nivel. Es perfecto incluso si es tu primera vez.',
+      };
+      break;
+    case 'muy-agradable':
+      fit = {
+        title: 'Apto para casi todos.',
+        desc:  'Si has salido alguna vez, lo vas a disfrutar sin problema.',
+      };
+      break;
+    case 'se-puede-salir':
+      fit = { title: 'Mejor si ya has salido alguna vez.', desc: 'Si ya controlas la tabla, es buen día. Si no, puede costar.' };
+      break;
+    case 'exigente':
+      fit = {
+        title: 'Solo para gente con experiencia.',
+        desc:  'Sin control real, lo vas a pasar mal.',
+      };
+      break;
+    case 'no-recomendable':
+    default:
+      fit = {
+        title: 'No es seguro para nadie hoy.',
+        desc:  'Las condiciones no son seguras, independientemente del nivel.',
+      };
+  }
+
+  return { encounter, demand, fit };
 }
 
 // ── Para quién es ──
@@ -392,110 +561,6 @@ function getUserFit(estado, warnings) {
   }
 }
 
-// ── Info técnica expandible (3 párrafos por métrica) ──
-function buildTechBlocks(d, estado) {
-  const variabilidad = calcularVariabilidad(d.windKn, d.gustKn);
-
-  let windP1, windP2, windP3;
-  if (d.windKn <= 6) {
-    windP1 = 'El viento es muy suave. Apenas lo notarás al remar.';
-    windP2 = 'El mar se mantiene cómodo y fácil de controlar.';
-    windP3 = 'Por debajo de 6 nudos se habla de calma. Condiciones ideales para SUP.';
-  } else if (d.windKn <= 10) {
-    windP1 = 'El viento sopla con brisa ligera. Se nota al remar, pero no molesta.';
-    windP2 = 'Las condiciones son manejables y el esfuerzo, normal.';
-    windP3 = 'Entre 7 y 10 nudos es brisa ligera (Beaufort 2–3). Cómodo para paddle surf.';
-  } else if (d.windKn <= 15) {
-    windP1 = 'El viento es moderado. Remar contra él ya empieza a costar.';
-    windP2 = 'Notarás el esfuerzo en la vuelta si el viento está en contra.';
-    windP3 = 'Entre 11 y 15 nudos (Beaufort 3–4) el viento empieza a condicionar la salida.';
-  } else if (d.windKn <= 20) {
-    windP1 = 'El viento es fuerte. Puede cansarte rápido y complicar el control de la tabla.';
-    windP2 = 'Si el viento sopla contra ti, volver puede ser muy difícil.';
-    windP3 = 'Por encima de 15 nudos (Beaufort 4) las condiciones se complican para SUP recreativo.';
-  } else {
-    windP1 = 'El viento es demasiado fuerte para estar en el agua.';
-    windP2 = 'Una racha puede echarte al agua lejos de la orilla.';
-    windP3 = 'Por encima de 20 nudos (Beaufort 5) no es seguro salir en tabla.';
-  }
-
-  let gustP1, gustP2, gustP3;
-  if (variabilidad < 4) {
-    gustP1 = 'Las rachas son muy leves. El viento es estable y constante.';
-    gustP2 = 'No habrá sorpresas ni empujones bruscos.';
-    gustP3 = 'Poca diferencia entre viento base y rachas: el viento es muy regular.';
-  } else if (variabilidad < 7) {
-    gustP1 = 'Hay alguna racha puntual. El viento base sigue siendo estable.';
-    gustP2 = 'Pueden pillarte descolocado de vez en cuando, sin ser peligroso.';
-    gustP3 = 'Diferencia moderada entre base y rachas. Normal en condiciones costeras.';
-  } else if (variabilidad < 11) {
-    gustP1 = 'Las rachas son importantes aunque el viento base parezca tranquilo.';
-    gustP2 = 'Pueden desestabilizarte. Mantén una posición baja en la tabla.';
-    gustP3 = 'Diferencia alta entre base y rachas. Hay que estar muy atento.';
-  } else {
-    gustP1 = 'Las rachas son peligrosas incluso si el viento base parece tranquilo.';
-    gustP2 = 'Una racha puede empujarte hacia mar abierto o echarte al agua.';
-    gustP3 = 'Diferencia muy alta entre base y rachas. No es seguro sin mucha experiencia.';
-  }
-
-  let seaP1, seaP2, seaP3;
-  if (d.waveH <= 0.3) {
-    seaP1 = 'Las olas son muy pequeñas. El mar está casi plano.';
-    seaP2 = 'El equilibrio es fácil y el esfuerzo para mantenerte de pie es mínimo.';
-    seaP3 = 'Por debajo de 0.3 m el mar se considera plano. Condiciones ideales.';
-  } else if (d.waveH <= 0.6) {
-    seaP1 = 'Las olas son pequeñas. Habrá algo de balanceo, pero controlable.';
-    seaP2 = 'Con estas olas el equilibrio no es difícil para alguien con algo de práctica.';
-    seaP3 = 'Entre 0.3 y 0.6 m hay movimiento, pero no es preocupante.';
-  } else if (d.waveH <= 1.0) {
-    seaP1 = 'Las olas son medianas. El mar tiene movimiento real.';
-    seaP2 = 'Mantener el equilibrio requiere concentración y algo de técnica.';
-    seaP3 = 'Por encima de 0.6 m las condiciones ya se notan. Para quienes tienen práctica.';
-  } else if (d.waveH <= 1.5) {
-    seaP1 = 'Las olas son grandes. El mar está agitado.';
-    seaP2 = 'Mantenerse de pie es difícil. Solo apto para remadores con experiencia.';
-    seaP3 = 'Por encima de 1 m no se recomienda para paddle surf recreativo.';
-  } else {
-    seaP1 = 'Las olas son peligrosas para hacer paddle surf.';
-    seaP2 = 'El riesgo de caer y alejarse de la orilla es muy alto.';
-    seaP3 = 'Por encima de 1.5 m el mar no es apto para actividades recreativas.';
-  }
-
-  let perP1, perP2, perP3;
-  if (d.wavePer >= 7) {
-    perP1 = 'Las olas tienen un ritmo largo y ordenado.';
-    perP2 = 'Un período largo hace las olas predecibles y fáciles de leer.';
-    perP3 = 'Por encima de 7 s se considera oleaje organizado. Fácil de manejar.';
-  } else if (d.wavePer >= 5) {
-    perP1 = 'El mar tiene un ritmo normal. Las olas son manejables.';
-    perP2 = 'Ni demasiado caótico ni demasiado organizado.';
-    perP3 = 'Entre 5 y 7 s es un período normal. El mar se mantiene predecible.';
-  } else if (d.wavePer >= 4) {
-    perP1 = 'Las olas tienen un ritmo algo irregular.';
-    perP2 = 'El mar puede sorprenderte de vez en cuando.';
-    perP3 = 'Por debajo de 5 s las olas son más cortas e impredecibles.';
-  } else {
-    perP1 = 'El mar está nervioso y con olas muy cortas.';
-    perP2 = 'Este tipo de oleaje hace difícil mantener el equilibrio.';
-    perP3 = 'Por debajo de 4 s el mar está muy revuelto. Condiciones complicadas.';
-  }
-
-  const cierres = {
-    'piscina':         'En conjunto, condiciones ideales. No hay mejor día para salir.',
-    'muy-agradable':   'En conjunto, las condiciones acompañan. Disfruta.',
-    'se-puede-salir':  'En conjunto, manejable. Con atención y algo de práctica.',
-    'exigente':        'En conjunto, el agua hoy exige. Solo si tienes experiencia.',
-    'no-recomendable': 'En conjunto, hoy no es el día. Mejor esperar.',
-  };
-
-  return {
-    wind:    { p1: windP1, p2: windP2, p3: windP3 },
-    gusts:   { p1: gustP1, p2: gustP2, p3: gustP3 },
-    sea:     { p1: seaP1,  p2: seaP2,  p3: seaP3  },
-    period:  { p1: perP1,  p2: perP2,  p3: perP3  },
-    closing: cierres[estado],
-  };
-}
 
 // ── Resumen corto (2-3 frases, pantalla principal) ──
 function buildSummary(d, estado) {
