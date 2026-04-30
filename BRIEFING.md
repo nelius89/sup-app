@@ -1,7 +1,7 @@
 # Cocodrift — Briefing del proyecto
 
 > Documento de contexto para IA. Contiene todo lo necesario para retomar el proyecto sin explicaciones previas.
-> Última actualización: abril 2026
+> Última actualización: abril 2026 — v2.2
 
 ---
 
@@ -42,14 +42,14 @@ La arquitectura permite añadir actividades con pesos distintos en el scoring si
 | **Cloudflare Pages** | Hosting + CDN. Rama `main` = producción, `dev` = preview |
 | **Open-Meteo API** | Datos meteorológicos y marinos. Gratuito, sin API key, CORS nativo |
 | **localStorage** | Persistencia de spots y caché de datos. Sin backend ni login |
-| **Service Worker** | PWA offline-first. Cache versionado (`coco-vX`) |
+| **Service Worker** | PWA offline-first. Strategy: network-first, cache `coco-shell` |
 | **Cloudflare Workers** | Worker activo: `coco-suggestions` → recibe sugerencias y las guarda en Notion |
 | **Cloudflare Web Analytics** | Analytics de uso. Sin cookies, GDPR-friendly |
 
 ### Flujo de deploy
 ```
 git push origin dev   →  preview en dev.sup-app.pages.dev
-git push origin main  →  producción en sup-app.pages.dev
+git push origin main  →  producción en cocodrift.pages.dev
 ```
 (El proyecto en Cloudflare Pages aún se llama `sup-app` — pendiente de renombrar)
 
@@ -58,12 +58,11 @@ git push origin main  →  producción en sup-app.pages.dev
 index.html          ← Estructura HTML de todas las vistas y sheets
 css/styles.css      ← Todos los estilos (tokens, vistas, componentes)
 js/app.js           ← Lógica de navegación, render y eventos
-js/score.js         ← Sistema de diagnóstico: scoring, estados, copys, bloques
-js/api.js           ← Llamadas a Open-Meteo, franjas horarias, caché
+js/score.js         ← Sistema de diagnóstico: estados, avisos, copys, bloques narrativos
+js/api.js           ← Llamadas a Open-Meteo, timeline horaria, caché
 js/storage.js       ← Gestión de spots en localStorage
-js/wheel.js         ← Scroll wheel (no en uso activo)
-sw.js               ← Service Worker. Bump de versión al hacer cambios de assets
-manifest.json       ← Configuración PWA
+sw.js               ← Service Worker (network-first, cache coco-shell)
+manifest.json       ← Configuración PWA (v2.2)
 ```
 
 ---
@@ -112,127 +111,146 @@ Respuesta guardada en localStorage con timestamp. No se vuelve a llamar si han p
 ```
 
 ### Spots de usuario
-Añadidos via geocoding (Open-Meteo geocoding API). Mismo esquema JSON. Guardados en localStorage. Borrables con tap largo.
+- Añadidos via búsqueda (Nominatim con `countrycodes=es`, búsqueda secuencial con prefijos playa/platja/cala)
+- Mismo esquema JSON. Guardados en localStorage. Borrables con tap largo.
+- **Límite: 4 spots de usuario.** Si se supera, aparece popup "sardinas" informando del límite.
+- Los resultados de búsqueda muestran estrella para marcar favorito antes de guardar.
 
 ---
 
-## Sistema de diagnóstico — 3 capas
+## Sistema de diagnóstico v2 — Reglas directas
 
-### CAPA 1 — Score global (0–10) y los 5 estados
+El paradigma central: **reglas directas por variable**, no scoring ponderado. Cada variable tiene umbrales absolutos que determinan el estado. No hay compensaciones entre variables.
 
-**Pesos del score:**
-```
-Viento   35%  ·  Ola   35%  ·  Rachas   15%  ·  Período   10%  ·  Nubes   5%
-```
+### Los 5 estados
 
-**Sub-scores de viento (kn):**
-≤6 → 10 · ≤10 → 8 · ≤14 → 5 · ≤19 → 3 · >19 → 0
+| Estado | Título visible |
+|---|---|
+| `piscina` | Se está como en una piscina |
+| `muy-agradable` | Está super agradable |
+| `se-puede-salir` | Está movidito pero manejable |
+| `exigente` | El mar está exigente |
+| `no-recomendable` | Hoy mejor en tierra |
 
-**Sub-scores de ola (m):**
-≤0.3 → 10 · ≤0.6 → 8 · ≤1.0 → 5 · ≤1.5 → 2 · >1.5 → 0
+### Reglas de estado (en orden de prioridad)
 
-**Sub-scores de rachas (kn):**
-≤8 → 10 · ≤12 → 7 · ≤16 → 4 · ≤20 → 2 · >20 → 0
+**No recomendable** — cualquiera de estas:
+- Tormenta (weathercode ≥ 95)
+- windKn > 20 · gustKn > 28 · waveH > 1.5
+- wavePer < 3 y waveH > 0.5
+- terral nivel 3 y windKn > 8
 
-**Sub-scores de período (s):**
-≥7 → 10 · ≥5 → 8 · ≥4 → 6 · <4 → 3
+**Exigente** — cualquiera de estas:
+- windKn > 15 · gustKn > 22 · waveH > 1.0
+- wavePer < 4 y waveH > 0.3
 
-**Sub-scores de nubes (%):**
-≤20 → 10 · ≤50 → 8 · ≤80 → 6 · >80 → 5
+**Se puede salir** — cualquiera de estas:
+- windKn > 10 · gustKn > 16 · variabilidad > 6 · waveH > 0.6
+- wavePer < 5
+- terral nivel 2 y windKn > 5
 
-**Los 5 estados y sus umbrales:**
+**Piscina** — TODAS estas:
+- windKn ≤ 6 · gustKn ≤ 10 · variabilidad < 4 · waveH ≤ 0.3 · wavePer ≥ 7 · terral = 0
 
-| Estado | Score | Título | Subtítulo |
-|---|---|---|---|
-| `perfecto` | ≥ 8.5 | Hoy es de los buenos | Yo no me lo perdería |
-| `bueno` | 7.0–8.5 | Hoy se puede salir | Si te apetece, se está a gusto |
-| `aceptable` | 5.0–7.0 | Hoy, depende... | Solo si estás acostumbrado |
-| `complicado` | 3.0–5.0 | Mejor otro día | Hoy lo dejaría |
-| `no-salir` | < 3.0 o tormenta (weathercode ≥ 95) | Hoy mejor quedarse en casa | No está el agua para nadie |
+**Muy agradable** — todo lo que no encaja en los anteriores.
 
-### CAPA 2 — Aviso terral
+### Regla de acumulación
+Si hay ≥ 2 avisos de nivel 3 activos, el estado baja uno en la escala.
 
-El terral (viento de tierra hacia el mar) es un riesgo de seguridad real e independiente del score. Aparece como pill compacta encima del diagnóstico. Tiene 3 niveles:
+---
 
-| Nivel | Condición | Label pill | Consejo |
-|---|---|---|---|
-| 1 — Leve | windKn < 6 y gustKn < 10 | TERRAL LEVE | Puedes salir, pero no te alejes de la orilla |
-| 2 — Relevante | windKn 6–10 o rachas moderadas | TERRAL RELEVANTE | Quédate cerca de la orilla en todo momento |
-| 3 — Fuerte | windKn > 10 o gustKn > 16 | TERRAL FUERTE | Hoy es mejor quedarse en tierra |
+## Sistema de avisos
 
-`offshore_range` para BCN/Badalona: [225, 315] grados.
+Cuatro tipos de aviso, cada uno con 3 niveles. Los de categoría `narrativa` se absorben en los bloques de texto — no generan bloque visual propio.
 
-### CAPA 3 — Info técnica (sheet expandible)
+| Tipo | Niveles | Categorías |
+|---|---|---|
+| rachas | 1/2/3 | narrativa · a-tener-en-cuenta · alerta |
+| variabilidad | 1/2/3 | narrativa · a-tener-en-cuenta · cuidado |
+| mar | 1/2/3 | narrativa · a-tener-en-cuenta · cuidado |
+| terral | 1/2/3 | a-tener-en-cuenta · cuidado · alerta |
 
-Sheet en la parte inferior, siempre visible en modo peek (handle + etiqueta "Desplegar información técnica completa"). Al expandir, fondo de la vista cambia a azul. Contiene 4 métricas con tarjeta de valor + 3 párrafos explicativos cada una:
-- Viento (kn)
-- Rachas (kn)
-- Ola (m)
-- Período (s)
+**Variabilidad** = `max(0, gustKn − windKn)`. Variable propia de Cocodrift — no existe en literatura técnica de SUP.
+
+### Aviso terral
+El terral (viento de tierra hacia el mar) es un riesgo de seguridad independiente del estado. `offshore_range` para BCN/Badalona: [225, 315] grados. Modificador: +1 nivel si waveH > 0.6 y spot no protegido y windKn ≥ 5.
+
+Las tarjetas de aviso con categoría `cuidado` y `alerta` tienen fondo tintado (ámbar) para diferenciarse visualmente. El terral aparece como pill compacta encima del diagnóstico.
+
+### Alerta consolidada
+Cuando el estado es `no-recomendable`, todos los avisos se fusionan en un único párrafo explicativo. El título ya dice todo — esto añade el porqué.
+
+---
+
+## Bloques narrativos
+
+La función `buildBlocks(d, estado)` genera los textos del diagnóstico principal describiendo las condiciones como experiencia, no como datos:
+
+- `encounter-desc` — qué te vas a encontrar
+- `demand-desc` — qué te va a pedir
+- `fit-title` — para quién encaja
+
+Los avisos de categoría `narrativa` (nivel 1) quedan absorbidos en este copy.
 
 ---
 
 ## Estructura de pantallas
 
 ### Home (fondo azul #314fff)
-- Animación de 3 frames del cocodrilo (ilustraciones FR1.png, FR2.png, FR-3.png)
-- Lista de spots: cada spot es un botón pill con nombre. A la izquierda, abreviatura de ciudad
-- Tap en spot → pantalla Resultados
-- Tap largo en spot de usuario → modo borrar (badge ✕)
-- Botón + al final de la lista → abre buscador de playas
-- Hamburger (arriba derecha) → menú lateral con "Acerca de Cocodrift" y "Sugerencias"
+- Header: botón info circular (izquierda) · botón instalar PWA (derecha, oculto si ya instalada)
+- Logo Cocodrift (`Logo.png`, 65% ancho)
+- Cocodrilo animado: video loop WebM VP9 con canal alpha (`coco-loop.webm`), solapado sobre el logo
+- Lista de spots: pills con nombre. Tap → pantalla Resultados. Tap largo → modo borrar (badge ✕)
+- Límite 4 spots de usuario. El botón + abre el buscador de playas.
+- Sheet "Acerca de": bottom sheet accesible desde el botón info. Incluye versión, descripción, disclaimer y contacto/sugerencias.
 
 ### Resultados (fondo beige #f9f6ef)
 
-**Bloque 1 — Header + navegación temporal**
-- Header: ← (back) · nombre spot + icono tiempo + temperatura (centrados) · hamburger
-- Selector de días (7 botones: Hoy, Sáb, Dom...)
-- Slider de franja horaria (0–6)
-- Franja activa: icono + nombre de franja (encima) + horas (debajo). Ejemplo: "MAÑANA / 6h–8h"
+**Zona azul (fija):**
+- Topbar: ← back (izquierda) · estrella favorito (derecha)
+- Hero: nombre del spot + fila ciudad con icono pin
+- Timeline horaria deslizable: label día fijo encima + slots horarios con snap magneto + bocadillo blanco sólido sobre el slot activo
 
-**Bloque 2 — Diagnóstico principal**
-- Pill de terral (si aplica) — negra, compacta, clicable para expandir el sheet
-- Ilustración del cocodrilo (visible solo en estados perfecto y bueno por ahora)
-- Título del estado (grande, azul)
-- Subtítulo del estado (gris azulado)
-- Bloque viento: icono (izquierda) + título bold (azul) + descripción (gris claro). Alineado a la izquierda
-- Bloque mar: ídem
-
-**Bloque 3 — Sheet técnico (expandible)**
-- Handle con barra y etiqueta
-- Al expandir: fondo de pantalla → azul
-- Bloque terral (si aplica), 4 tech-rows (Viento / Rachas / Ola / Período), cierre
+**Zona beige (scroll):**
+- Bocadillo: título del estado (grande) + divider + 3 líneas narrativas (encounter · demand · fit)
+- Ilustración del cocodrilo por estado (SVG, debajo del bocadillo)
+- Botón "Ver información técnica ↓"
+- Tech blocks: tarjetas blancas independientes con datos de Viento, Rachas, Ola, Período. Tarjetas con aviso tienen fondo ámbar tintado.
+- Botón "Informar error" al final
 
 ---
 
-## Franjas horarias
+## Timeline horaria
 
-| Índice | Nombre | Horas |
-|---|---|---|
-| 0 | Madrugada | 0h–5h |
-| 1 | Mañana | 6h–8h |
-| 2 | Media mañana | 9h–11h |
-| 3 | Mediodía | 12h–14h |
-| 4 | Tarde | 15h–17h |
-| 5 | Atardecer | 18h–20h |
-| 6 | Noche | 21h–23h |
+Reemplaza el sistema anterior de selector día + 4 franjas fijas. Slots horarios deslizables (0h–23h), agrupados en intervalos. Al cargar, el slot activo se alinea a la izquierda automáticamente. Snap magneto al soltar.
 
-Los datos de cada franja son el promedio de los valores horarios dentro de ese bloque. Al cargar, se selecciona automáticamente la franja correspondiente a la hora actual.
+Los datos de cada slot son el promedio de los valores horarios dentro de ese bloque.
 
 ---
 
-## Sistema de bloques (copys de pantalla principal)
+## Ilustraciones (v2.2)
 
-La función `buildBlocks(d, estado)` genera los textos del Bloque 2 combinando viento + rachas y ola + período en frases naturales:
+```
+assets/illustrations/
+  Home/
+    Logo.png              ← logotipo Cocodrift
+    coco-loop.webm        ← video loop cocodrilo (VP9, alpha, ~1.7MB)
+  Resolucion/
+    Estados/              ← ilustración por estado en pantalla de resultados
+      Piscina.svg
+      Muyagradable.svg
+      Sepuedesalir.svg
+      Exigente.svg
+      Norecomendable.svg
+    Bloques/              ← iconos para los 3 bloques narrativos
+      1 quetevasaencontrar.svg
+      2 quetevaapedir.svg
+      3 paraquienencaja.svg
+  Bueno.svg / Perfecto.svg  ← legado v2.0, no en uso activo
+  FR1.png, FR2.png, FR-3.png ← legado v1, no en uso activo
+```
 
-- `windTitle` — frase corta que resume viento y rachas (bold, azul)
-- `windDesc` — consecuencia para el remador (gris claro)
-- `seaTitle` — frase corta que resume ola y período (bold, azul)
-- `seaDesc` — consecuencia para el remador (gris claro)
-
-Ejemplos reales:
-- windTitle: "El viento sopla muy suave y constante." / windDesc: "No lo vas a notar al remar."
-- seaTitle: "El mar está plano, con olas cortas y algo nerviosas." / seaDesc: "Puede haber algún movimiento irregular puntual."
+Iconos PWA en `assets/icons/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`.
 
 ---
 
@@ -240,26 +258,13 @@ Ejemplos reales:
 
 | Token | Valor | Uso |
 |---|---|---|
-| `--blue` | `#314fff` | Color principal, fondo Home, acentos |
+| `--blue` | `#314fff` | Color principal, fondo Home, zona azul resultados |
 | `--beige` | `#f9f6ef` | Fondo Resultados, textos sobre azul |
 | `--black` | `#0a0a0a` | Textos |
-| `--white` | `#ffffff` | Textos sobre azul expandido |
+| `--white` | `#ffffff` | Textos sobre azul |
+| `--amber` | unificado | Tarjetas de aviso (cuidado/alerta) |
 
 **Tipografía:** Geist Mono (Google Fonts). Una sola familia, todos los pesos desde ella.
-
-**Modo expandido:** cuando el sheet técnico está abierto, `body.sheet-expanded` pone el fondo de `.view--results` en azul y adapta todos los colores del header a blanco.
-
----
-
-## Ilustraciones actuales
-
-Ubicadas en `assets/illustrations/`:
-- `FR1.png`, `FR2.png`, `FR-3.png` — animación de 3 frames en la Home
-- `Perfecto.png` — ilustración para el estado perfecto (en resultados)
-- `Bueno.png` — ilustración para el estado bueno (en resultados)
-- Estados aceptable, complicado y no-salir: sin ilustración por ahora (espacio vacío)
-
-Iconos PWA en `assets/icons/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`.
 
 ---
 
@@ -270,4 +275,5 @@ Iconos PWA en `assets/icons/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon
 - Comparativa de spots en paralelo
 - Datos de mareas
 - Login / sync entre dispositivos
-- Soporte a otras actividades (kite, surf, vela...) — arquitectura preparada, pendiente de implementar
+- Soporte a otras actividades (kite, surf, vela...) — arquitectura preparada, pendiente
+- Vista de 7 días — arquitectura pendiente
