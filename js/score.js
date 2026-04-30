@@ -501,9 +501,7 @@ function buildNarrativeBlocks(d, estado, warnings) {
       };
       break;
     case 'se-puede-salir':
-      fit = hasCriticalWarnings
-        ? { title: 'Solo para gente con experiencia.', desc: 'Sin control real, lo vas a pasar mal.' }
-        : { title: 'Mejor si ya has salido alguna vez.', desc: 'Si ya controlas la tabla, es buen día. Si no, puede costar.' };
+      fit = { title: 'Mejor si ya has salido alguna vez.', desc: 'Si ya controlas la tabla, es buen día. Si no, puede costar.' };
       break;
     case 'exigente':
       fit = {
