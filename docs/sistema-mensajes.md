@@ -1,5 +1,5 @@
 # Cocodrift — Sistema de mensajes
-_Documento vivo. Última actualización: abril 2026. Versión: v2.1_
+_Documento vivo. Última actualización: abril 2026. Versión: v2.2_
 
 ---
 

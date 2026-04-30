@@ -87,7 +87,7 @@ async function searchSpots(query) {
   }
 }
 
-// ── Franjas horarias (v2.1: 4 franjas) ──
+// ── Franjas horarias (v2.2: 4 franjas) ──
 const FRANJAS = [
   { id: 'amanecer', label: 'Amanecer', hours: [6, 7, 8],                                range: '6:00 – 9:00'  },
   { id: 'dia',      label: 'Día',      hours: [9, 10, 11, 12, 13, 14, 15, 16, 17],      range: '9:00 – 18:00' },
