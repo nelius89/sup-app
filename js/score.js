@@ -28,8 +28,9 @@ function calcularRiesgoTerral(windKn, gustKn, windDir, waveH, spot) {
     level = 2;
   }
 
-  // Modificador de ola: +1 si ola > 0.6 m y spot no protegido
-  if (waveH > 0.6 && !spot.protected) {
+  // Modificador de ola: +1 si ola > 0.6 m, spot no protegido Y viento con peso real.
+  // Sin viento mínimo (>= 5 kn), el offshore es tan débil que la ola no agrava el riesgo.
+  if (waveH > 0.6 && !spot.protected && windKn >= 5) {
     level = Math.min(level + 1, 3);
   }
 
@@ -190,7 +191,7 @@ function calcEstadoBase(d, weathercode, terralLevel) {
   if (variabilidad > 6)                         return 'se-puede-salir';
   if (d.waveH > 0.6)                            return 'se-puede-salir';
   if (d.wavePer < 5)                            return 'se-puede-salir';
-  if (terralLevel === 2)                        return 'se-puede-salir';
+  if (terralLevel === 2 && windKn > 5)           return 'se-puede-salir';
 
   // Piscina — TODAS las condiciones deben cumplirse
   if (
@@ -448,7 +449,7 @@ function buildNarrativeBlocks(d, estado, warnings) {
   // Override: variabilidad alta con viento base suave — la media no refleja la experiencia real.
   // Solo aplica si la ola no es ya el factor dominante (waveH <= 0.6).
   // Si no, el override de ola anterior ya ha puesto el mensaje correcto.
-  if (variabilidad > 6 && d.windKn <= 5 && d.waveH <= 0.6) {
+  if (variabilidad > 6 && d.windKn <= 10 && d.waveH <= 0.6) {
     demand = {
       title: 'El viento engaña',
       desc:  'El viento engaña: calma y de repente empuja fuerte.',
