@@ -449,7 +449,7 @@ function buildNarrativeBlocks(d, estado, warnings) {
   // Override: variabilidad alta con viento base suave — la media no refleja la experiencia real.
   // Solo aplica si la ola no es ya el factor dominante (waveH <= 0.6).
   // Si no, el override de ola anterior ya ha puesto el mensaje correcto.
-  if (variabilidad > 6 && d.windKn <= 10 && d.waveH <= 0.6) {
+  if (variabilidad > 6 && d.windKn <= 10 && d.waveH <= 1.0) {
     demand = {
       title: 'El viento engaña',
       desc:  'El viento engaña: calma y de repente empuja fuerte.',
